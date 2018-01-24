@@ -1,0 +1,41 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jan 19, 2018, 11:35:05 AM
+    Author     : se-mikblom-01
+*/
+
+.nobootstrap form p.help-block {
+    margin-top: 0;
+    font-style: italic;
+}
+
+.col-xs-4 {
+    width: 33.33333%;
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    box-sizing: border-box;
+    margin-top: 15px;
+    min-height: 90px;
+}
+
+.col-xs-2 {
+    width: 16.66667%;
+}
+
+.col-xs-4 .panel {
+    position: relative;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: solid 1px #d3d8db;
+    background-color: #fff;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+}
