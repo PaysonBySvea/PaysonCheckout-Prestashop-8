@@ -13,8 +13,15 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
         $this->addJS(_MODULE_DIR_.'paysoncheckout2/views/js/paysoncheckout2.js');
     }
 
-    public function postProcess()
-    {
+    public function postProcess() {
+        if (Tools::getIsset('chkorder') && Tools::getValue('chkorder') == 'chk') {
+            $filePath = rtrim(dirname(dirname(dirname(__FILE__))), '/\\') . DIRECTORY_SEPARATOR . 'store/' . $this->context->cart->id . "_or.txt";
+            if (file_exists($filePath)) {
+                unlink($filePath);
+                die('reload');
+            }
+            die('wait');
+        }
 
         if (Tools::isSubmit('savemessagebutton')) {
             $messageContent = Tools::getValue('message');
@@ -75,7 +82,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             }
         }
 
-        if(_PCO_LOG_){Logger::addLog('Carrier ID: ' . $this->context->cart->id_carrier, 1, NULL, NULL, NULL, true);}
         if (Tools::getIsset('delivery_option')) {
             if ($this->validateDeliveryOption(Tools::getValue('delivery_option'))) {
                 $this->context->cart->setDeliveryOption(Tools::getValue('delivery_option'));
@@ -85,9 +91,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             }
 
             if (!$this->context->cart->update()) {
-                $this->context->smarty->assign(array(
-                    'vouchererrors' => $this->module->l('Could not save carrier selection', 'pconepage'),
-                ));
+                $this->context->smarty->assign(array('vouchererrors' => $this->module->l('Could not save carrier selection', 'pconepage'),));
                 if(_PCO_LOG_){Logger::addLog('Unable to update delivey option.', 1, NULL, NULL, NULL, true);}
             }
 
@@ -99,20 +103,21 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
     public function initContent() {
         parent::initContent();
-        
+
         if(_PCO_LOG_){Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, NULL, NULL, NULL, true);}
         
-        if (!isset($this->context->cart->id)) {
+        if (!isset($this->context->cart->id) || $this->context->cart->nbProducts() < 1) {
+            if (Tools::getIsset('pco_update') and Tools::getValue('pco_update') == '1') {
+                exit();
+            }
             Tools::redirect('index.php');
         }
         
-        //if(_PCO_LOG_){Logger::addLog('Cart: ' . print_r($this->context->cart, TRUE), 1, NULL, NULL, NULL, true);}
-        
         // Set delivery option on cart if needed
         if (!$this->context->cart->getDeliveryOption(null, true)) {
-            if(_PCO_LOG_){Logger::addLog('Added default delivery: ' . print_r($this->context->cart->getDeliveryOption(), TRUE), 1, NULL, NULL, NULL, true);}
             $this->context->cart->setDeliveryOption($this->context->cart->getDeliveryOption());
             $this->context->cart->save();
+            if(_PCO_LOG_){Logger::addLog('Added default delivery: ' . print_r($this->context->cart->getDeliveryOption(), TRUE), 1, NULL, NULL, NULL, true);}
         }
         
         // Check if rules apply
@@ -121,13 +126,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
         $cartCurrency = new Currency($this->context->cart->id_currency);
         if(_PCO_LOG_){Logger::addLog('Cart Currency: ' . $cartCurrency->iso_code, 1, NULL, NULL, NULL, true);}
-        
-        // AJAX call should have pco_update set to 1, no checkout if no products in cart
-        if (Tools::getIsset('pco_update') and Tools::getValue('pco_update') == '1') {
-            if ($this->context->cart->nbProducts() < 1) {
-                die;
-            }
-        }
 
         if (isset($this->context->cart) && $this->context->cart->nbProducts() > 0) {
             $cartQuantities = $this->context->cart->checkQuantities(true);
@@ -245,38 +243,18 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             $this->context->smarty->assign('gift', $this->context->cart->gift);
             $this->context->smarty->assign('gift_message', $this->context->cart->gift_message);
             $this->context->smarty->assign('giftAllowed', (int) (Configuration::get('PS_GIFT_WRAPPING')));
-            $this->context->smarty->assign(
-                'gift_wrapping_price',
-                Tools::convertPrice(
-                    $wrapping_fees_tax_inc,
-                    $cartCurrency
-                )
-            );
-            $this->context->smarty->assign(
-                'message',
-                Message::getMessageByCartId((int) ($this->context->cart->id))
-            );
+            $this->context->smarty->assign('gift_wrapping_price',Tools::convertPrice($wrapping_fees_tax_inc,$cartCurrency));
+            $this->context->smarty->assign('message', Message::getMessageByCartId((int) ($this->context->cart->id)));
             
             $free_fees_price = 0;
-            $configuration = Configuration::getMultiple(
-                array(
-                    'PS_SHIPPING_FREE_PRICE',
-                    'PS_SHIPPING_FREE_WEIGHT'
-                )
-            );
+            $configuration = Configuration::getMultiple(array('PS_SHIPPING_FREE_PRICE','PS_SHIPPING_FREE_WEIGHT'));
             
             if (isset($configuration['PS_SHIPPING_FREE_PRICE']) && $configuration['PS_SHIPPING_FREE_PRICE'] > 0) {
                 $free_fees_price = Tools::convertPrice(
                     (float) $configuration['PS_SHIPPING_FREE_PRICE'],
                     Currency::getCurrencyInstance((int) $this->context->cart->id_currency)
                 );
-                $orderTotalwithDiscounts = $this->context->cart->getOrderTotal(
-                    true,
-                    Cart::BOTH_WITHOUT_SHIPPING,
-                    null,
-                    null,
-                    false
-                );
+                $orderTotalwithDiscounts = $this->context->cart->getOrderTotal(true,Cart::BOTH_WITHOUT_SHIPPING,null,null,false);
                 $left_to_get_free_shipping = $free_fees_price - $orderTotalwithDiscounts;
                 $this->context->smarty->assign('left_to_get_free_shipping', $left_to_get_free_shipping);
             }

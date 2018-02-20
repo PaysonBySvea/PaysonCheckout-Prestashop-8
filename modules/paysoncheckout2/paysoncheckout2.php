@@ -13,7 +13,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.0';
+        $this->version = '2.0.1';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
 
@@ -596,32 +596,57 @@ class PaysonCheckout2 extends PaymentModule
         $trackingId = time();
         
         $checkoutUri = $this->context->link->getModuleLink('paysoncheckout2', 'pconepage', array('trackingId' => $trackingId, 'id_cart' => $cart->id));
-        $confirmationUri = $this->context->link->getModuleLink('paysoncheckout2', 'validation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'confirmation'));
+        $confirmationUri = $this->context->link->getModuleLink('paysoncheckout2', 'confirmation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'confirmation'));
         $notificationUri = $this->context->link->getModuleLink('paysoncheckout2', 'notifications', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'notification'));
         $cms = new CMS((int) (Configuration::get('PS_CONDITIONS_CMS_ID')), (int) ($this->context->cookie->id_lang));
         $termsUri = $this->context->link->getCMSLink($cms, $cms->link_rewrite, true);
+        $validationUri = NULL;
+        if(_PCO_LOG_){Logger::addLog('REMOTE_ADDR: ' . print_r($_SERVER['REMOTE_ADDR'], true), 1, NULL, NULL, NULL, true);}
+        if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1','::1'))) {
+            // Validation URI needs to be publicly accessible 
+            $validationUri = $this->context->link->getModuleLink('paysoncheckout2', 'validation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'validation'));
+            if(_PCO_LOG_){Logger::addLog('This is not localhost, use validation URI: ' . $validationUri, 1, NULL, NULL, NULL, true);}
+        }
         
         $paysonMerchant = new PaysonEmbedded\Merchant($checkoutUri, $confirmationUri, $notificationUri, $termsUri, NULL, $payson->moduleVersion);
         $paysonMerchant->reference = $cart->id;
+        $paysonMerchant->validationUri = $validationUri;
+        
         if(_PCO_LOG_){Logger::addLog('PCO Merchant: ' . print_r($paysonMerchant, TRUE), 1, NULL, NULL, NULL, true);}
         
         $paysonOrder = new PaysonEmbedded\PayData($currency->iso_code);
         $paysonOrder->items = $this->orderItemsList($cart, $payson, $currency);
+        
         if(_PCO_LOG_){Logger::addLog('PCO Order: ' . print_r($paysonOrder, TRUE), 1, NULL, NULL, NULL, true);}
         
-        // Default (NULL) is to show all countries
-        $allowedCountries = NULL;
-        if (is_array($this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id)) && count($this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id)) > 0) {
-            $allowedCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
+        //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
+        $activeCountries = Country::getCountries($this->context->language->id, true, false, false);
+        $moduleCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
+        if(_PCO_LOG_){Logger::addLog('Language ID: ' . $this->context->language->id, 1, NULL, NULL, NULL, true);}
+        if(_PCO_LOG_){Logger::addLog('Active countries: ' . print_r($activeCountries, true), 1, NULL, NULL, NULL, true);}
+        if(_PCO_LOG_){Logger::addLog('Module countries: ' . print_r($moduleCountries, true), 1, NULL, NULL, NULL, true);}
+        $allowedDeliveryCountries = array();
+        foreach ($activeCountries as $country) {
+            if (in_array($country['iso_code'], $moduleCountries)) {
+                $allowedDeliveryCountries[] = $country['iso_code'];
+            }
         }
+        if(_PCO_LOG_){Logger::addLog('Valid countries: ' . print_r($allowedDeliveryCountries, true), 1, NULL, NULL, NULL, true);}
+        
+        if (!is_array($allowedDeliveryCountries) || count($allowedDeliveryCountries) < 1) {
+            // NULL will show all countries
+            $allowedDeliveryCountries = NULL;
+        }
+        
         $paysonGui = new PaysonEmbedded\Gui(
                 $this->languagePayson(Language::getIsoById($id_lang)),
                 Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'),
                 Configuration::get('PAYSONCHECKOUT2_VERIFICATION'),
                 (int) Configuration::get('PAYSONCHECKOUT2_REQUIRE_PHONE'),
-                $allowedCountries,
+                $allowedDeliveryCountries,
                 NULL
                 );
+        
         if(_PCO_LOG_){Logger::addLog('PCO GUI: ' . print_r($paysonGui, TRUE), 1, NULL, NULL, NULL, true);}
         
         if (Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
@@ -708,10 +733,6 @@ class PaysonCheckout2 extends PaymentModule
         if(_PCO_LOG_){Logger::addLog('Checkout ID: ' .  $checkout->id, 1, NULL, NULL, NULL, true);}
        
         try {
-            //$paysonApi = $this->getPaysonApiInstance();
-
-            //$checkout = $paysonApi->GetCheckout($checkoutId); 
-
             // Check if order exists
             if ($cart->OrderExists() == false) {
                 $currency = new Currency($cart->id_currency);
@@ -732,45 +753,8 @@ class PaysonCheckout2 extends PaymentModule
                     $address = $this->addPaysonAddressPS(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
                 }
 
-                $new_delivery_options = array();
-                $new_delivery_options[(int) ($address->id)] = $cart->id_carrier.',';
-                $new_delivery_options_serialized = serialize($new_delivery_options);
-                
-                
-                if(_PCO_LOG_){Logger::addLog('Address ID: ' . $address->id, 1, NULL, NULL, NULL, true);}
-                if(_PCO_LOG_){Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, NULL, NULL, NULL, true);}
-                
-                $update_sql = 'UPDATE '._DB_PREFIX_.'cart '.
-                        'SET delivery_option=\''.
-                        pSQL($new_delivery_options_serialized).
-                        '\' WHERE id_cart='.
-                        (int) $cart->id;
-                
-                Db::getInstance()->execute($update_sql);
-                
-                if ($cart->id_carrier > 0) {
-                    $cart->delivery_option = $new_delivery_options_serialized;
-                } else {
-                    $cart->delivery_option = '';
-                }
-                $update_sql = 'UPDATE '._DB_PREFIX_.'cart_product '.
-                    'SET id_address_delivery='.(int) $address->id.
-                    ' WHERE id_cart='.(int) $cart->id;
-                    
-                Db::getInstance()->execute($update_sql);
-                
-                // To refresh/clear cart carrier cache
-                $cart->getPackageList(true);
-                $cart->getDeliveryOptionList(null, true);
-                $cart->getDeliveryOption(null, false, false);
-                
-                // Set carrier
-                $cart->setDeliveryOption($new_delivery_options);
-                
                 $cart->secure_key = $customer->secure_key;
                 $cart->id_customer = $customer->id;
-                //$cart->id_address_delivery = $address->id;
-                //$cart->id_address_invoice = $address->id;
                 $cart->save();
                 
                 $cache_id = 'objectmodel_cart_'.$cart->id.'*';
@@ -782,10 +766,13 @@ class PaysonCheckout2 extends PaymentModule
                 $comment .= $this->l('Cart ID:') . ' ' . $customer->id . "\n";
 
                 // Order total
-                $total = (float) $cart->getOrderTotal(true, Cart::BOTH) < $checkout->payData->totalPriceIncludingTax + 2 && (float) $cart->getOrderTotal(true, Cart::BOTH) > $checkout->payData->totalPriceIncludingTax - 2? (float) $cart->getOrderTotal(true, Cart::BOTH) : $checkout->payData->totalPriceIncludingTax;
+                //$total = (float) $cart->getOrderTotal(true, Cart::BOTH) < $checkout->payData->totalPriceIncludingTax + 2 && (float) $cart->getOrderTotal(true, Cart::BOTH) > $checkout->payData->totalPriceIncludingTax - 2? (float) $cart->getOrderTotal(true, Cart::BOTH) : $checkout->payData->totalPriceIncludingTax;
+                $total = $cart->getOrderTotal(true, Cart::BOTH);
                 
-                if(_PCO_LOG_){Logger::addLog('Calculated Cart total: ' . $total, 1, NULL, NULL, NULL, true);}
-                if(_PCO_LOG_){Logger::addLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH), 1, NULL, NULL, NULL, true);}
+                if(_PCO_LOG_){Logger::addLog('Address ID: ' . $address->id, 1, NULL, NULL, NULL, true);}
+                if(_PCO_LOG_){Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, NULL, NULL, NULL, true);}
+                if(_PCO_LOG_){Logger::addLog('Cart total: ' . $total, 1, NULL, NULL, NULL, true);}
+                if(_PCO_LOG_){Logger::addLog('CreateOrder - Checkout total: ' . $checkout->payData->totalPriceIncludingTax, 1, NULL, NULL, NULL, true);}
                 if(_PCO_LOG_){Logger::addLog('Cart delivery cost: ' . $cart->getOrderTotal(true, Cart::ONLY_SHIPPING), 1, NULL, NULL, NULL, true);}
 
                 // Create order
