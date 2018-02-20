@@ -1,4 +1,4 @@
-
+var tmpshippingvalue = "";
 $(document).ready(function() {
     prestashop.on(
       'updateCart',
@@ -27,25 +27,25 @@ $(document).ready(function() {
 
     function updateCheckout() {
         $.ajax({
-            type: 'GET',
-            url: pcourl,
-            async: true,
-            cache: false,
-            data: 'pco_update=1',
-            success: function(jsonData)
-            {
-                $("#paysonpaymentwindow").html(jsonData);
+                type: 'GET',
+                url: pcourl,
+                async: true,
+                cache: false,
+                data: 'pco_update=1',
+                success: function(jsonData)
+                {
+                    $("#paysonpaymentwindow").html(jsonData);
 
-                setTimeout(function() {
-                    if ($('#paysonpaymentwindow').length) {
-                        $('#paysonpaymentwindow').height('auto');
-                    }
-                }, 1000);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    //console.log(returnData);
-            }
-        });
+                    setTimeout(function() {
+                        if ($('#paysonpaymentwindow').length) {
+                            $('#paysonpaymentwindow').height('auto');
+                        }
+                    }, 1000);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        //alert(jsonData);
+                }
+            });
     }
 
     function sendLockDown() {
@@ -56,45 +56,21 @@ $(document).ready(function() {
                 $('#paysonpaymentwindow').height($('#paysonIframe').height());
             }
         }
-    }
-
+   }
+    
     setTimeout(function() {
         if ($('#paysonpaymentwindow').length) {
             $('#paysonpaymentwindow').height('auto');
         }
     }, 1000);
     
-    function reloadOnError() {
-        $.ajax({
-            type: 'GET',
-            url: pcourl,
-            async: true,
-            cache: false,
-            data: 'chkorder=chk',
-            success: function(returnData)
-            {
-                if (returnData == 'reload') {
-                    sendLockDown();
-                    location.href = pcourl;
-                }
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    //console.log(returnData);
-            }
-        });
-    }
-    
-    setInterval(function () {
-        reloadOnError();
-    }, 3000);
-    
 });
 
 $(window).resize(function() {
-        //if ($('#paysonIframe').length && $('#paysonpaymentwindow').length) {
+        if ($('#paysonIframe').length && $('#paysonpaymentwindow').length) {
             //$('#paysonpaymentwindow').height($('#paysonIframe').height());
             //$('#paysonpaymentwindow').height('auto');
-        //}
+        }
 
         if (window.matchMedia('(max-width: 975px)').matches) {
             if ($('#payson_cart_summary_wrapp .right-col').length) {
