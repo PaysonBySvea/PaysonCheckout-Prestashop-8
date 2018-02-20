@@ -4,7 +4,7 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
     public function setMedia()
     {
         parent::setMedia();
-        $this->context->controller->addCSS(_MODULE_DIR_.'paysoncheckout2/views/css/paysoncheckout2.css', 'all');
+        $this->context->controller->addCSS(_MODULE_DIR_.'paysoncheckout2/views/css/payson_checkout2.css', 'all');
     }
     
     public function init() {

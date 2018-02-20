@@ -9,8 +9,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
     public function setMedia()
     {
         parent::setMedia();
-        $this->context->controller->addCSS(_MODULE_DIR_.'paysoncheckout2/views/css/paysoncheckout2.css', 'all');
-        $this->addJS(_MODULE_DIR_.'paysoncheckout2/views/js/paysoncheckout2.js');
+        $this->context->controller->addCSS(_MODULE_DIR_.'paysoncheckout2/views/css/payson_checkout2.css', 'all');
+        $this->addJS(_MODULE_DIR_.'paysoncheckout2/views/js/payson_checkout2.js');
     }
 
     public function postProcess() {
