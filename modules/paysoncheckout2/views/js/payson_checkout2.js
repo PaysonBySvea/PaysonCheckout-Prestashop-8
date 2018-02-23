@@ -1,10 +1,12 @@
-
 $(document).ready(function() {
     prestashop.on(
       'updateCart',
       function (event) {
-          sendLockDown();
-          updateCheckout();
+          if (event.reason !== 'orderChange') {
+            sendLockDown();
+            var callData = {pco_update: '1'};
+            updateCheckout(callData, false, true);
+        }
       }
     );
 
@@ -17,30 +19,66 @@ $(document).ready(function() {
         });
     });
     
+    // Change carrier
     $('.payson-select-list__item').each(function() {
         var el = $(this);
         el.click(function(){
-            el.siblings().removeClass('selected');
-            el.addClass('selected');
+            if (!el.hasClass('selected')) {
+                var deliveryId = el.find('input[type=radio]').val();
+                var callData = {pco_update: '1', delivery_option: {0:deliveryId}};
+                el.siblings().removeClass('selected');
+                el.addClass('selected');
+                sendLockDown();
+                updateCheckout(callData, true,  true);
+            }
+            
         });
     });
+    
+    // Order message
+    $('#savemessagebutton').click(function() {
+        var message = $('#message').val();
+        var callData = {pco_update: '1', message: message};
+        sendLockDown();
+        updateCheckout(callData, true, false);
+    });
+    
+    // Gift wrapping
+    $('#savegiftbutton').click(function() {
+        var gift = 0;
+        if ($('#gift').is(':checked')) {
+            gift = 1;
+        }
+        var gift_message = $('#gift_message').val();
+        var callData = {pco_update: '1', gift_message: gift_message, gift: gift};
+        sendLockDown();
+        updateCheckout(callData, true, true);
+    });
 
-    function updateCheckout() {
+    function updateCheckout(callData, updateCart, updateCheckout) {
         $.ajax({
             type: 'GET',
             url: pcourl,
             async: true,
             cache: false,
-            data: 'pco_update=1',
-            success: function(jsonData)
+            data: callData,
+            success: function(returnData)
             {
-                $("#paysonpaymentwindow").html(jsonData);
-
-                setTimeout(function() {
-                    if ($('#paysonpaymentwindow').length) {
-                        $('#paysonpaymentwindow').height('auto');
-                    }
-                }, 1000);
+                if (updateCheckout === true) {
+                    $("#paysonpaymentwindow").html(returnData);
+                    setTimeout(function() {
+                        if ($('#paysonpaymentwindow').length) {
+                            $('#paysonpaymentwindow').height('auto');
+                        }
+                    }, 1000);
+                }
+                if (updateCart === true) {
+                    prestashop.emit('updateCart', {
+                        reason: 'orderChange'
+                    });
+                }
+                
+                sendRelease();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                     //console.log(returnData);
@@ -55,6 +93,12 @@ $(document).ready(function() {
                 // To prevent height flash when iframe reload
                 $('#paysonpaymentwindow').height($('#paysonIframe').height());
             }
+        }
+    }
+
+    function sendRelease() {
+        if ($('#paysonIframe').length) {
+            document.getElementById('paysonIframe').contentWindow.postMessage('release', '*');
         }
     }
 
@@ -91,11 +135,6 @@ $(document).ready(function() {
 });
 
 $(window).resize(function() {
-        //if ($('#paysonIframe').length && $('#paysonpaymentwindow').length) {
-            //$('#paysonpaymentwindow').height($('#paysonIframe').height());
-            //$('#paysonpaymentwindow').height('auto');
-        //}
-
         if (window.matchMedia('(max-width: 975px)').matches) {
             if ($('#payson_cart_summary_wrapp .right-col').length) {
                 $('#payson_cart_summary_wrapp .right-col').insertBefore($('.card-payson-pay'));

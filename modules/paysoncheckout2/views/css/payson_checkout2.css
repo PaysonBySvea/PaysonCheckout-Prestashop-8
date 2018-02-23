@@ -19,7 +19,7 @@
         margin-bottom: 5px;
     }
     
-    #module-paysoncheckout2-pconepage #paysonpaymentwindow, #module-paysoncheckout2-confirmation #iframepayson {
+    #module-paysoncheckout2-pconepage #paysonpaymentwindow {
         padding: 1.5em;
         height: 569px;
     }

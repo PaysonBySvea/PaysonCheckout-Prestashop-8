@@ -95,7 +95,7 @@
                         <ul class="payson-select-list has-tooltips">
                             {foreach from=$delivery_options item=carrier key=carrier_id}
                             <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
-                                <input onchange="$('#pcocarrier').submit()" type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
+                                <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
                                 <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
                                     {*<span class="payson-select-list__item__status">
                                         <i class="icon-ok"></i>
@@ -131,7 +131,7 @@
                         <div class="card-block">
                             <p id="messagearea">
                                 <textarea id="message" name="message" class="payson-input payson-input--area payson-input--full" placeholder="{l s='Add additional information to your order (optional)' mod='paysoncheckout2'}">{$message.message|escape:'htmlall':'UTF-8'}</textarea>
-                                <button type="submit" name="savemessagebutton" id="savemessagebutton" class="btn btn-primary">
+                                <button type="button" name="savemessagebutton" id="savemessagebutton" class="btn btn-primary">
                                     <span>{l s='Save' mod='paysoncheckout2'}</span>
                                 </button>
                             </p>
@@ -156,10 +156,10 @@
                                     <input type="hidden" name="savegift" id="savegift" value="1" />
 
                                     <span class="payson-check-group fl-r full-width">
-                                        <input type="checkbox" onchange="$('#pcogift').submit();" class="giftwrapping_radio" id="gift" name="gift" value="1"{if isset($gift) AND $gift==1} checked="checked"{/if} />
+                                        <input type="checkbox" class="giftwrapping_radio" id="gift" name="gift" value="1"{if isset($gift) AND $gift==1} checked="checked"{/if} />
                                         <span id="giftwrappingextracost">{l s='Wrapping cost:' mod='paysoncheckout2'} {Tools::displayPrice($gift_wrapping_price)}</span>
                                     </span>
-                                    <button type="submit" name="savegiftbutton" id="savegiftbutton" class="btn btn-primary">
+                                    <button type="button" name="savegiftbutton" id="savegiftbutton" class="btn btn-primary">
                                         <span>{l s='Save' mod='paysoncheckout2'}</span>
                                     </button>
                                 </p>

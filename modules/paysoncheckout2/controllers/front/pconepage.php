@@ -14,6 +14,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
     }
 
     public function postProcess() {
+        // To reload checkout page if validation fails
         if (Tools::getIsset('chkorder') && Tools::getValue('chkorder') == 'chk') {
             $filePath = rtrim(dirname(dirname(dirname(__FILE__))), '/\\') . DIRECTORY_SEPARATOR . 'store/' . $this->context->cart->id . "_or.txt";
             if (file_exists($filePath)) {
@@ -22,27 +23,37 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             }
             die('wait');
         }
-
-        if (Tools::isSubmit('savemessagebutton')) {
-            $messageContent = Tools::getValue('message');
-            $message_result = $this->updateMessage($messageContent, $this->context->cart);
-            if (!$message_result) {
-                $this->context->smarty->assign('gift_error', $this->module->l('Invalid message', 'pconepage'));
-            }
-        }
         
-        if (Tools::isSubmit('savegift')) {
+        // Gift wrapping
+        if (Tools::getIsset('gift_message')) {
+            if(_PCO_LOG_){Logger::addLog('Start to save gift wrapping.', 1, NULL, NULL, NULL, true);}
+            if(_PCO_LOG_){Logger::addLog('Gift is: ' . (int) (Tools::getValue('gift')), 1, NULL, NULL, NULL, true);}
             $this->context->cart->gift = (int) (Tools::getValue('gift'));
+            $gift_message = Tools::getValue('gift_message');
             $gift_error = '';
-            if (!Validate::isMessage($_POST['gift_message'])) {
+            if (!Validate::isMessage($gift_message)) {
                 $gift_error = $this->module->l('Invalid gift message', 'pconepage');
             } else {
-                $this->context->cart->gift_message = strip_tags(Tools::getValue('gift_message'));
+                $this->context->cart->gift_message = strip_tags($gift_message);
             }
             $this->context->cart->update();
             $this->context->smarty->assign('gift_error', $gift_error);
         }
         
+        // Order message
+        if (Tools::getIsset('message')) {
+            if(_PCO_LOG_){Logger::addLog('Start to save message: ' . Tools::getValue('message'), 1, NULL, NULL, NULL, true);}
+            $messageContent = Tools::getValue('message');
+            $message_result = $this->updateMessage($messageContent, $this->context->cart);
+            if (!$message_result) {
+                $this->context->smarty->assign('gift_error', $this->module->l('Invalid message', 'pconepage'));
+                if(_PCO_LOG_){Logger::addLog('Unable to save message.', 1, NULL, NULL, NULL, true);}
+                die('error');
+            }
+            die('success');
+        }
+        
+        // Discounts, coupons
         if (CartRule::isFeatureActive()) {
             $vouchererrors = '';
             if (Tools::isSubmit('submitAddDiscount')) {
@@ -82,12 +93,24 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             }
         }
 
+        // Handle changed carrier
         if (Tools::getIsset('delivery_option')) {
-            if ($this->validateDeliveryOption(Tools::getValue('delivery_option'))) {
-                $this->context->cart->setDeliveryOption(Tools::getValue('delivery_option'));
-                if(_PCO_LOG_){Logger::addLog('Updated delivery option: ' . print_r(Tools::getValue('delivery_option'), true), 1, NULL, NULL, NULL, true);}
+            $newDeliveryOption = Tools::getValue('delivery_option');
+            
+            if(_PCO_LOG_){Logger::addLog('Updating delivery option: ' . print_r($newDeliveryOption, true), 1, NULL, NULL, NULL, true);}
+            
+            if ($this->validateDeliveryOption($newDeliveryOption)) {
+                if ((int) $this->context->cart->id_address_delivery > 0) {
+                    // Use customer address ID
+                    $newDeliveryOptionId = $newDeliveryOption[0];
+                    $newDeliveryOption = array();
+                    $newDeliveryOption[(int) ($this->context->cart->id_address_delivery)] = $newDeliveryOptionId;
+                }
+                $this->context->cart->setDeliveryOption($newDeliveryOption);
+
                 if(_PCO_LOG_){Logger::addLog('Carrier ID: ' . $this->context->cart->id_carrier, 1, NULL, NULL, NULL, true);}
                 if(_PCO_LOG_){Logger::addLog('Addres ID: ' . $this->context->cart->id_address_delivery, 1, NULL, NULL, NULL, true);}
+                if(_PCO_LOG_){Logger::addLog('Updated delivery option: ' . print_r($newDeliveryOption, true), 1, NULL, NULL, NULL, true);}
             }
 
             if (!$this->context->cart->update()) {
@@ -95,7 +118,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                 if(_PCO_LOG_){Logger::addLog('Unable to update delivey option.', 1, NULL, NULL, NULL, true);}
             }
 
-            // Check if rules apply
+            // See if rules apply here
             CartRule::autoRemoveFromCart($this->context);
             CartRule::autoAddToCart($this->context);
         }

@@ -40,6 +40,15 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c9cc8cce247e49bae79f15173
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_104d9898c04874d0fbac36e125fa1369'] = 'Rabatt';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_138fa93953d947a95d85b03d43158fb0'] = 'Presentinslagning';
+$_MODULE['<{paysoncheckout2}prestashop>confirmation_65e7f343ed80412e3cecdd892b37a51e'] = 'Din kundvagn måste uppdateras. Försök igen.';
+$_MODULE['<{paysoncheckout2}prestashop>confirmation_5928ab7e396ec117fa0c443731b07e71'] = 'Betalningen nekades. Försök med en annan betalmetod.';
+$_MODULE['<{paysoncheckout2}prestashop>confirmation_a4d9126e1638ec9f094cf9192ef1f101'] = 'Order avbröts. Försök igen.';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_99099c3c11a7638335f047fd4199c9fa'] = 'Ogiltigt meddelande';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_dd6b089a49908d671c3e9cc8dc5899ae'] = 'Ogiltigt meddelande';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_e15b9d349af7453e81350c8ffd2a7615'] = 'Ange en kod';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_5e2ce6b15c089ce426f4da07f7c75601'] = 'Ogiltig kod';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_f3d4d99cf273e2adbec0b81fdedf5c68'] = 'Ogiltig kod';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_572da7ef1411f2a12409e752f3eb2f7a'] = 'Kundvagnen är tom.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_c888438d14855d7d96a2724ee9c306bd'] = 'Inställningarna uppdaterades';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_1d20467cb407a055be0023c5fcb9b332'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning, SMS-betalning och delbetalning.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_68824ecc6e889a0aed80b5cf754e1c8d'] = 'Skapa TestAgent';
@@ -58,6 +67,8 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_l_569fd05bdafa1712c4f6be5b153b84
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_e7a6ca4e744870d455a57b644f696457'] = 'Gratis!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_4c2a8fe7eaf24721cc7a9f0175115bd4'] = 'Meddelande';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_4b2c4abf1e77bd649567f17ea2537318'] = 'Meddelande (valfritt)';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_c9cc8cce247e49bae79f15173ce97354'] = 'Spara';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_41c1d61bfff3fc9b1fd8f195061b8caa'] = 'Presentinslagning';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_76f1d5530297f364bdba642c85b866bf'] = 'Meddelande (valfritt)';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_67474a93ef55a1b323b329d692d36285'] = 'Present:';
