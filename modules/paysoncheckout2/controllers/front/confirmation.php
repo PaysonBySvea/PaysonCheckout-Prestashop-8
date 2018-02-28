@@ -1,65 +1,102 @@
 <?php
+/**
+ * 2018 Payson AB
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ *  @author    Payson AB <integration@payson.se>
+ *  @copyright 2018 Payson AB
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+
 class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontController
 {
+
     public function setMedia()
     {
         parent::setMedia();
-        $this->context->controller->addCSS(_MODULE_DIR_.'paysoncheckout2/views/css/payson_checkout2.css', 'all');
+        $this->context->controller->addCSS(_MODULE_DIR_ . 'paysoncheckout2/views/css/payson_checkout2.css', 'all');
     }
-    
-    public function init() {
+
+    public function init()
+    {
         parent::init();
-        
-        if(_PCO_LOG_){Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Call Type: ' . Tools::getValue('call'), 1, NULL, NULL, NULL, true);}
+
+        if (_PCO_LOG_) {
+            Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Call Type: ' . Tools::getValue('call'), 1, null, null, null, true);
+        }
         require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
         $payson = new PaysonCheckout2();
         $paysonApi = $payson->getPaysonApiInstance();
-        
+
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId)) {
-           $this->context->cookie->__set('validation_error', $this->l('Something went wrong with your cart. Please try again.'));
-           Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
+            $this->context->cookie->__set('validation_error', $this->l('Something went wrong with your cart. Please try again.'));
+            Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
         }
-        
+
         $checkoutId = Tools::getValue('checkout');
-        if (!isset($checkoutId) || $checkoutId == NULL) {
-           // Get checkout ID from cookie
-           $checkoutId = $this->context->cookie->paysonCheckoutId;
-           if(_PCO_LOG_){Logger::addLog('No checkout in query, loaded: ' . $checkoutId . ' from cookie.', 1, NULL, NULL, NULL, true);}
+        if (!isset($checkoutId) || $checkoutId == null) {
+            // Get checkout ID from cookie
+            $checkoutId = $this->context->cookie->paysonCheckoutId;
+            if (_PCO_LOG_) {
+                Logger::addLog('No checkout in query, loaded: ' . $checkoutId . ' from cookie.', 1, null, null, null, true);
+            }
         }
-        
+
         $cart = new Cart($cartId);
-        
+
         if (!$cart->checkQuantities()) {
             Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
         }
-        
+
         $checkout = $paysonApi->GetCheckout($checkoutId);
-        
-        if(_PCO_LOG_){Logger::addLog('Cart ID: ' .  $cart->id, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Cart delivery cost: ' . $cart->getOrderTotal(true, Cart::ONLY_SHIPPING), 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH), 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Checkout ID: ' . $checkout->id, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Checkout total: ' . $checkout->payData->totalPriceIncludingTax, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Checkout Status: ' . $checkout->status, 1, NULL, NULL, NULL, true);}
-        
-        $orderCreated = FALSE;
-        
+
+        if (_PCO_LOG_) {
+            Logger::addLog('Cart ID: ' . $cart->id, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Cart delivery cost: ' . $cart->getOrderTotal(true, Cart::ONLY_SHIPPING), 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH), 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout total: ' . $checkout->payData->totalPriceIncludingTax, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout Status: ' . $checkout->status, 1, null, null, null, true);
+        }
+
+        $orderCreated = false;
+
         // For testing
         //$checkout->status = 'expired';
-        
+
         switch ($checkout->status) {
             case 'created':
-                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
+                Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 break;
             case 'readyToShip':
                 if ($cart->OrderExists() == false) {
                     // Create PS order
                     $orderCreated = $payson->createOrderPS($cart->id, $checkout);
-                    if(_PCO_LOG_){Logger::addLog('New order ID: ' . $orderCreated, 1, NULL, NULL, NULL, true);}
+                    if (_PCO_LOG_) {
+                        Logger::addLog('New order ID: ' . $orderCreated, 1, null, null, null, true);
+                    }
                 } else {
-                    $orderAlreadyCreated = TRUE;
+                    $orderAlreadyCreated = true;
                 }
                 break;
             case 'readyToPay':
@@ -76,23 +113,25 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 break;
             case 'expired':
-                $this->context->cookie->__set('paysonCheckoutId', NULL);
+                $this->context->cookie->__set('paysonCheckoutId', null);
                 $payson->updatePaysonOrderEvent($checkout, $cartId);
                 $this->context->cookie->__set('validation_error', $this->l('This order has expired. Please try again.'));
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 break;
             case 'shipped':
-                if(_PCO_LOG_){Logger::addLog('Got order status shipped 1.', 1, NULL, NULL, NULL, true);}
+                if (_PCO_LOG_) {
+                    Logger::addLog('Got order status shipped 1.', 1, null, null, null, true);
+                }
                 $payson->updatePaysonOrderEvent($checkout, $cartId);
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 break;
             default:
-                Logger::addLog('Unknown Checkout Status: ' . $checkout->status, 2, NULL, NULL, NULL, true);
-                $this->context->cookie->__set('validation_error', $this->l('Unable to finish order.'));
+                Logger::addLog('Unknown Checkout Status: ' . $checkout->status, 2, null, null, null, true);
+                $this->context->cookie->__set('validation_error', $this->l('Unable to complete order.'));
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
-        }     
-        
-        if ($orderCreated !== FALSE || $orderAlreadyCreated == TRUE) {
+        }
+
+        if ($orderCreated !== false || $orderAlreadyCreated == true) {
 //            $customer = new Customer((int) $cart->id_customer);
 //            if (Configuration::get('PAYSONCHECKOUT2_SHOW_CONFIRMATION') == 0 && $customer->is_guest == 0) {
 //                // Show thank you page for logged in customer
@@ -106,23 +145,25 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
 //                   );
 //
 //            } else {
-                // Show PCO2 iframe order confirmation
-                $this->context->smarty->assign([
-                    'pco2Snippet' => $checkout->snippet,
-                ]);
-                
-                if(_PCO_LOG_){Logger::addLog('Order completed successfully.', 1, NULL, NULL, NULL, true);}
-                
-                 // Delete checkout id cookie
-                $this->context->cookie->__set('paysonCheckoutId', NULL);
+            // Show PCO2 iframe order confirmation
+            $this->context->smarty->assign(array('pco2Snippet' => $checkout->snippet));
 
-                $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
+            if (_PCO_LOG_) {
+                Logger::addLog('Order completed successfully.', 1, null, null, null, true);
+            }
+
+            // Delete checkout id cookie
+            $this->context->cookie->__set('paysonCheckoutId', null);
+
+            $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
             //}
         } else {
             // Show order confirmation with errors
-            if(_PCO_LOG_){Logger::addLog('Order creation was unsuccessfull.', 1, NULL, NULL, NULL, true);}
+            if (_PCO_LOG_) {
+                Logger::addLog('Order creation was unsuccessfull.', 1, null, null, null, true);
+            }
             $this->context->smarty->assign('payson_error', $this->l('Unable to create order.'));
             $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
         }
-    } 
+    }
 }

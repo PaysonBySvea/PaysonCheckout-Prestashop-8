@@ -10,7 +10,7 @@ namespace PaysonEmbedded{
         public function getErrors() {
             $r = '';
             if(count($this->errors)) {
-                foreach ($this->errors as $error){
+                foreach ($this->errors as $error) {
                     $r.='<pre>'.$error->message . ($error->parameter?'  --  Parameter: ' .$error->parameter:'').'</pre>';    
                 }
             } else {

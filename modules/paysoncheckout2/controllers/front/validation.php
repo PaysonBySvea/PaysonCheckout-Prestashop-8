@@ -1,42 +1,70 @@
 <?php
+/**
+ * 2018 Payson AB
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ *  @author    Payson AB <integration@payson.se>
+ *  @copyright 2018 Payson AB
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+
 class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontController
 {
-    public function init() {
+
+    public function init()
+    {
         parent::init();
-        
-        if(_PCO_LOG_){Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, NULL, NULL, NULL, true);}
-        
+
+        if (_PCO_LOG_) {
+            Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
+        }
+
         require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
         $payson = new PaysonCheckout2();
         $paysonApi = $payson->getPaysonApiInstance();
 
         $cartId = (int) Tools::getValue('id_cart');
-        if (!isset($cartId) || $cartId < 1 || $cartId == NULL) {
-            Logger::addLog('No cart ID in query.', 3, NULL, NULL, NULL, true);
+        if (!isset($cartId) || $cartId < 1 || $cartId == null) {
+            Logger::addLog('No cart ID in query.', 3, null, null, null, true);
             header('HTTP/1.1 500 Error');
             exit();
         }
 
         $checkoutId = Tools::getValue('checkout');
-        if (!isset($checkoutId) || $checkoutId == NULL) {
-            if(_PCO_LOG_){Logger::addLog('No checkout in query, loading from cookie.', 1, NULL, NULL, NULL, true);}
-           // Get checkout ID from cookie
-           $checkoutId = $this->context->cookie->paysonCheckoutId;
+        if (!isset($checkoutId) || $checkoutId == null) {
+            if (_PCO_LOG_) {
+                Logger::addLog('No checkout in query, loading from cookie.', 1, null, null, null, true);
+            }
+            // Get checkout ID from cookie
+            $checkoutId = $this->context->cookie->paysonCheckoutId;
         }
 
-        $checkout = $paysonApi->GetCheckout($checkoutId); 
+        $checkout = $paysonApi->GetCheckout($checkoutId);
 
-        if(_PCO_LOG_){Logger::addLog('Checkout ID: ' . $checkout->id, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Cart ID: ' .  $cartId, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Query: ' . print_r($_REQUEST, true), 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Checkout Status: ' . $checkout->status, 1, NULL, NULL, NULL, true);}
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Cart ID: ' . $cartId, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Query: ' . print_r($_REQUEST, true), 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout Status: ' . $checkout->status, 1, null, null, null, true);
+        }
 
         $cart = new Cart($cartId);
-        
+
         // Delete "cookie" file
-        $storageFilePath = rtrim(dirname(dirname(dirname(__FILE__))), '/\\') . DIRECTORY_SEPARATOR . 'store/' . $cart->id . "_or.txt";
-        unlink($storageFilePath);
-        
+//        $storageFilePath = rtrim(dirname(dirname(dirname(__FILE__))), '/\\') . DIRECTORY_SEPARATOR . 'store/' . $cart->id . "_or.txt";
+//        unlink($storageFilePath);
         // Create or update customer
         $id_customer = (int) (Customer::customerExists($checkout->customer->email, true, true));
 
@@ -55,16 +83,20 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         }
 
         $new_delivery_options = array();
-        $new_delivery_options[(int) ($address->id)] = $cart->id_carrier.',';
+        $new_delivery_options[(int) ($address->id)] = $cart->id_carrier . ',';
         $new_delivery_options_serialized = serialize($new_delivery_options);
 
-        if(_PCO_LOG_){Logger::addLog('Address ID: ' . $address->id, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, NULL, NULL, NULL, true);}
+        if (_PCO_LOG_) {
+            Logger::addLog('Address ID: ' . $address->id, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
+        }
 
-        $update_sql = 'UPDATE '._DB_PREFIX_.'cart '.
-                'SET delivery_option=\''.
-                pSQL($new_delivery_options_serialized).
-                '\' WHERE id_cart='.
+        $update_sql = 'UPDATE ' . _DB_PREFIX_ . 'cart ' .
+                'SET delivery_option=\'' .
+                pSQL($new_delivery_options_serialized) .
+                '\' WHERE id_cart=' .
                 (int) $cart->id;
 
         Db::getInstance()->execute($update_sql);
@@ -75,9 +107,9 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             $cart->delivery_option = '';
         }
 
-        $update_sql = 'UPDATE '._DB_PREFIX_.'cart_product '.
-            'SET id_address_delivery='.(int) $address->id.
-            ' WHERE id_cart='.(int) $cart->id;
+        $update_sql = 'UPDATE ' . _DB_PREFIX_ . 'cart_product ' .
+                'SET id_address_delivery=' . (int) $address->id .
+                ' WHERE id_cart=' . (int) $cart->id;
 
         Db::getInstance()->execute($update_sql);
 
@@ -93,18 +125,26 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         $cart->id_customer = $customer->id;
         $cart->save();
 
-        $cache_id = 'objectmodel_cart_'.$cart->id.'*';
+        $cache_id = 'objectmodel_cart_' . $cart->id . '*';
         Cache::clean($cache_id);
         $cart = new Cart($cart->id);
 
-        //if(_PCO_LOG_){Logger::addLog('Cart: ' . print_r($cart, true), 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Checkout country: ' . $checkout->customer->countryCode, 1, NULL, NULL, NULL, true);}
+        //if (_PCO_LOG_) {
+        //Logger::addLog('Cart: ' . print_r($cart, true), 1, null, null, null, true);
+        //}
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout country: ' . $checkout->customer->countryCode, 1, null, null, null, true);
+        }
 
         $checkoutTotal = $checkout->payData->totalPriceIncludingTax;
         $cartTotal = $cart->getOrderTotal(true, Cart::BOTH);
 
-        if(_PCO_LOG_){Logger::addLog('Checkout total: ' . $checkoutTotal, 1, NULL, NULL, NULL, true);}
-        if(_PCO_LOG_){Logger::addLog('Cart total: ' . $cartTotal, 1, NULL, NULL, NULL, true);}
+        if (_PCO_LOG_) {
+            Logger::addLog('Checkout total: ' . $checkoutTotal, 1, null, null, null, true);
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Cart total: ' . $cartTotal, 1, null, null, null, true);
+        }
 
         if ($checkoutTotal !== $cartTotal) {
             /*
@@ -112,7 +152,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
              * a different country in the checkout. Here the cart has been updated to reflect the VAT of the selected country. 
              * Here we update the checkout to match the cart, return 500 to stop the purchase and save a file for JS to look for.
              * If JS finds this file it will reload the checkout page to reflect changes.
-            */
+             */
             $cartCurrency = new Currency($cart->id_currency);
 
             // Update checkout object
@@ -120,21 +160,34 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
             // Update data in Payson order table
             $payson->updatePaysonOrderEvent($checkout, $cart->id);
-            
-            if(_PCO_LOG_){Logger::addLog('Updated checkout to match cart.', 1, NULL, NULL, NULL, true);}
-            
-            // Create "cookie" file
-            $fileCookie = fopen($storageFilePath, "w");
-            fclose($fileCookie);
-            
-            if(_PCO_LOG_){Logger::addLog('Sending status 500.', 1, NULL, NULL, NULL, true);}
-            header('HTTP/1.1 500 Error');
 
+            if (_PCO_LOG_) {
+                Logger::addLog('Updated checkout to match cart.', 1, null, null, null, true);
+            }
+
+            // Create "cookie" file
+//            $fileCookie = fopen($storageFilePath, "w");
+//            fclose($fileCookie);
+
+            if (_PCO_LOG_) {
+                Logger::addLog('Sending status 500.', 1, null, null, null, true);
+            }
+            if (Tools::getIsset('validate_order')) {
+                // Validation from JS PaysonEmbeddedAddressChanged event, will reload
+                $this->context->cookie->__set('validation_error', $this->l('Your order has been updated. Please review the order before proceeding.'));
+                die('reload');
+            }
+            header('HTTP/1.1 500 Error');
             exit();
-        } 
-        if(_PCO_LOG_){Logger::addLog('Sending status 200.', 1, NULL, NULL, NULL, true);}
-        
+        }
+        if (_PCO_LOG_) {
+            Logger::addLog('Sending status 200.', 1, null, null, null, true);
+        }
+        if (Tools::getIsset('validate_order')) {
+            // Validation from JS PaysonEmbeddedAddressChanged event
+            die('passed_validation');
+        }
         header('HTTP/1.1 200 OK');
         exit();
-    }   
+    }
 }

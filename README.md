@@ -7,8 +7,8 @@ Module for Prestashop implementing Payson Checkout 2.0
 
 ## Installation
 
-You should always have a backup of your files and database before installing new modules
-* Download the module (paysoncheckout2.zip)to your computer 
+You should always backup your files and database before installing or updating modules
+* Download the module (paysoncheckout2.zip) to your computer 
 * Log into your web shop Back Office
 * Click on Modules
 * Click Upload a module

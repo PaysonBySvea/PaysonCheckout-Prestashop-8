@@ -1,3 +1,17 @@
+{*
+* 2018 Payson AB
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+*
+*  @author    Payson AB <integration@payson.se>
+*  @copyright 2018 Payson AB
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*}
 {extends $layout}
 
 {block name='content'}
@@ -5,7 +19,7 @@
 {capture name=path}{l s='Checkout' mod='paysoncheckout2'}{/capture}
 
 {if isset($payson_errors)}
-<div class="alert alert-warning">
+<div class="payson-infobox">
     {$payson_errors|escape:'html':'UTF-8'}
 </div>
 {/if}
@@ -17,16 +31,19 @@
 {/if}
 	
 <script type="text/javascript">
-	// <![CDATA[
-	var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
-	var currencyRate = '{$currencyRate|floatval}';
-	var currencyFormat = '{$currencyFormat|intval}';
-	var currencyBlank = '{$currencyBlank|intval}';
-	var txtProduct = "{l s='product' js=1 mod='paysoncheckout2'}";
-	var txtProducts = "{l s='products' js=1 mod='paysoncheckout2'}";
-	var freeShippingTranslation = "{l s='Free Shipping!' js=1 mod='paysoncheckout2'}";
-	var pcourl = "{$pcoUrl|escape:'javascript':'UTF-8'}";
-	// ]]>
+    // <![CDATA[
+    var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+    var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
+    var id_cart = '{$id_cart|intval}';
+    var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+    var currencyBlank = '{$currencyBlank|intval}';
+    var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
+    var currencyRate = '{$currencyRate|floatval}';
+    var currencyFormat = '{$currencyFormat|intval}';
+    var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
+    var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
+    var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
+    // ]]>
 </script>
 <div class="payson-cf payson-main">
     <div id="payson_cart_summary_wrapp">
@@ -162,17 +179,17 @@
                     <span>
                         {if isset($PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS) && $PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS}
                             <a
-                                href="{$link->getPageLink('order', true, NULL, 'step=1')|escape:'html':'UTF-8'}"
+                                href="{$link->getPageLink('order', true, null, 'step=1')|escape:'html':'UTF-8'}"
                                 class="alternative_methods"
                                 title="{l s='Other payment methods' mod='paysoncheckout2'}">
-                                <span>{l s='other payment methods' mod='paysoncheckout2'}<i class="icon-chevron-right right"></i></span>
+                                <span>{l s='Other payment methods' mod='paysoncheckout2'}<i class="icon-chevron-right right"></i></span>
                             </a>
                         {/if}
                     </span>
                 </h1>
             </div>
             <hr class="separator">
-            <div id="paysonpaymentwindow">{$payson_checkout nofilter}</div>
+            <div id="paysonpaymentwindow">{$payson_checkout nofilter}{* HTML comment, no escaping necessary *}</div>
         </div>
     </div>
 </div>

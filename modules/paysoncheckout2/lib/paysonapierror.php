@@ -1,8 +1,8 @@
 <?php
 namespace PaysonEmbedded{
     class PaysonApiError {
-        public $message = NULL;
-        public $parameter = NULL;
+        public $message = null;
+        public $parameter = null;
 
         public function __construct($message, $parameter = null) {
             $this->message = $message;

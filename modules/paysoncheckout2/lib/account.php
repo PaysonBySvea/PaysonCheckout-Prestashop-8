@@ -13,7 +13,7 @@ namespace PaysonEmbedded{
         public $enabledForPaymentPlan;
         
 
-        public function __construct($accountEmail, $status,  $merchantId,  $enabledForInvoice, $enabledForpaymentPlan){
+        public function __construct($accountEmail, $status,  $merchantId,  $enabledForInvoice, $enabledForpaymentPlan) {
             $this->accountEmail = $accountEmail;
             $this->status = $status;
             $this->merchantId = $merchantId;
@@ -25,7 +25,7 @@ namespace PaysonEmbedded{
              return new Account($data->accountEmail,$data->status,$data->merchantId,$data->enabledForInvoice,$data->enabledForpaymentPlan);
         }
         
-        public function toArray(){
+        public function toArray() {
             return get_object_vars($this);   
         }
     }

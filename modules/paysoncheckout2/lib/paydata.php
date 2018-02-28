@@ -8,7 +8,7 @@ namespace PaysonEmbedded{
     
     class PayData {
         /** @var string $currency Currency of the order ("sek", "eur"). */
-        public $currency = NULL;
+        public $currency = null;
         /** @var array $items An array with objects of the order items*/
         public $items = array();
         
@@ -51,13 +51,13 @@ namespace PaysonEmbedded{
             $this->items = $items;
         }
 
-        public function toArray(){
+        public function toArray() {
             $items = array();
             foreach($this->items as $item) { $items[] = $item->toArray();  }
             return array( 'currency'=>$this->currency, 'items'=>$items );
         }
         
-        public function toJson(){
+        public function toJson() {
             return json_encode($this->toArray());
         }
     }

@@ -36,6 +36,7 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_9af330aec2727429751e384af
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_97246fdde5b5ac81364a7d98179af70f'] = 'Länk till andra betalmetoder';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ef0f6747cb489b5f8198583a03756d0e'] = 'Visa länk till andra betalmetoder i kassan';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_e2df88d18771a2d4d16d7fe1a8a64a61'] = 'Logga meddelanden';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_515620c51e10b0357072fa4e05a666a6'] = 'Logga meddelanden från Payson Checkout 2.0';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c9cc8cce247e49bae79f15173ce97354'] = 'Spara';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_104d9898c04874d0fbac36e125fa1369'] = 'Rabatt';
@@ -49,6 +50,7 @@ $_MODULE['<{paysoncheckout2}prestashop>pconepage_e15b9d349af7453e81350c8ffd2a761
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_5e2ce6b15c089ce426f4da07f7c75601'] = 'Ogiltig kod';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_f3d4d99cf273e2adbec0b81fdedf5c68'] = 'Ogiltig kod';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_572da7ef1411f2a12409e752f3eb2f7a'] = 'Kundvagnen är tom.';
+$_MODULE['<{paysoncheckout2}prestashop>validation_7ba90027fa9a7e7a4f34ccfa0944d8a3'] = 'Din kundvagn har uppdaterats. Kontrollera kundvagnen innan beställning slutförs.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_c888438d14855d7d96a2724ee9c306bd'] = 'Inställningarna uppdaterades';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_1d20467cb407a055be0023c5fcb9b332'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning, SMS-betalning och delbetalning.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_68824ecc6e889a0aed80b5cf754e1c8d'] = 'Skapa TestAgent';

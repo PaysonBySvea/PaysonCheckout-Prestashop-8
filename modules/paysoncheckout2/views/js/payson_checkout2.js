@@ -1,3 +1,18 @@
+/*
+* 2018 Payson AB
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+*
+*  @author    Payson AB <integration@payson.se>
+*  @copyright 2018 Payson AB
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*/
+
 $(document).ready(function() {
     prestashop.on(
       'updateCart',
@@ -13,7 +28,7 @@ $(document).ready(function() {
     $('.payson-click-trigger').each(function() {
         var el = $(this);
         var elTarget = el.parent().parent().find('.pco-target');
-        el.click(function(){
+        el.click(function() {
             el.toggleClass('payson-click-trigger--inactive');
             elTarget.fadeToggle(150);
         });
@@ -22,7 +37,7 @@ $(document).ready(function() {
     // Change carrier
     $('.payson-select-list__item').each(function() {
         var el = $(this);
-        el.click(function(){
+        el.click(function() {
             if (!el.hasClass('selected')) {
                 var deliveryId = el.find('input[type=radio]').val();
                 var callData = {pco_update: '1', delivery_option: {0:deliveryId}};
@@ -81,7 +96,7 @@ $(document).ready(function() {
                 sendRelease();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    //console.log(returnData);
+                //console.log(returnData);
             }
         });
     }
@@ -123,16 +138,60 @@ $(document).ready(function() {
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    //console.log(returnData);
+                //console.log(returnData);
             }
         });
     }
     
-    setInterval(function () {
-        reloadOnError();
-    }, 3000);
+    // Validate order on PaysonEmbeddedAddressChanged event
+    function validateOrder(callData) {
+        $.ajax({
+            type: 'GET',
+            url: validateurl,
+            async: true,
+            cache: false,
+            data: callData,
+            success: function(returnData)
+            {
+                if (returnData == 'reload') {
+                    //sendLockDown();
+                    location.href = pcourl;
+                } else {
+                    sendRelease();
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                //console.log(returnData);
+            }
+        });
+    }
     
+//    setInterval(function () {
+//        reloadOnError();
+//    }, 3000);
+    
+    document.addEventListener('PaysonEmbeddedAddressChanged', function() {
+        sendLockDown();
+        var callData = {validate_order: '1', checkout: pco_checkout_id, id_cart: id_cart};
+        validateOrder(callData);
+    }, true);
+    
+    // IE11 poly for custom event
+    (function () {
+        if ( typeof window.CustomEvent === "function" ) return false; //If not IE
+
+        function CustomEvent ( event, params ) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent( 'CustomEvent' );
+                evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+                return evt;
+        }
+        CustomEvent.prototype = window.Event.prototype;
+        window.CustomEvent = CustomEvent;
+    })();
 });
+
+
 
 $(window).resize(function() {
         if (window.matchMedia('(max-width: 975px)').matches) {

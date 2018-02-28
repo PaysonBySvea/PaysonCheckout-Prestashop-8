@@ -2,23 +2,23 @@
 namespace PaysonEmbedded {
     class Merchant {
         /** @var url $checkoutUri URI to the merchants checkout page.*/
-        public $checkoutUri = NULL;
+        public $checkoutUri = null;
         /** @var url $confirmationUri URI to the merchants confirmation page. */
         public $confirmationUri;
         /** @var url $notificationUri Notification URI which receives CPR-status updates. */
         public $notificationUri;
         /** @var url $verificationUri Validation URI which is called to verify an order before it can be paid. */
-        public $validationUri = NULL;
+        public $validationUri = null;
         /** @var url $termsUri URI leading to the sellers terms. */
         public $termsUri;
         /** @var string $reference Merchants own reference of the checkout.*/
-        public $reference = NULL;
+        public $reference = null;
         /** @var string $partnerId Partners unique identifier */
-        public $partnerId = NULL;
+        public $partnerId = null;
         /** @var string $integrationInfo Information about the integration. */
-        public $integrationInfo = NULL;
+        public $integrationInfo = null;
 
-        public function __construct($checkoutUri, $confirmationUri, $notificationUri, $termsUri, $partnerId = NULL, $integrationInfo = 'PaysonCheckout2.0|1.0|NONE') {
+        public function __construct($checkoutUri, $confirmationUri, $notificationUri, $termsUri, $partnerId = null, $integrationInfo = 'PaysonCheckout2.0|1.0|NONE') {
             $this->checkoutUri = $checkoutUri;
             $this->confirmationUri = $confirmationUri;
             $this->notificationUri = $notificationUri;
@@ -34,7 +34,7 @@ namespace PaysonEmbedded {
             return $merchant;
         }
      
-        public function toArray(){
+        public function toArray() {
             return get_object_vars($this);      
         }
     }

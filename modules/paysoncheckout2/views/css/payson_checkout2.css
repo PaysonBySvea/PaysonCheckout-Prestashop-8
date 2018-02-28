@@ -112,22 +112,6 @@
         padding: 15px 15px 15px 62px;
         position: relative;
     }
-        
-    .payson-infobox:before {
-        color: #0089cf;
-        content: '\f06a';
-        display: block;
-        font-family: Fontawesome;
-        font-size: 32px;
-        height: 32px;
-        left: 15px;
-        line-height: 32px;
-        margin-top: -16px;
-        position: absolute;
-        text-align: center;
-        top: 50%;
-        width: 32px;
-    }
     
     .payson-infobox strong {
         color: #0089cf;

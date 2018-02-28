@@ -22,7 +22,7 @@ namespace PaysonEmbedded{
         /** @var string $type Type of customer ("business", "person" (default)).*/
         public $type;
 
-        public function __construct($firstName = Null, $lastName = Null,  $email = Null,  $phone = Null, $identityNumber = Null, $city = Null, $countryCode = Null, $postalCode = Null, $street = Null, $type = 'person'){
+        public function __construct($firstName = null, $lastName = null,  $email = null,  $phone = null, $identityNumber = null, $city = null, $countryCode = null, $postalCode = null, $street = null, $type = 'person') {
             $this->firstName = $firstName;
             $this->lastName = $lastName;
             $this->email = $email;
@@ -39,7 +39,7 @@ namespace PaysonEmbedded{
              return new Customer($data->firstName,$data->lastName,$data->email,$data->phone,$data->identityNumber,$data->city,$data->countryCode,$data->postalCode,$data->street,$data->type);
         }
         
-        public function toArray(){
+        public function toArray() {
             return get_object_vars($this);   
         }
     }

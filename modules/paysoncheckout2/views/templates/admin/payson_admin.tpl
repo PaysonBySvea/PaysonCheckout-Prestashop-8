@@ -1,3 +1,17 @@
+{*
+* 2018 Payson AB
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+*
+*  @author    Payson AB <integration@payson.se>
+*  @copyright 2018 Payson AB
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*}
 {if $isSaved}	
 	<div class="alert alert-success">
 		{l s='Settings updated' mod='paysoncheckout2'}
@@ -60,7 +74,7 @@
                                                     </ul>
                                             </div>
                                             <div id="payson-admin" class="col-lg-12">
-                                                    {$commonform}
+                                                    {html_entity_decode($commonform|escape:'htmlall':'UTF-8')}
                                             </div>
                                     </div>
                             </div>

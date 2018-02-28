@@ -21,14 +21,14 @@ namespace PaysonEmbedded {
         const PAYSON_HOST = "api.payson.se/2.0/";
         const ACTION_CHECKOUTS = "Checkouts/";
         const ACTION_ACCOUNTS = "Accounts/";
-        private $paysonMerchant = NULL;
-        private $payData = NULL;
-        private $customer = NULL;
+        private $paysonMerchant = null;
+        private $payData = null;
+        private $customer = null;
         private $allOrderData = array();
-        private $gui = NULL;
-        private $useTestEnvironment = NULL;
-        private $checkoutId = NULL;
-        private $paysonResponse = NULL;
+        private $gui = null;
+        private $useTestEnvironment = null;
+        private $checkoutId = null;
+        private $paysonResponse = null;
         public $paysonResponseErrors = array();
 
         public function __construct($merchantId, $apiKey, $useTestEnvironment = false) {
@@ -92,8 +92,8 @@ namespace PaysonEmbedded {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields?json_encode($postfields):null);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($ch, CURLOPT_HEADER, TRUE);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, true);
             $result = curl_exec($ch);
             $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
             $body = substr($result, $header_size);
@@ -116,7 +116,7 @@ namespace PaysonEmbedded {
                 $errors = array();
                 
                 $data = json_decode($body,true);
-                $errors[] = new PaysonApiError('HTTP status code: ' . $response_code.', '.$data['message'], NULL);
+                $errors[] = new PaysonApiError('HTTP status code: ' . $response_code.', '.$data['message'], null);
                 
                 if(isset($data['errors']) && count($data['errors'])) {
                     $errors = array_merge($errors, $this->parseErrors($data['errors'], $response_code));    
