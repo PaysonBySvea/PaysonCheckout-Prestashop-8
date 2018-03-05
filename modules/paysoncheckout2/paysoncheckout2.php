@@ -539,7 +539,7 @@ class PaysonCheckout2 extends PaymentModule
 
             Configuration::updateValue($config_name, $orderstate->id);
 
-            if (!copy(dirname(__FILE__) . '/views/images/payson_os.gif', _PS_IMG_DIR_ . 'os/' . $orderstate->id . '.gif')) {
+            if (!copy(dirname(__FILE__) . '/views/img/payson_os.gif', _PS_IMG_DIR_ . 'os/' . $orderstate->id . '.gif')) {
                 return false;
             }
         }
@@ -804,8 +804,9 @@ class PaysonCheckout2 extends PaymentModule
 
                 // Order total
                 //$total = (float) $cart->getOrderTotal(true, Cart::BOTH) < $checkout->payData->totalPriceIncludingTax + 2 && (float) $cart->getOrderTotal(true, Cart::BOTH) > $checkout->payData->totalPriceIncludingTax - 2? (float) $cart->getOrderTotal(true, Cart::BOTH) : $checkout->payData->totalPriceIncludingTax;
-                $total = $cart->getOrderTotal(true, Cart::BOTH);
-
+                //$total = $cart->getOrderTotal(true, Cart::BOTH);
+                $total = $checkout->payData->totalPriceIncludingTax;
+                
                 if (_PCO_LOG_) {
                     Logger::addLog('Address ID: ' . $address->id, 1, null, null, null, true);
                 }
@@ -865,15 +866,15 @@ class PaysonCheckout2 extends PaymentModule
         if (!isset($alreadyCreated) || (int) $alreadyCreated < 1) {
             Db::getInstance()->insert('payson_embedded_order', array(
                 'cart_id' => (int) $cartId,
-                'checkout_id' => $checkoutId,
-                'purchase_id' => $checkoutId,
+                'checkout_id' => pSQL($checkoutId),
+                'purchase_id' => pSQL($checkoutId),
                 'payment_status' => 'created',
                 'added' => date('Y-m-d H:i:s'),
                 'updated' => date('Y-m-d H:i:s')));
         } else {
             Db::getInstance()->update('payson_embedded_order', array(
-                'checkout_id' => $checkoutId,
-                'purchase_id' => $checkoutId,
+                'checkout_id' => pSQL($checkoutId),
+                'purchase_id' => pSQL($checkoutId),
                 'payment_status' => 'created',
                 'added' => date('Y-m-d H:i:s'),
                 'updated' => date('Y-m-d H:i:s')
@@ -895,19 +896,19 @@ class PaysonCheckout2 extends PaymentModule
         if ($psOrder > 0) {
             $sql .= '`order_id` = "' . (int) $psOrder . '",';
         }
-        $sql .= '`payment_status` = "' . $checkout->status . '",
+        $sql .= '`payment_status` = "' . pSQL($checkout->status) . '",
             `updated` = NOW(),
-            `sender_email` = "' . $checkout->customer->email . '", 
-            `currency_code` = "' . $checkout->payData->currency . '",
+            `sender_email` = "' . pSQL($checkout->customer->email) . '", 
+            `currency_code` = "' . pSQL($checkout->payData->currency) . '",
             `tracking_id` = "",
             `type` = "embedded",
-            `shippingAddress_name` = "' . $checkout->customer->firstName . '",
-            `shippingAddress_lastname` = "' . $checkout->customer->lastName . '",
-            `shippingAddress_street_address` = "' . $checkout->customer->street . '",
-            `shippingAddress_postal_code` = "' . $checkout->customer->postalCode . '",
-            `shippingAddress_city` = "' . $checkout->customer->city . '",
-            `shippingAddress_country` = "' . $checkout->customer->countryCode . '"
-            WHERE `checkout_id` = "' . $checkout->id . '"';
+            `shippingAddress_name` = "' . pSQL($checkout->customer->firstName) . '",
+            `shippingAddress_lastname` = "' . pSQL($checkout->customer->lastName) . '",
+            `shippingAddress_street_address` = "' . pSQL($checkout->customer->street) . '",
+            `shippingAddress_postal_code` = "' . pSQL($checkout->customer->postalCode) . '",
+            `shippingAddress_city` = "' . pSQL($checkout->customer->city) . '",
+            `shippingAddress_country` = "' . pSQL($checkout->customer->countryCode) . '"
+            WHERE `checkout_id` = "' . pSQL($checkout->id) . '"';
 
         Db::getInstance()->execute($sql);
     }

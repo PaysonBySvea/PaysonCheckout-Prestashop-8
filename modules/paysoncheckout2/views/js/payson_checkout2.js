@@ -85,7 +85,7 @@ $(document).ready(function() {
                         if ($('#paysonpaymentwindow').length) {
                             $('#paysonpaymentwindow').height('auto');
                         }
-                    }, 1000);
+                    }, 800);
                 }
                 if (updateCart === true) {
                     prestashop.emit('updateCart', {
@@ -157,6 +157,11 @@ $(document).ready(function() {
                     //sendLockDown();
                     location.href = pcourl;
                 } else {
+                    setTimeout(function() {
+                        if ($('#paysonpaymentwindow').length) {
+                            $('#paysonpaymentwindow').height('auto');
+                        }
+                    }, 800);
                     sendRelease();
                 }
             },
