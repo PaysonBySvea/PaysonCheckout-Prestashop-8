@@ -70,9 +70,9 @@ $(document).ready(function() {
         updateCheckout(callData, true, true);
     });
 
-    upReq = null;
     function updateCheckout(callData, updateCart, updateCheckout) {
-        upReq =  $.ajax({
+		upReq = null;
+        upReq = $.ajax({
             type: 'GET',
             url: pcourl,
             async: true,
@@ -132,8 +132,8 @@ $(document).ready(function() {
     }, 1000);
     
     // Validate order on PaysonEmbeddedAddressChanged event
-    valReq = null;
     function validateOrder(callData) {
+		valReq = null;
         console.log(valReq);
         valReq = $.ajax({
             type: 'GET',
