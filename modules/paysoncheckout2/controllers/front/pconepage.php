@@ -326,7 +326,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             $this->context->smarty->assign('pco_checkout_id', $checkoutObj->id);
             $this->context->smarty->assign('id_cart', $this->context->cart->id);
 
-
             $free_fees_price = 0;
             $configuration = Configuration::getMultiple(array('PS_SHIPPING_FREE_PRICE', 'PS_SHIPPING_FREE_WEIGHT'));
 

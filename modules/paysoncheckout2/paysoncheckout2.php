@@ -28,7 +28,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '2.0.3';
+        $this->version = '2.0.5';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -1004,13 +1004,13 @@ class PaysonCheckout2 extends PaymentModule
         $address->country = Country::getNameById(Configuration::get('PS_LANG_DEFAULT'), $countryId);
         $address->id_customer = $customerId;
         $address->id_country = $countryId;
-        $address->phone = '000000';
-        $address->phone_mobile = '000000';
+        $address->phone = $checkout->customer->phone != null ? $checkout->customer->phone : '000000';
+        $address->phone_mobile = $checkout->customer->phone != null ? $checkout->customer->phone : '000000';
         //$address->id_state   = (int)$customer->id_state;
         $address->alias = $this->l('Payson account address');
         $address->add();
         //if (_PCO_LOG_) {
-        //Logger::addLog('Create PS Address - Checkout: ' . print_r($checkout, true), 1, null, null, null, true);
+            //Logger::addLog('PHONE ' . $checkout->customer->phone, 1, null, null, null, true);
         //}
         //if (_PCO_LOG_) {
         //Logger::addLog('Create PS Address - Address: ' . print_r($address, true), 1, null, null, null, true);
@@ -1164,15 +1164,8 @@ class PaysonCheckout2 extends PaymentModule
                                 if (_PCO_LOG_) {
                                     Logger::addLog('Updating Payson order shipped.', 1, null, null, null, true);
                                 }
-                                //$payson = $this;
-                                //$cart = new Cart((int) $order->id_cart);
-                                //$customer = new Customer((int) $cart->id_customer);
-                                //$address = new Address((int) $cart->id_address_invoice);
-                                //$cartCurrency = new Currency((int) $cart->id_currency);
+                                
                                 $checkout->status = 'shipped';
-                                //$checkout->payData->items = $this->orderItemsList($cart, $this, $cartCurrency);
-                                // Update checkout object
-                                //$updatedCheckout = $paysonApi->UpdateCheckout($this->updatePaysonCheckout($checkout, $customer,  $cart, $this, $address, $cartCurrency));
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
 
                                 // Update data in Payson order table

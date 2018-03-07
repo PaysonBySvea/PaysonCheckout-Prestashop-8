@@ -70,13 +70,20 @@ $(document).ready(function() {
         updateCheckout(callData, true, true);
     });
 
+    upReq = null;
     function updateCheckout(callData, updateCart, updateCheckout) {
-        $.ajax({
+        upReq =  $.ajax({
             type: 'GET',
             url: pcourl,
             async: true,
             cache: false,
             data: callData,
+            beforeSend: function()
+            { 
+                if (upReq !== null) {
+                    upReq.abort();
+                }
+            },
             success: function(returnData)
             {
                 if (updateCheckout === true) {
@@ -97,6 +104,7 @@ $(document).ready(function() {
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 //console.log(returnData);
+                sendRelease();
             }
         });
     }
@@ -123,37 +131,25 @@ $(document).ready(function() {
         }
     }, 1000);
     
-    function reloadOnError() {
-        $.ajax({
-            type: 'GET',
-            url: pcourl,
-            async: true,
-            cache: false,
-            data: 'chkorder=chk',
-            success: function(returnData)
-            {
-                if (returnData == 'reload') {
-                    sendLockDown();
-                    location.href = pcourl;
-                }
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                //console.log(returnData);
-            }
-        });
-    }
-    
     // Validate order on PaysonEmbeddedAddressChanged event
+    valReq = null;
     function validateOrder(callData) {
-        $.ajax({
+        console.log(valReq);
+        valReq = $.ajax({
             type: 'GET',
             url: validateurl,
             async: true,
             cache: false,
             data: callData,
+            beforeSend: function()
+            { 
+                if (valReq !== null) {
+                    valReq.abort();
+                }
+            },
             success: function(returnData)
             {
-                if (returnData == 'reload') {
+                if (returnData === 'reload') {
                     //sendLockDown();
                     location.href = pcourl;
                 } else {
@@ -167,13 +163,10 @@ $(document).ready(function() {
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 //console.log(returnData);
+                sendRelease();
             }
         });
     }
-    
-//    setInterval(function () {
-//        reloadOnError();
-//    }, 3000);
     
     document.addEventListener('PaysonEmbeddedAddressChanged', function() {
         sendLockDown();
@@ -195,8 +188,6 @@ $(document).ready(function() {
         window.CustomEvent = CustomEvent;
     })();
 });
-
-
 
 $(window).resize(function() {
         if (window.matchMedia('(max-width: 975px)').matches) {

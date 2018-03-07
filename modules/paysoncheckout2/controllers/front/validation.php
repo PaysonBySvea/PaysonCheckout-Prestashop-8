@@ -25,25 +25,31 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             Logger::addLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
         }
 
-        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
-        $payson = new PaysonCheckout2();
-        $paysonApi = $payson->getPaysonApiInstance();
-
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId) || $cartId < 1 || $cartId == null) {
             Logger::addLog('No cart ID in query.', 3, null, null, null, true);
-            header('HTTP/1.1 500 Error');
-            exit();
+            die('reload');
         }
-
+        
         $checkoutId = Tools::getValue('checkout');
         if (!isset($checkoutId) || $checkoutId == null) {
-            if (_PCO_LOG_) {
-                Logger::addLog('No checkout in query, loading from cookie.', 1, null, null, null, true);
+            if (isset($this->context->cookie->paysonCheckoutId) && $this->context->cookie->paysonCheckoutId != null) {
+                // Get checkout ID from cookie
+                $checkoutId = $this->context->cookie->paysonCheckoutId;
+                if (_PCO_LOG_) {
+                    Logger::addLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.', 1, null, null, null, true);
+                }
+            } else {
+                if (_PCO_LOG_) {
+                    Logger::addLog('No checkout ID in cookie, redirect.', 1, null, null, null, true);
+                }
+                die('reload');
             }
-            // Get checkout ID from cookie
-            $checkoutId = $this->context->cookie->paysonCheckoutId;
         }
+        
+        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
+        $payson = new PaysonCheckout2();
+        $paysonApi = $payson->getPaysonApiInstance();
 
         $checkout = $paysonApi->GetCheckout($checkoutId);
 
@@ -62,9 +68,6 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $cart = new Cart($cartId);
 
-        // Delete "cookie" file
-//        $storageFilePath = rtrim(dirname(dirname(dirname(__FILE__))), '/\\') . DIRECTORY_SEPARATOR . 'store/' . $cart->id . "_or.txt";
-//        unlink($storageFilePath);
         // Create or update customer
         $id_customer = (int) (Customer::customerExists($checkout->customer->email, true, true));
 
@@ -106,6 +109,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         } else {
             $cart->delivery_option = '';
         }
+        
 
         $update_sql = 'UPDATE ' . _DB_PREFIX_ . 'cart_product ' .
                 'SET id_address_delivery=' . (int) $address->id .
@@ -123,6 +127,8 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $cart->secure_key = $customer->secure_key;
         $cart->id_customer = $customer->id;
+        $cart->id_address_delivery = $address->id;
+        $cart->id_address_invoice = $address->id;
         $cart->save();
 
         $cache_id = 'objectmodel_cart_' . $cart->id . '*';
@@ -165,29 +171,21 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
                 Logger::addLog('Updated checkout to match cart.', 1, null, null, null, true);
             }
 
-            // Create "cookie" file
-//            $fileCookie = fopen($storageFilePath, "w");
-//            fclose($fileCookie);
-
             if (_PCO_LOG_) {
-                Logger::addLog('Sending status 500.', 1, null, null, null, true);
+                Logger::addLog('Failed validation, reload.', 1, null, null, null, true);
             }
             if (Tools::getIsset('validate_order')) {
                 // Validation from JS PaysonEmbeddedAddressChanged event, will reload
                 $this->context->cookie->__set('validation_error', $this->l('Your order has been updated. Please review the order before proceeding.'));
                 die('reload');
             }
-            header('HTTP/1.1 500 Error');
-            exit();
         }
         if (_PCO_LOG_) {
-            Logger::addLog('Sending status 200.', 1, null, null, null, true);
+            Logger::addLog('Passed validation.', 1, null, null, null, true);
         }
         if (Tools::getIsset('validate_order')) {
             // Validation from JS PaysonEmbeddedAddressChanged event
             die('passed_validation');
         }
-        header('HTTP/1.1 200 OK');
-        exit();
     }
 }

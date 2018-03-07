@@ -1,13 +1,15 @@
-# Payson Checkout 2.0 Prestashop Module
+# Payson Checkout 2.0 PrestaShop Module
 
 ## Description
 
-Module for Prestashop implementing Payson Checkout 2.0
-* Support Prestashop 1.7.x
+Module for PrestaShop implementing Payson Checkout 2.0
+* Support PrestaShop 1.7.x
 
 ## Installation
 
 You should always backup your files and database before installing or updating modules
+
+* Uninstall and delete all previous versions of the module
 * Download the module (paysoncheckout2.zip) to your computer 
 * Log into your web shop Back Office
 * Click on Modules
