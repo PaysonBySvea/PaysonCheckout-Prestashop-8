@@ -176,7 +176,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             }
             if (Tools::getIsset('validate_order')) {
                 // Validation from JS PaysonEmbeddedAddressChanged event, will reload
-                $this->context->cookie->__set('validation_error', $this->l('Your order has been updated. Please review the order before proceeding.'));
+                $this->context->cookie->__set('validation_error', $this->module->l('Your order has been updated. Please review the order before proceeding.', 'validation'));
                 die('reload');
             }
         }
