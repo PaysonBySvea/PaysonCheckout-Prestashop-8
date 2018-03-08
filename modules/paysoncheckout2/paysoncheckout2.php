@@ -185,11 +185,14 @@ class PaysonCheckout2 extends PaymentModule
     {
         $orderStates = OrderState::getOrderStates((int) $this->context->cookie->id_lang);
         $orderStates[] = array('id_order_state' => '-1', 'name' => $this->l('Deactivated'));
-
+        $warnMess = '';
+        if (Configuration::get('PS_DISABLE_OVERRIDES')) {
+            $warnMess = '<a href="' . $this->context->link->getAdminLink('AdminPerformance', true) . '">' . $this->l('WARNING: Disable overrides must be set to "No". Click here to change.') . '</a>';
+        }
         $fields_form = array();
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => '',
+                'title' => $warnMess,
                 'icon' => '',
             ),
             'input' => array(
@@ -1029,6 +1032,10 @@ class PaysonCheckout2 extends PaymentModule
         $address->postcode = $checkout->customer->postalCode;
         $address->country = Country::getNameById(Configuration::get('PS_LANG_DEFAULT'), $countryId);
         $address->id_country = Country::getByIso($checkout->customer->countryCode);
+        if ($checkout->customer->phone != null) {
+            $address->phone = $checkout->customer->phone;
+            $address->phone_mobile = $checkout->customer->phone;
+        }
         $address->alias = $this->l('Payson account address');
         $address->update();
         //if (_PCO_LOG_) {
