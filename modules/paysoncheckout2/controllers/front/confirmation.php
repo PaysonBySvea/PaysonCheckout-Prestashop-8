@@ -33,9 +33,6 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
         if (_PCO_LOG_) {
             Logger::addLog('Call Type: ' . Tools::getValue('call'), 1, null, null, null, true);
         }
-        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
-        $payson = new PaysonCheckout2();
-        $paysonApi = $payson->getPaysonApiInstance();
 
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId)) {
@@ -45,20 +42,30 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
 
         $checkoutId = Tools::getValue('checkout');
         if (!isset($checkoutId) || $checkoutId == null) {
-            // Get checkout ID from cookie
-            $checkoutId = $this->context->cookie->paysonCheckoutId;
-            if (_PCO_LOG_) {
-                Logger::addLog('No checkout in query, loaded: ' . $checkoutId . ' from cookie.', 1, null, null, null, true);
+            if (isset($this->context->cookie->paysonCheckoutId) && $this->context->cookie->paysonCheckoutId != null) {
+                // Get checkout ID from cookie
+                $checkoutId = $this->context->cookie->paysonCheckoutId;
+                if (_PCO_LOG_) {
+                    Logger::addLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.', 1, null, null, null, true);
+                }
+            } else {
+                if (_PCO_LOG_) {
+                    Logger::addLog('No checkout ID in cookie, redirect.', 1, null, null, null, true);
+                }
+                Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
             }
         }
-
+        
+        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
+        $payson = new PaysonCheckout2();
+        $paysonApi = $payson->getPaysonApiInstance();
+        $checkout = $paysonApi->GetCheckout($checkoutId);
+        
         $cart = new Cart($cartId);
 
         if (!$cart->checkQuantities()) {
             Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
         }
-
-        $checkout = $paysonApi->GetCheckout($checkoutId);
 
         if (_PCO_LOG_) {
             Logger::addLog('Cart ID: ' . $cart->id, 1, null, null, null, true);
@@ -96,7 +103,9 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                         Logger::addLog('New order ID: ' . $orderCreated, 1, null, null, null, true);
                     }
                 } else {
-                    $orderAlreadyCreated = true;
+                    if (_PCO_LOG_) {
+                        Logger::addLog('Order already created.', 1, null, null, null, true);
+                    }
                 }
                 break;
             case 'readyToPay':
@@ -131,39 +140,11 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
         }
 
-        if ($orderCreated !== false || $orderAlreadyCreated == true) {
-//            $customer = new Customer((int) $cart->id_customer);
-//            if (Configuration::get('PAYSONCHECKOUT2_SHOW_CONFIRMATION') == 0 && $customer->is_guest == 0) {
-//                // Show thank you page for logged in customer
-//                Tools::redirect(
-//                       'order-confirmation.php?key='.
-//                       $customer->secure_key.
-//                       '&id_cart='.
-//                       $cart->id.
-//                       '&id_module='.
-//                       $this->module->id
-//                   );
-//
-//            } else {
-            // Show PCO2 iframe order confirmation
-            $this->context->smarty->assign(array('pco2Snippet' => $checkout->snippet));
-
-            if (_PCO_LOG_) {
-                Logger::addLog('Order completed successfully.', 1, null, null, null, true);
-            }
-
-            // Delete checkout id cookie
-            $this->context->cookie->__set('paysonCheckoutId', null);
-
-            $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
-            //}
-        } else {
-            // Show order confirmation with errors
-            if (_PCO_LOG_) {
-                Logger::addLog('Order creation was unsuccessfull.', 1, null, null, null, true);
-            }
-            $this->context->smarty->assign('payson_error', $this->l('Unable to create order.'));
-            $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
-        }
+        // Delete checkout id cookie
+        $this->context->cookie->__set('paysonCheckoutId', null);
+        
+        $this->context->smarty->assign(array('pco2Snippet' => $checkout->snippet));
+        
+        $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
     }
 }
