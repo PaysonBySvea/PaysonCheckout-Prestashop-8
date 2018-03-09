@@ -20,6 +20,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+//define('_PCO_OPTIONAL_OPC_', true);
+
 class PaysonCheckout2 extends PaymentModule
 {
     public $moduleVersion;
@@ -107,7 +109,8 @@ class PaysonCheckout2 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-        if (!$this->active || (int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 0 || (int) Configuration::get('PAYSONCHECKOUT2_ONE_PAGE') == 1) {
+        //if (!$this->active || (int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 0 || (int) Configuration::get('PAYSONCHECKOUT2_ONE_PAGE') == 1) {
+        if (!$this->active || (int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 0) {
             return;
         }
 
@@ -135,15 +138,13 @@ class PaysonCheckout2 extends PaymentModule
         return false;
     }
 
-    public function checkCurrencyName($cartCurrency, $callPaysonApi, $paysonCheckoutId)
+    public function checkCurrencyName($cartCurrency, $checkoutCurrency)
     {
-        $checkout = $callPaysonApi->GetCheckout($paysonCheckoutId);
-
-        if (Tools::strtoupper($cartCurrency) == Tools::strtoupper($checkout->payData->currency)) {
+        if (Tools::strtoupper($cartCurrency) == Tools::strtoupper($checkoutCurrency)) {
             return true;
-        } else {
-            return false;
         }
+        
+        return false;
     }
 
     public function getContent()
@@ -157,7 +158,11 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_MODE', (int) Tools::getValue('PAYSONCHECKOUT2_MODE'));
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_CONFIRMATION', 1);
             Configuration::updateValue('PAYSONCHECKOUT2_LOG', (int) Tools::getValue('PAYSONCHECKOUT2_LOG'));
-            Configuration::updateValue('PAYSONCHECKOUT2_ONE_PAGE', 1);
+            if (!defined('_PCO_OPTIONAL_OPC_')) {
+                Configuration::updateValue('PAYSONCHECKOUT2_ONE_PAGE', 1);
+            } else {
+                Configuration::updateValue('PAYSONCHECKOUT2_ONE_PAGE', (int) Tools::getValue('PAYSONCHECKOUT2_ONE_PAGE'));
+            }
             Configuration::updateValue('PAYSONCHECKOUT2_VERIFICATION', (int) Tools::getValue('PAYSONCHECKOUT2_VERIFICATION'));
             Configuration::updateValue('PAYSONCHECKOUT2_COLOR_SCHEME', Tools::getValue('PAYSONCHECKOUT2_COLOR_SCHEME'));
             Configuration::updateValue('PAYSONCHECKOUT2_MODULE_ENABLED', 1);
@@ -459,6 +464,27 @@ class PaysonCheckout2 extends PaymentModule
             ),
         );
 
+        if (defined('_PCO_OPTIONAL_OPC_')) {
+            $fields_form[0]['form']['input'][] = array(
+                'type' => 'switch',
+                'label' => $this->l('One Page Checkout'),
+                'name' => 'PAYSONCHECKOUT2_ONE_PAGE',
+                'is_bool' => true,
+                'values' => array(
+                    array(
+                        'id' => 'op_on',
+                        'value' => 1,
+                        'label' => $this->l('Yes'), ),
+                    array(
+                        'id' => 'op_off',
+                        'value' => 0,
+                        'label' => $this->l('No'), ),
+                ),
+                'desc' => $this->l('Select Yes to show the payment window on the checkout page'),
+            );
+        }
+        
+        
         $helper = new HelperForm();
         $helper->show_toolbar = false;
         $helper->table = $this->table;
@@ -582,7 +608,7 @@ class PaysonCheckout2 extends PaymentModule
         if ((int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 1) {
             $iframeOption = new PaymentOption();
             $iframeOption->setCallToActionText($this->l('Payson Checkout 2.0'))
-                    ->setAction($this->context->link->getModuleLink($this->name, 'payment', array(), true))
+                    ->setAction($this->context->link->getModuleLink($this->name, 'pconepage', array('ref' => 'opm'), true))
                     ->setAdditionalInformation($this->context->smarty->fetch('module:paysoncheckout2/views/templates/front/payment_infos.tpl'));
             //->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/logo.png'));
 
@@ -590,14 +616,13 @@ class PaysonCheckout2 extends PaymentModule
         }
     }
 
-    public function canUpdate($paysonApi, $paysonCheckoutId)
+    public function canUpdate($checkoutStatus)
     {
-        $checkout = $paysonApi->GetCheckout($paysonCheckoutId);
-        switch ($checkout->status) {
+        switch ($checkoutStatus) {
             case 'created':
                 return true;
             case 'readyToPay':
-                return true;
+                return false;
             case 'processingPayment':
                 return true;
             case 'readyToShip':
@@ -613,23 +638,13 @@ class PaysonCheckout2 extends PaymentModule
     public function createPaysonCheckout($customer, $cart, $payson, $currency, $id_lang, $address)
     {
         $trackingId = time();
-
-        $checkoutUri = $this->context->link->getModuleLink('paysoncheckout2', 'pconepage', array('trackingId' => $trackingId, 'id_cart' => $cart->id));
+        
+        $checkoutUri = $this->context->link->getModuleLink('paysoncheckout2', 'pconepage', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'paymentreturn'));
         $confirmationUri = $this->context->link->getModuleLink('paysoncheckout2', 'confirmation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'confirmation'));
         $notificationUri = $this->context->link->getModuleLink('paysoncheckout2', 'notifications', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'notification'));
         $cms = new CMS((int) (Configuration::get('PS_CONDITIONS_CMS_ID')), (int) ($this->context->cookie->id_lang));
         $termsUri = $this->context->link->getCMSLink($cms, $cms->link_rewrite, true);
         $validationUri = null;
-//        if (_PCO_LOG_) {
-//          Logger::addLog('REMOTE_ADDR: ' . print_r($_SERVER['REMOTE_ADDR'], true), 1, null, null, null, true);
-//        }
-//        if (!in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1','::1'))) {
-//            // Validation URI needs to be publicly accessible 
-//            $validationUri = $this->context->link->getModuleLink('paysoncheckout2', 'validation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'validation'));
-//            if (_PCO_LOG_) {
-//                Logger::addLog('This is not localhost, use validation URI: ' . $validationUri, 1, null, null, null, true);
-//            }
-//        }
 
         $paysonMerchant = new PaysonEmbedded\Merchant($checkoutUri, $confirmationUri, $notificationUri, $termsUri, null, $payson->moduleVersion);
         $paysonMerchant->reference = $cart->id;

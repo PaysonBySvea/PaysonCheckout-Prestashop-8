@@ -34,6 +34,10 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
             Logger::addLog('Call Type: ' . Tools::getValue('call'), 1, null, null, null, true);
         }
 
+        if (_PCO_LOG_) {
+            Logger::addLog('Query: ' . print_r($_REQUEST, true), 1, null, null, null, true);
+        }
+        
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId)) {
             $this->context->cookie->__set('validation_error', $this->l('Something went wrong with your cart. Please try again.'));
