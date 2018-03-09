@@ -16,9 +16,9 @@
 
 {block name="content"}
   <section>
-      {if isset($pco2Snippet)}
+      {if isset($payson_checkout)}
         <div id="iframepayson">
-            {$pco2Snippet nofilter}{* HTML comment, no escaping necessary *}
+            {$payson_checkout nofilter}{* IFRAME, no escaping possible *}
         </div>
       
       {else}

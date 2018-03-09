@@ -189,7 +189,7 @@
                 </h1>
             </div>
             <hr class="separator">
-            <div id="paysonpaymentwindow">{$payson_checkout nofilter}{* HTML comment, no escaping necessary *}</div>
+            <div id="paysonpaymentwindow">{$payson_checkout nofilter}{* IFRAME, no escaping possible *}</div>
         </div>
     </div>
 </div>
