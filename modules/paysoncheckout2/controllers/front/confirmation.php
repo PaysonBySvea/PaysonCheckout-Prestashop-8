@@ -137,7 +137,7 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                 break;
             case 'shipped':
                 if (_PCO_LOG_) {
-                    Logger::addLog('Got order status shipped 1.', 1, null, null, null, true);
+                    Logger::addLog('Got Checkout Status: shipped.', 1, null, null, null, true);
                 }
                 $payson->updatePaysonOrderEvent($checkout, $cartId);
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
@@ -147,7 +147,7 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                 $this->context->cookie->__set('validation_error', $this->l('Unable to complete order.'));
                 Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
         }
-
+        
         // Delete checkout id cookie
         $this->context->cookie->__set('paysonCheckoutId', null);
         

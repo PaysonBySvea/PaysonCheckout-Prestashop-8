@@ -827,18 +827,8 @@ class PaysonCheckout2 extends PaymentModule
                 
                 if (_PCO_LOG_) {
                     Logger::addLog('Address ID: ' . $address->id, 1, null, null, null, true);
-                }
-                if (_PCO_LOG_) {
                     Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
-                }
-                if (_PCO_LOG_) {
                     Logger::addLog('Cart total: ' . $total, 1, null, null, null, true);
-                }
-                if (_PCO_LOG_) {
-                    Logger::addLog('CreateOrder - Checkout total: ' . $checkout->payData->totalPriceIncludingTax, 1, null, null, null, true);
-                }
-                if (_PCO_LOG_) {
-                    Logger::addLog('Cart delivery cost: ' . $cart->getOrderTotal(true, Cart::ONLY_SHIPPING), 1, null, null, null, true);
                 }
 
                 // Create order
