@@ -71,7 +71,7 @@ $(document).ready(function() {
     });
 
     function updateCheckout(callData, updateCart, updateCheckout) {
-		upReq = null;
+        upReq = null;
         upReq = $.ajax({
             type: 'GET',
             url: pcourl,
@@ -92,7 +92,7 @@ $(document).ready(function() {
                         if ($('#paysonpaymentwindow').length) {
                             $('#paysonpaymentwindow').height('auto');
                         }
-                    }, 800);
+                    }, 500);
                 }
                 if (updateCart === true) {
                     prestashop.emit('updateCart', {
@@ -112,10 +112,10 @@ $(document).ready(function() {
     function sendLockDown() {
         if ($('#paysonIframe').length) {
             document.getElementById('paysonIframe').contentWindow.postMessage('lock', '*');
-            if ($('#paysonpaymentwindow').length) {
+            //if ($('#paysonpaymentwindow').length) {
                 // To prevent height flash when iframe reload
-                $('#paysonpaymentwindow').height($('#paysonIframe').height());
-            }
+                //$('#paysonpaymentwindow').height($('#paysonIframe').height());
+            //}
         }
     }
 
@@ -129,12 +129,11 @@ $(document).ready(function() {
         if ($('#paysonpaymentwindow').length) {
             $('#paysonpaymentwindow').height('auto');
         }
-    }, 1000);
+    }, 500);
     
     // Validate order on PaysonEmbeddedAddressChanged event
     function validateOrder(callData) {
-		valReq = null;
-        console.log(valReq);
+        valReq = null;
         valReq = $.ajax({
             type: 'GET',
             url: validateurl,
@@ -157,7 +156,7 @@ $(document).ready(function() {
                         if ($('#paysonpaymentwindow').length) {
                             $('#paysonpaymentwindow').height('auto');
                         }
-                    }, 800);
+                    }, 500);
                     sendRelease();
                 }
             },
@@ -194,7 +193,6 @@ $(window).resize(function() {
             if ($('#payson_cart_summary_wrapp .right-col').length) {
                 $('#payson_cart_summary_wrapp .right-col').insertBefore($('.card-payson-pay'));
             }
-
         } else {
             if ($('#payson_cart_summary_wrapp .left-col .right-col').length) {
                 $('#payson_cart_summary_wrapp').append($('#payson_cart_summary_wrapp .left-col .right-col'));
