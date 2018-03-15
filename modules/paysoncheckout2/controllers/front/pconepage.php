@@ -286,18 +286,19 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         }
                     } else {
                         Logger::addLog('Unable to retrive checkout.', 3, null, null, null, true);
+                        $this->context->cookie->__set('paysonCheckoutId', null);
                         if (Tools::getIsset('pco_update')) {
-                            die('Unable to retrive checkout.');
+                            die('reload');
                         }
-                        Tools::redirect('index.php');
+                        Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                     }
                 } catch (Exception $e) {
                     Logger::addLog('Unable to retrive checkout. Message: ' . $e->getMessage(), 3, null, null, null, true);
                     $this->context->cookie->__set('paysonCheckoutId', null);
                     if (Tools::getIsset('pco_update')) {
-                        die('Unable to retrive checkout.');
+                        die('reload');
                     }
-                    Tools::redirect('index.php');
+                    Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 }
             }
 

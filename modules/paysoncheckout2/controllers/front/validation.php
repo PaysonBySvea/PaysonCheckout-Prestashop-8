@@ -55,14 +55,8 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         if (_PCO_LOG_) {
             Logger::addLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
             Logger::addLog('Cart ID: ' . $cartId, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
             Logger::addLog('Query: ' . print_r($_REQUEST, true), 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
             Logger::addLog('Checkout Status: ' . $checkout->status, 1, null, null, null, true);
         }
 
@@ -91,8 +85,6 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         if (_PCO_LOG_) {
             Logger::addLog('Address ID: ' . $address->id, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
             Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
         }
 
@@ -147,8 +139,6 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         if (_PCO_LOG_) {
             Logger::addLog('Checkout total: ' . $checkoutTotal, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
             Logger::addLog('Cart total: ' . $cartTotal, 1, null, null, null, true);
         }
 
@@ -169,9 +159,6 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
             if (_PCO_LOG_) {
                 Logger::addLog('Updated checkout to match cart.', 1, null, null, null, true);
-            }
-
-            if (_PCO_LOG_) {
                 Logger::addLog('Failed validation, reload.', 1, null, null, null, true);
             }
             if (Tools::getIsset('validate_order')) {

@@ -87,12 +87,16 @@ $(document).ready(function() {
             success: function(returnData)
             {
                 if (updateCheckout === true) {
-                    $("#paysonpaymentwindow").html(returnData);
-                    setTimeout(function() {
-                        if ($('#paysonpaymentwindow').length) {
-                            $('#paysonpaymentwindow').height('auto');
-                        }
-                    }, 500);
+                    if (returnData === 'reload') {
+                        location.href = pcourl;
+                    } else {
+                        $("#paysonpaymentwindow").html(returnData);
+                        setTimeout(function() {
+                            if ($('#paysonpaymentwindow').length) {
+                                $('#paysonpaymentwindow').height('auto');
+                            }
+                        }, 500);
+                    }
                 }
                 if (updateCart === true) {
                     prestashop.emit('updateCart', {
@@ -173,19 +177,19 @@ $(document).ready(function() {
         validateOrder(callData);
     }, true);
     
-    // IE11 poly for custom event
-    (function () {
-        if ( typeof window.CustomEvent === "function" ) return false; //If not IE
-
-        function CustomEvent ( event, params ) {
-                params = params || { bubbles: false, cancelable: false, detail: undefined };
-                var evt = document.createEvent( 'CustomEvent' );
-                evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-                return evt;
-        }
-        CustomEvent.prototype = window.Event.prototype;
-        window.CustomEvent = CustomEvent;
-    })();
+    // IE11 poly for custom event, no need for this
+//    (function () {
+//        if ( typeof window.CustomEvent === "function" ) return false; //If not IE
+//
+//        function CustomEvent ( event, params ) {
+//                params = params || { bubbles: false, cancelable: false, detail: undefined };
+//                var evt = document.createEvent( 'CustomEvent' );
+//                evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+//                return evt;
+//        }
+//        CustomEvent.prototype = window.Event.prototype;
+//        window.CustomEvent = CustomEvent;
+//    })();
 });
 
 $(window).resize(function() {

@@ -31,7 +31,6 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
         $call = Tools::getValue('call');
 
         if ($call == 'notification') {
-
             $cartId = (int) Tools::getValue('id_cart');
             if (!isset($cartId) || $cartId == null) {
                 Logger::addLog('Notification No cart ID.', 2, null, null, null, true);
