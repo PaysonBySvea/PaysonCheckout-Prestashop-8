@@ -14,9 +14,11 @@
 *}
 {extends "$layout"}
 
+</div>
 {block name="content"}
   <section>
       {if isset($payson_checkout)}
+          {$HOOK_DISPLAY_ORDER_CONFIRMATION nofilter}{* no escaping possible *}
         <div id="iframepayson">
             {$payson_checkout nofilter}{* IFRAME, no escaping possible *}
         </div>
