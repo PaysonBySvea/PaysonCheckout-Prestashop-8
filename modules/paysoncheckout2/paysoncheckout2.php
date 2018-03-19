@@ -650,38 +650,26 @@ class PaysonCheckout2 extends PaymentModule
         $paysonMerchant->reference = $cart->id;
         $paysonMerchant->validationUri = $validationUri;
 
-        if (_PCO_LOG_) {
-            Logger::addLog('PCO Merchant: ' . print_r($paysonMerchant, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('PCO Merchant: ' . print_r($paysonMerchant, true), 1, null, null, null, true);
 
         $paysonOrder = new PaysonEmbedded\PayData($currency->iso_code);
         $paysonOrder->items = $this->orderItemsList($cart, $payson, $currency);
 
-        if (_PCO_LOG_) {
-            Logger::addLog('PCO Order: ' . print_r($paysonOrder, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('PCO Order: ' . print_r($paysonOrder, true), 1, null, null, null, true);
 
         //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
         $activeCountries = Country::getCountries($this->context->language->id, true, false, false);
         $moduleCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
-        if (_PCO_LOG_) {
-            Logger::addLog('Language ID: ' . $this->context->language->id, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
-            Logger::addLog('Active countries: ' . print_r($activeCountries, true), 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
-            Logger::addLog('Module countries: ' . print_r($moduleCountries, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('Language ID: ' . $this->context->language->id, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Active countries: ' . print_r($activeCountries, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Module countries: ' . print_r($moduleCountries, true), 1, null, null, null, true);
         $allowedDeliveryCountries = array();
         foreach ($activeCountries as $country) {
             if (in_array($country['iso_code'], $moduleCountries)) {
                 $allowedDeliveryCountries[] = $country['iso_code'];
             }
         }
-        if (_PCO_LOG_) {
-            Logger::addLog('Valid countries: ' . print_r($allowedDeliveryCountries, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('Valid countries: ' . print_r($allowedDeliveryCountries, true), 1, null, null, null, true);
 
         if (!is_array($allowedDeliveryCountries) || count($allowedDeliveryCountries) < 1) {
             // null will show all countries
@@ -690,9 +678,7 @@ class PaysonCheckout2 extends PaymentModule
 
         $paysonGui = new PaysonEmbedded\Gui($this->languagePayson(Language::getIsoById($id_lang)), Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'), Configuration::get('PAYSONCHECKOUT2_VERIFICATION'), (int) Configuration::get('PAYSONCHECKOUT2_REQUIRE_PHONE'), $allowedDeliveryCountries, null);
 
-        if (_PCO_LOG_) {
-            Logger::addLog('PCO GUI: ' . print_r($paysonGui, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('PCO GUI: ' . print_r($paysonGui, true), 1, null, null, null, true);
 
         if (Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
             // Create test customer
@@ -754,7 +740,7 @@ class PaysonCheckout2 extends PaymentModule
             $checkout->customer->postalCode = $address->postcode;
             $checkout->customer->street = $address->address1;
         }
-
+        
         $checkout->payData->items = $this->orderItemsList($cart, $payson, $currency);
 
         return $checkout;
@@ -772,20 +758,14 @@ class PaysonCheckout2 extends PaymentModule
             $this->context = Context::getContext();
         }
 
-        if (_PCO_LOG_) {
-            Logger::addLog('Start create order.', 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('Start create order.', 1, null, null, null, true);
 
         // Load cart
         $cart = new Cart((int) $cart_id);
         //$cart = $this->context->cart;
 
-        if (_PCO_LOG_) {
-            Logger::addLog('Cart ID: ' . $cart_id, 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
-            Logger::addLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('Cart ID: ' . $cart_id, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
 
         try {
             // Check if order exists
@@ -825,11 +805,9 @@ class PaysonCheckout2 extends PaymentModule
                 //$total = $cart->getOrderTotal(true, Cart::BOTH);
                 $total = $checkout->payData->totalPriceIncludingTax;
                 
-                if (_PCO_LOG_) {
-                    Logger::addLog('Address ID: ' . $address->id, 1, null, null, null, true);
-                    Logger::addLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
-                    Logger::addLog('Cart total: ' . $total, 1, null, null, null, true);
-                }
+                PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id, 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Cart total: ' . $total, 1, null, null, null, true);
 
                 // Create order
                 $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', array(), (int) $currency->id, false, $customer->secure_key);
@@ -842,10 +820,10 @@ class PaysonCheckout2 extends PaymentModule
 
                 return $order;
             } else {
-                Logger::addLog('PS order already exits.', 2, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('PS order already exits.', 2, null, null, null, true);
             }
         } catch (Exception $ex) {
-            Logger::addLog('PS failed to create order: ' . $ex->getMessage(), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('PS failed to create order: ' . $ex->getMessage(), 1, null, null, null, true);
         }
         return false;
     }
@@ -990,12 +968,8 @@ class PaysonCheckout2 extends PaymentModule
         $customer->lastname = $checkout->customer->lastName != null ? $checkout->customer->lastName : str_replace(array(':', ',', ';', '+', '"', "'"), array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
         $customer->id_gender = 0;
         $customer->add();
-        if (_PCO_LOG_) {
-            Logger::addLog('Create PS Customer - Checkout: ' . print_r($checkout, true), 1, null, null, null, true);
-        }
-        if (_PCO_LOG_) {
-            Logger::addLog('Create PS Customer - Customer: ' . print_r($customer, true), 1, null, null, null, true);
-        }
+        PaysonCheckout2::paysonAddLog('Create PS Customer - Checkout: ' . print_r($checkout, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Create PS Customer - Customer: ' . print_r($customer, true), 1, null, null, null, true);
         return $customer;
     }
 
@@ -1017,12 +991,8 @@ class PaysonCheckout2 extends PaymentModule
         //$address->id_state   = (int)$customer->id_state;
         $address->alias = $this->l('Payson account address');
         $address->add();
-        //if (_PCO_LOG_) {
-            //Logger::addLog('PHONE ' . $checkout->customer->phone, 1, null, null, null, true);
-        //}
-        //if (_PCO_LOG_) {
-        //Logger::addLog('Create PS Address - Address: ' . print_r($address, true), 1, null, null, null, true);
-        //}
+        //PaysonCheckout2::paysonAddLog('PHONE ' . $checkout->customer->phone, 1, null, null, null, true);
+        //PaysonCheckout2::paysonAddLog('Create PS Address - Address: ' . print_r($address, true), 1, null, null, null, true);
         return $address;
     }
 
@@ -1043,12 +1013,8 @@ class PaysonCheckout2 extends PaymentModule
         }
         $address->alias = $this->l('Payson account address');
         $address->update();
-        //if (_PCO_LOG_) {
-        //Logger::addLog('Update PS Address - Checkout: ' . print_r($checkout, true), 1, null, null, null, true);
-        //}
-        //if (_PCO_LOG_) {
-        //Logger::addLog('Update PS Address - Address: ' . print_r($address, true), 1, null, null, null, true);
-        //}
+        //PaysonCheckout2::paysonAddLog('Update PS Address - Checkout: ' . print_r($checkout, true), 1, null, null, null, true);
+        //PaysonCheckout2::paysonAddLog('Update PS Address - Address: ' . print_r($address, true), 1, null, null, null, true);
         return $address;
     }
 
@@ -1146,19 +1112,10 @@ class PaysonCheckout2 extends PaymentModule
         $order = new Order((int) $params['id_order']);
 
         if ($order->module == 'paysoncheckout2') {
-            if (_PCO_LOG_) {
-                Logger::addLog('Order status changed to ' . $newOrderStatus->name . ' for order: ' . $params['id_order'], 1, null, null, null, true);
-            }
-            if (_PCO_LOG_) {
-                Logger::addLog('Order status ID: ' . $newOrderStatus->id, 1, null, null, null, true);
-            }
-
-            if (_PCO_LOG_) {
-                Logger::addLog('Payson shipped status ID: ' . Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop), 1, null, null, null, true);
-            }
-            if (_PCO_LOG_) {
-                Logger::addLog('Payson canceled status ID: ' . Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop), 1, null, null, null, true);
-            }
+            PaysonCheckout2::paysonAddLog('Order status changed to ' . $newOrderStatus->name . ' for order: ' . $params['id_order'], 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Order status ID: ' . $newOrderStatus->id, 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Payson shipped status ID: ' . Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Payson canceled status ID: ' . Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop), 1, null, null, null, true);
 
             if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
                 $checkout_id = $this->getPaysonOrderEventId($order->id_cart);
@@ -1166,16 +1123,12 @@ class PaysonCheckout2 extends PaymentModule
                 if (isset($checkout_id) && $checkout_id !== null) {
                     $paysonApi = $this->getPaysonApiInstance();
                     $checkout = $paysonApi->GetCheckout($checkout_id);
-                    if (_PCO_LOG_) {
-                        Logger::addLog('Payson order current status is: ' . $checkout->status, 1, null, null, null, true);
-                    }
+                    PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout->status, 1, null, null, null, true);
 
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
                         if ($checkout->status == 'readyToShip') {
                             try {
-                                if (_PCO_LOG_) {
-                                    Logger::addLog('Updating Payson order shipped.', 1, null, null, null, true);
-                                }
+                                PaysonCheckout2::paysonAddLog('Updating Payson order shipped.', 1, null, null, null, true);
                                 
                                 $checkout->status = 'shipped';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
@@ -1194,9 +1147,7 @@ class PaysonCheckout2 extends PaymentModule
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
                         if ($checkout->status == 'readyToShip') {
                             try {
-                                if (_PCO_LOG_) {
-                                    Logger::addLog('Updating Payson order canceled.', 1, null, null, null, true);
-                                }
+                                PaysonCheckout2::paysonAddLog('Updating Payson order canceled.', 1, null, null, null, true);
 
                                 $checkout->status = 'canceled';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
@@ -1208,18 +1159,23 @@ class PaysonCheckout2 extends PaymentModule
                             }
                         } else {
                             // Error
-                            Logger::addLog('Failed to update Payson order status to canceled. Payson order has wrong status for update.', 2, null, null, null, true);
+                            PaysonCheckout2::paysonAddLog('Failed to update Payson order status to canceled. Payson order has wrong status for update.', 2, null, null, null, true);
                         }
                     }
 
-                    if (_PCO_LOG_) {
-                        Logger::addLog('Updated Payson order status is: ' . $updatedCheckout->status, 1, null, null, null, true);
-                    }
+                    PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                 } else {
                     // Error
                     Logger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID from DB.', 3, null, null, null, true);
                 }
             }
+        }
+    }
+    
+    public static function paysonAddLog($message, $severity = 1, $errorCode = null, $objectType = null, $objectId = null, $allowDuplicate = false, $idEmployee = null)
+    {
+        if (_PCO_LOG_) {
+            Logger::addLog($message, $severity, $errorCode, $objectType, $objectId, $allowDuplicate, $idEmployee);
         }
     }
 }
