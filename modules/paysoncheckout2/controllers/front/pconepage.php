@@ -131,7 +131,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
     {
         parent::initContent();
 
-        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *');
 
         if (!isset($this->context->cart->id) || $this->context->cart->nbProducts() < 1) {
             if (Tools::getIsset('pco_update')) {
@@ -144,7 +144,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
         if (!$this->context->cart->getDeliveryOption(null, true)) {
             $this->context->cart->setDeliveryOption($this->context->cart->getDeliveryOption());
             $this->context->cart->save();
-            PaysonCheckout2::paysonAddLog('Added default delivery: ' . print_r($this->context->cart->getDeliveryOption(), true), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Added default delivery: ' . print_r($this->context->cart->getDeliveryOption(), true));
         }
 
         // Check if rules apply
@@ -152,7 +152,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
         CartRule::autoAddToCart($this->context);
 
         $cartCurrency = new Currency($this->context->cart->id_currency);
-        PaysonCheckout2::paysonAddLog('Cart Currency: ' . $cartCurrency->iso_code, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Cart Currency: ' . $cartCurrency->iso_code);
 
         if (isset($this->context->cart) && $this->context->cart->nbProducts() > 0) {
             $cartQuantities = $this->context->cart->checkQuantities(true);
@@ -172,9 +172,9 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
                 try {
                     $paysonApi = $payson->getPaysonApiInstance();
-                    PaysonCheckout2::paysonAddLog('Payson API Merchant ID: ' . $paysonApi->getMerchantId(), 1, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Payson API Merchant ID: ' . $paysonApi->getMerchantId());
                 } catch (Exception $e) {
-                    Logger::addLog('Payson API Failure: ' . $e->getMessage(), 3, null, null, null, true);
+                    Logger::addLog('Payson API Failure: ' . $e->getMessage(), 3);
                     if (Tools::getIsset('pco_update')) {
                         die($e->getMessage());
                     }
@@ -189,7 +189,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                 $customer = new Customer();
 
                 if ($this->context->customer->isLogged() || $this->context->customer->is_guest) {
-                    PaysonCheckout2::paysonAddLog($this->context->customer->is_guest == 1 ? 'Customer is: Guest' : 'Customer is: Logged in', 1, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog($this->context->customer->is_guest == 1 ? 'Customer is: Guest' : 'Customer is: Logged in');
                     // Customer is logged in or has entered guest address information, we'll use this information
                     $customer = new Customer((int) ($this->context->cart->id_customer));
                     $address = new Address((int) ($this->context->cart->id_address_invoice));
@@ -200,21 +200,25 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     }
 
                     if (!Validate::isLoadedObject($customer)) {
-                        Logger::addLog('Unable to validate customer.', 3, null, null, null, true);
+                        Logger::addLog('Unable to validate customer.', 3);
                         if (Tools::getIsset('pco_update')) {
                             die('Unable to validate customer.');
                         }
                         Tools::redirect('index.php');
                     }
                 } else {
-                    PaysonCheckout2::paysonAddLog('Customer is not Guest or Logged in', 1, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Customer is not Guest or Logged in');
                 }
 
                 try {
                     if ($this->context->cookie->paysonCheckoutId != null) {
                         // Get checkout
                         $checkout = $paysonApi->GetCheckout($this->context->cookie->paysonCheckoutId);
-                        PaysonCheckout2::paysonAddLog('Get checkout.', 1, null, null, null, true);
+                        PaysonCheckout2::paysonAddLog('Get checkout.');
+                        if ($checkout->status == 'expired') {
+                            $this->context->cookie->__set('paysonCheckoutId', null);
+                            PaysonCheckout2::paysonAddLog('Checkout expired, delete cookie.');
+                        }
                     } else {
                         // Create a new checkout
                         $checkoutId = $paysonApi->CreateCheckout($payson->createPaysonCheckout($customer, $this->context->cart, $payson, $cartCurrency, $this->context->language->id, $address));
@@ -224,7 +228,10 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         
                         // Save data in Payson order table
                         $payson->createPaysonOrderEvent($checkout->id, $this->context->cart->id);
-                        PaysonCheckout2::paysonAddLog('Create checkout.', 1, null, null, null, true);
+                        PaysonCheckout2::paysonAddLog('Create checkout.');
+                        
+                        $this->context->cookie->__set('paysonCheckoutId', $checkout->id);
+                        PaysonCheckout2::paysonAddLog('Save cookie.');
                     }
                     
                     if ($this->context->cookie->paysonCheckoutId != null && $payson->canUpdate($checkout->status) && $payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency)) {
@@ -234,18 +241,15 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         // Update data in Payson order table
                         $payson->updatePaysonOrderEvent($checkout, $this->context->cart->id);
                         
-                        PaysonCheckout2::paysonAddLog('Update checkout.', 1, null, null, null, true);
+                        PaysonCheckout2::paysonAddLog('Update checkout.');
                     }
-
-                    $this->context->cookie->__set('paysonCheckoutId', $checkout->id);
-                    PaysonCheckout2::paysonAddLog('Save cookie.', 1, null, null, null, true);
                     
                     if ($checkout->id != null) {
                         // Get ceheckout snippet
                         $snippet = $checkout->snippet;
-                        PaysonCheckout2::paysonAddLog('PCO ID: ' . $checkout->id, 1, null, null, null, true);
+                        PaysonCheckout2::paysonAddLog('PCO ID: ' . $checkout->id);
                     } else {
-                        Logger::addLog('Unable to retrive checkout.', 3, null, null, null, true);
+                        Logger::addLog('Unable to retrive checkout.', 3);
                         $this->context->cookie->__set('paysonCheckoutId', null);
                         if (Tools::getIsset('pco_update')) {
                             die('reload');
@@ -253,7 +257,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                     }
                 } catch (Exception $e) {
-                    Logger::addLog('Unable to retrive checkout. Message: ' . $e->getMessage(), 3, null, null, null, true);
+                    Logger::addLog('Unable to retrive checkout. Message: ' . $e->getMessage(), 3);
                     $this->context->cookie->__set('paysonCheckoutId', null);
                     if (Tools::getIsset('pco_update')) {
                         die('reload');
