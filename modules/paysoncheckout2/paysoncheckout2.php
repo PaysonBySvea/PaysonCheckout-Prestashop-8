@@ -43,7 +43,7 @@ class PaysonCheckout2 extends PaymentModule
         $this->displayName = $this->l('Payson Checkout 2.0');
         $this->description = $this->l('Pay with Payson via invoice, card, internet bank, partial payment or sms.');
 
-        $this->moduleVersion = sprintf('payson_checkout2_prestashop|%s|%s', $this->version, _PS_VERSION_);
+        $this->moduleVersion = sprintf('payson_checkout2_prestashop17|%s|%s', $this->version, _PS_VERSION_);
 
         if (!count(Currency::checkPaymentCurrencies($this->id))) {
             $this->warning = $this->l('No currency has been set for this module.');
