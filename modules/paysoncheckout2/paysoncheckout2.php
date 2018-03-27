@@ -95,6 +95,7 @@ class PaysonCheckout2 extends PaymentModule
                 Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
                 Configuration::deleteByName('PAYSON_ORDER_SHIPPED_STATE') == false ||
                 Configuration::deleteByName('PAYSON_ORDER_CANCEL_STATE') == false ||
+                Configuration::deleteByName('PAYSON_ORDER_CREDITED_STATE') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_TEMPLATE') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_TESTAGENTID') == false ||
@@ -168,6 +169,7 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_MODULE_ENABLED', 1);
             Configuration::updateValue('PAYSON_ORDER_SHIPPED_STATE', (int) Tools::getValue('PAYSON_ORDER_SHIPPED_STATE'));
             Configuration::updateValue('PAYSON_ORDER_CANCEL_STATE', (int) Tools::getValue('PAYSON_ORDER_CANCEL_STATE'));
+            Configuration::updateValue('PAYSON_ORDER_CREDITED_STATE', (int) Tools::getValue('PAYSON_ORDER_CREDITED_STATE'));
             Configuration::updateValue('PAYSONCHECKOUT2_TEMPLATE', Tools::getValue('PAYSONCHECKOUT2_TEMPLATE'));
             Configuration::updateValue('PAYSONCHECKOUT2_REQUIRE_PHONE', 1);
             //Configuration::updateValue('PAYSONCHECKOUT2_SHOW_PHONE', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_PHONE'));
@@ -189,7 +191,8 @@ class PaysonCheckout2 extends PaymentModule
     public function createSettingsForm()
     {
         $orderStates = OrderState::getOrderStates((int) $this->context->cookie->id_lang);
-        $orderStates[] = array('id_order_state' => '-1', 'name' => $this->l('Deactivated'));
+        array_unshift($orderStates, array('id_order_state' => '-1', 'name' => $this->l('Deactivated')));
+        //$orderStates[] = array('id_order_state' => '-1', 'name' => $this->l('Deactivated'));
         $warnMess = '';
         if (Configuration::get('PS_DISABLE_OVERRIDES')) {
             $warnMess = '<a href="' . $this->context->link->getAdminLink('AdminPerformance', true) . '">' . $this->l('WARNING: Disable overrides must be set to "No". Click here to change.') . '</a>';
@@ -283,6 +286,17 @@ class PaysonCheckout2 extends PaymentModule
                     'label' => $this->l('Shipped order status'),
                     'name' => 'PAYSON_ORDER_SHIPPED_STATE',
                     'desc' => $this->l('Order status Shipped will be sent to Payson when this order status is set.'),
+                    'options' => array(
+                        'query' => $orderStates,
+                        'id' => 'id_order_state',
+                        'name' => 'name',
+                    ),
+                ),
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('Refunded order status'),
+                    'name' => 'PAYSON_ORDER_CREDITED_STATE',
+                    'desc' => $this->l('Payson order will be refunded when this order status is set.'),
                     'options' => array(
                         'query' => $orderStates,
                         'id' => 'id_order_state',
@@ -527,6 +541,7 @@ class PaysonCheckout2 extends PaymentModule
             'PAYSONCHECKOUT2_MODULE_ENABLED' => Tools::getValue('PAYSONCHECKOUT2_MODULE_ENABLED', Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED')),
             'PAYSON_ORDER_CANCEL_STATE' => Tools::getValue('PAYSON_ORDER_CANCEL_STATE', Configuration::get('PAYSON_ORDER_CANCEL_STATE')),
             'PAYSON_ORDER_SHIPPED_STATE' => Tools::getValue('PAYSON_ORDER_SHIPPED_STATE', Configuration::get('PAYSON_ORDER_SHIPPED_STATE')),
+            'PAYSON_ORDER_CREDITED_STATE' => Tools::getValue('PAYSON_ORDER_CREDITED_STATE', Configuration::get('PAYSON_ORDER_CREDITED_STATE')),
             'PAYSONCHECKOUT2_TEMPLATE' => Tools::getValue('PAYSONCHECKOUT2_TEMPLATE', Configuration::get('PAYSONCHECKOUT2_TEMPLATE')),
             'PAYSONCHECKOUT2_TESTAGENTID' => Tools::getValue('PAYSONCHECKOUT2_TESTAGENTID', Configuration::get('PAYSONCHECKOUT2_TESTAGENTID')),
             'PAYSONCHECKOUT2_TESTAPIKEY' => Tools::getValue('PAYSONCHECKOUT2_TESTAPIKEY', Configuration::get('PAYSONCHECKOUT2_TESTAPIKEY')),
@@ -1102,71 +1117,120 @@ class PaysonCheckout2 extends PaymentModule
 
         return $orderitemslist;
     }
+    
     /*
-     * Update Payson order status to canceled or shipped
+     * Update Payson order status, ship, cancel or refund
      */
 
-    public function hookUpdateOrderStatus($params)
+    public function hookActionOrderStatusUpdate($params)
     {
-        $newOrderStatus = $params['newOrderStatus'];
         $order = new Order((int) $params['id_order']);
-
+        
         if ($order->module == 'paysoncheckout2') {
-            PaysonCheckout2::paysonAddLog('Order status changed to ' . $newOrderStatus->name . ' for order: ' . $params['id_order'], 1, null, null, null, true);
-            PaysonCheckout2::paysonAddLog('Order status ID: ' . $newOrderStatus->id, 1, null, null, null, true);
-            PaysonCheckout2::paysonAddLog('Payson shipped status ID: ' . Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop), 1, null, null, null, true);
-            PaysonCheckout2::paysonAddLog('Payson canceled status ID: ' . Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop), 1, null, null, null, true);
+            $newOrderStatus = $params['newOrderStatus'];
+            
+            $paidName = '';
+            $shippedName = '';
+            $canceledName = '';
+            $refundName = '';
+            $orderStates = OrderState::getOrderStates(Configuration::get('PS_LANG_DEFAULT'));
+            foreach ($orderStates as $state) {
+                if ($state['module_name'] == 'paysoncheckout2' || $state['paid'] == 1) {
+                    $paidName = $state['name'];
+                }
+                if ($state['id_order_state'] == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
+                    $shippedName = $state['name'];
+                }
+                if ($state['id_order_state'] == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
+                    $canceledName = $state['name'];
+                }
+                if ($state['id_order_state'] == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
+                    $refundName = $state['name'];
+                }
+            }
+            
+            PaysonCheckout2::paysonAddLog('PS order status changed to ' . $newOrderStatus->name . ' for order: ' . $params['id_order']);
+            PaysonCheckout2::paysonAddLog('PS order status to send shipped to Payson: ' . $shippedName);
+            PaysonCheckout2::paysonAddLog('PS order status to send canceled to Payson: ' . $canceledName);
+            PaysonCheckout2::paysonAddLog('PS order status to send refund to Payson: ' . $refundName);
 
-            if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
+            if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
                 $checkout_id = $this->getPaysonOrderEventId($order->id_cart);
 
                 if (isset($checkout_id) && $checkout_id !== null) {
-                    $paysonApi = $this->getPaysonApiInstance();
-                    $checkout = $paysonApi->GetCheckout($checkout_id);
-                    PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout->status, 1, null, null, null, true);
-
+                    try {
+                        $paysonApi = $this->getPaysonApiInstance();
+                        $checkout = $paysonApi->GetCheckout($checkout_id);
+                        PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout->status);
+                    } catch (Exception $e) {
+                        $this->adminDisplayWarning($this->l('Unable to get Payson order.'));
+                        Logger::addLog('Unable to get Payson order.', 3, null, null, null, true);
+                        return false;
+                    }
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
                         if ($checkout->status == 'readyToShip') {
                             try {
-                                PaysonCheckout2::paysonAddLog('Updating Payson order shipped.', 1, null, null, null, true);
+                                PaysonCheckout2::paysonAddLog('Updating Payson order ststus to shipped.', 1, null, null, null, true);
                                 
                                 $checkout->status = 'shipped';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
 
-                                // Update data in Payson order table
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
                             } catch (Exception $e) {
+                                $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
-                            // Error
-                            Logger::addLog('Failed to update Payson order status to shipped. Payson order has wrong status.', 3, null, null, null, true);
+                            $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Shipped. Please log in to your PaysonAccount to manually edit order.'));
+                            Logger::addLog('Failed to update Payson order status to Shipped. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
                         }
                     }
 
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
                         if ($checkout->status == 'readyToShip') {
                             try {
-                                PaysonCheckout2::paysonAddLog('Updating Payson order canceled.', 1, null, null, null, true);
+                                PaysonCheckout2::paysonAddLog('Updating Payson order status to canceled.', 1, null, null, null, true);
 
                                 $checkout->status = 'canceled';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
 
-                                // Update data in Payson order table
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
                             } catch (Exception $e) {
+                                $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
-                            // Error
-                            PaysonCheckout2::paysonAddLog('Failed to update Payson order status to canceled. Payson order has wrong status for update.', 2, null, null, null, true);
+                            $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Canceled. Please log in to your PaysonAccount to manually edit order.'));
+                            Logger::addLog('Failed to update Payson order status to Canceled. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
+                        }
+                    }
+                    
+                    if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
+                        if ($checkout->status == 'shipped') {
+                            try {
+                                PaysonCheckout2::paysonAddLog('Updating Payson order status to credited.');
+
+                                foreach ($checkout->payData->items as $item) {
+                                    $item->creditedAmount = ($item->unitPrice*$item->quantity);
+                                }
+
+                                $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
+                                
+                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
+                            } catch (Exception $e) {
+                                $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
+                                Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
+                            }
+                        } else {
+                            $this->adminDisplayWarning($this->l('Payson order must have status Shipped before it can be set to Credited. Please log in to your PaysonAccount to manually edit order.'));
+                            Logger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
                         }
                     }
 
                     PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                 } else {
-                    // Error
-                    Logger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID from DB.', 3, null, null, null, true);
+                    $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
+                    Logger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID.', 3, null, null, null, true);
                 }
             }
         }
