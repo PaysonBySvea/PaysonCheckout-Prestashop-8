@@ -210,7 +210,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     PaysonCheckout2::paysonAddLog('Customer is not Guest or Logged in');
                 }
 
-                $updateCheckout = false;
                 try {
                     if ($this->context->cookie->paysonCheckoutId != null) {
                         // Get checkout
@@ -220,7 +219,27 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                             $this->context->cookie->__set('paysonCheckoutId', null);
                             PaysonCheckout2::paysonAddLog('Checkout expired, delete cookie.');
                         }
-                        $updateCheckout = true;
+                        
+                        if ($payson->canUpdate($checkout->status) && $payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency) && ($payson->languagePayson(Language::getIsoById($this->context->language->id)) == $payson->languagePayson($checkout->gui->locale))) {
+                            // Update checkout
+                            $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $this->context->cart, $payson, $address, $cartCurrency));
+
+                            // Update data in Payson order table
+                            $payson->updatePaysonOrderEvent($checkout, $this->context->cart->id);
+                            PaysonCheckout2::paysonAddLog('Update checkout.');
+                        } else {
+                            $this->context->cookie->__set('paysonCheckoutId', null);
+                            PaysonCheckout2::paysonAddLog('Checkout expired, delete cookie.');
+                            
+                            if (Tools::getIsset('pco_update')) {
+                                if ($payson->validPaysonCurrency($cartCurrency->iso_code)) {
+                                    die('reload');
+                                } else {
+                                    die('Error: Invalid currency');
+                                }
+                            }
+                            Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
+                        }
                     } else {
                         // Create a new checkout
                         $checkoutId = $paysonApi->CreateCheckout($payson->createPaysonCheckout($customer, $this->context->cart, $payson, $cartCurrency, $this->context->language->id, $address));
@@ -236,16 +255,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         PaysonCheckout2::paysonAddLog('Save cookie.');
                     }
                     
-                    if ($updateCheckout && $payson->canUpdate($checkout->status) && $payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency)) {
-                        // Update checkout
-                        $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $this->context->cart, $payson, $address, $cartCurrency));
-
-                        // Update data in Payson order table
-                        $payson->updatePaysonOrderEvent($checkout, $this->context->cart->id);
-                        
-                        PaysonCheckout2::paysonAddLog('Update checkout.');
-                    }
-                    
                     if ($checkout->id != null) {
                         // Get ceheckout snippet
                         $snippet = $checkout->snippet;
@@ -254,17 +263,17 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         Logger::addLog('Unable to retrive checkout.', 3);
                         $this->context->cookie->__set('paysonCheckoutId', null);
                         if (Tools::getIsset('pco_update')) {
-                            die('reload');
+                            die('Unable to retrive checkout.');
                         }
-                        Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
+                        Tools::redirect('index.php');
                     }
                 } catch (Exception $e) {
                     Logger::addLog('Unable to retrive checkout. Message: ' . $e->getMessage(), 3);
                     $this->context->cookie->__set('paysonCheckoutId', null);
                     if (Tools::getIsset('pco_update')) {
-                        die('reload');
+                        die('Unable to retrive checkout: ' . $e->getMessage());
                     }
-                    Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
+                    Tools::redirect('index.php');
                 }
             }
 

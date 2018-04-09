@@ -21,7 +21,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
     {
         parent::init();
 
-        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *');
 
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId) || $cartId < 1 || $cartId == null) {
@@ -34,9 +34,9 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             if (isset($this->context->cookie->paysonCheckoutId) && $this->context->cookie->paysonCheckoutId != null) {
                 // Get checkout ID from cookie
                 $checkoutId = $this->context->cookie->paysonCheckoutId;
-                PaysonCheckout2::paysonAddLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.', 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.');
             } else {
-                PaysonCheckout2::paysonAddLog('No checkout ID in cookie, redirect.', 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('No checkout ID in cookie, redirect.');
                 die('reload');
             }
         }
@@ -47,10 +47,10 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $checkout = $paysonApi->GetCheckout($checkoutId);
 
-        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Cart ID: ' . $cartId, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Query: ' . print_r($_REQUEST, true), 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout->status, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id);
+        PaysonCheckout2::paysonAddLog('Cart ID: ' . $cartId);
+        PaysonCheckout2::paysonAddLog('Query: ' . print_r($_REQUEST, true));
+        PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout->status);
 
         $cart = new Cart($cartId);
 
@@ -75,8 +75,8 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         $new_delivery_options[(int) ($address->id)] = $cart->id_carrier . ',';
         $new_delivery_options_serialized = serialize($new_delivery_options);
 
-        PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id);
+        PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier);
 
         $update_sql = 'UPDATE ' . _DB_PREFIX_ . 'cart ' .
                 'SET delivery_option=\'' .
@@ -118,13 +118,13 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         $cart = new Cart($cart->id);
 
         //PaysonCheckout2::paysonAddLog('Cart: ' . print_r($cart, true), 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Checkout country: ' . $checkout->customer->countryCode, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Checkout country: ' . $checkout->customer->countryCode);
 
         $checkoutTotal = $checkout->payData->totalPriceIncludingTax;
         $cartTotal = $cart->getOrderTotal(true, Cart::BOTH);
 
-        PaysonCheckout2::paysonAddLog('Checkout total: ' . $checkoutTotal, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Cart total: ' . $cartTotal, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Checkout total: ' . $checkoutTotal);
+        PaysonCheckout2::paysonAddLog('Cart total: ' . $cartTotal);
 
         if ($checkoutTotal !== $cartTotal) {
             /*
@@ -141,15 +141,15 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             // Update data in Payson order table
             $payson->updatePaysonOrderEvent($checkout, $cart->id);
 
-            PaysonCheckout2::paysonAddLog('Updated checkout to match cart.', 1, null, null, null, true);
-            PaysonCheckout2::paysonAddLog('Failed validation, reload.', 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Updated checkout to match cart.');
+            PaysonCheckout2::paysonAddLog('Failed validation, reload.');
             if (Tools::getIsset('validate_order')) {
                 // Validation from JS PaysonEmbeddedAddressChanged event, will reload
                 $this->context->cookie->__set('validation_error', $this->module->l('Your order has been updated. Please review the order before proceeding.', 'validation'));
                 die('reload');
             }
         }
-        PaysonCheckout2::paysonAddLog('Passed validation.', 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Passed validation.');
         if (Tools::getIsset('validate_order')) {
             // Validation from JS PaysonEmbeddedAddressChanged event
             die('passed_validation');
