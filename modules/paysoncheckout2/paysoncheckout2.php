@@ -658,7 +658,7 @@ class PaysonCheckout2 extends PaymentModule
         $confirmationUri = $this->context->link->getModuleLink('paysoncheckout2', 'confirmation', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'confirmation'));
         $notificationUri = $this->context->link->getModuleLink('paysoncheckout2', 'notifications', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'notification'));
         $cms = new CMS((int) (Configuration::get('PS_CONDITIONS_CMS_ID')), (int) ($this->context->cookie->id_lang));
-        $termsUri = $this->context->link->getCMSLink($cms, $cms->link_rewrite, true);
+        $termsUri = $this->context->link->getCMSLink($cms, $cms->link_rewrite, Configuration::get('PS_SSL_ENABLED'));
         $validationUri = null;
 
         $paysonMerchant = new PaysonEmbedded\Merchant($checkoutUri, $confirmationUri, $notificationUri, $termsUri, null, $payson->moduleVersion);
@@ -1069,6 +1069,7 @@ class PaysonCheckout2 extends PaymentModule
         $total_shipping_wot = 0;
         $carrier = new Carrier($cart->id_carrier, $cart->id_lang);
 
+        $shippingToSubtractFromDiscount = 0;
         if ($total_shipping_wt > 0) {
             $carriertax = Tax::getCarrierTaxRate((int) $carrier->id, $cart->id_address_invoice);
             $carriertax_rate = $carriertax / 100;
@@ -1076,7 +1077,7 @@ class PaysonCheckout2 extends PaymentModule
             $total_shipping_wot = $total_shipping_wt / $forward_vat;
 
             if (!empty($cartDiscounts) && (!empty($cartDiscounts[0]['obj'])) && $cartDiscounts[0]['obj']->free_shipping) {
-                $totoalCalc = 0;
+                $shippingToSubtractFromDiscount = $total_shipping_wt;
             } else {
                 $orderitemslist[] = new PaysonEmbedded\OrderItem(isset($carrier->name) ? $carrier->name : $this->l('Shipping'), $total_shipping_wt, 1, number_format($carriertax_rate, 2, '.', ''), $this->l('Shipping'), PaysonEmbedded\OrderItemType::SERVICE);
             }
@@ -1095,18 +1096,18 @@ class PaysonCheckout2 extends PaymentModule
             $value_tax_exc = $cart_rule["value_tax_exc"];
 
             if ($has_different_rates == false) {
-                $discount_tax_rate = Tools::ps_round($lastrate, 2);
+                $discount_tax_rate = Tools::ps_round($lastrate, $cur * _PS_PRICE_DISPLAY_PRECISION_);
             } else {
                 $discount_tax_rate = (($value_real / $value_tax_exc) - 1) * 100;
 
-                $discount_tax_rate = Tools::ps_round($discount_tax_rate, 2);
+                $discount_tax_rate = Tools::ps_round($discount_tax_rate, $cur * _PS_PRICE_DISPLAY_PRECISION_);
             }
 
             if ($totalCartValue <= $total_discounts) {
                 $value_real = 0;
             }
 
-            $orderitemslist[] = new PaysonEmbedded\OrderItem($cart_rule["name"], -(Tools::ps_round($value_real, 2)), 1, number_format(($discount_tax_rate * 0.01), 4, '.', ''), $this->l('Discount'), PaysonEmbedded\OrderItemType::DISCOUNT);
+            $orderitemslist[] = new PaysonEmbedded\OrderItem($cart_rule["name"], -(Tools::ps_round(($value_real - $shippingToSubtractFromDiscount), $cur * _PS_PRICE_DISPLAY_PRECISION_)), 1, number_format(($discount_tax_rate * 0.01), 4, '.', ''), $this->l('Discount'), PaysonEmbedded\OrderItemType::DISCOUNT);
             $total_discounts += $value_real;
         }
 
@@ -1175,7 +1176,8 @@ class PaysonCheckout2 extends PaymentModule
                                 $checkout->status = 'shipped';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
 
-                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
+                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
@@ -1194,7 +1196,8 @@ class PaysonCheckout2 extends PaymentModule
                                 $checkout->status = 'canceled';
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
 
-                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
+                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
@@ -1216,7 +1219,8 @@ class PaysonCheckout2 extends PaymentModule
 
                                 $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
                                 
-                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart, $order->id_order);
+                                $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
@@ -1226,8 +1230,6 @@ class PaysonCheckout2 extends PaymentModule
                             Logger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
                         }
                     }
-
-                    PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
                 } else {
                     $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                     Logger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID.', 3, null, null, null, true);
