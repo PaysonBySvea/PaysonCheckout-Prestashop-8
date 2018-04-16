@@ -20,12 +20,14 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
     public function init()
     {
         parent::init();
-
         PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *');
 
+        $this->context->cookie->__set('validation_error', null);
+        
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId) || $cartId < 1 || $cartId == null) {
-            Logger::addLog('No cart ID in query.', 3, null, null, null, true);
+            Logger::addLog('No cart ID in query.', 3);
+            $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing cart ID.', 'validation'));
             die('reload');
         }
         
@@ -36,7 +38,8 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
                 $checkoutId = $this->context->cookie->paysonCheckoutId;
                 PaysonCheckout2::paysonAddLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.');
             } else {
-                PaysonCheckout2::paysonAddLog('No checkout ID in cookie, redirect.');
+                Logger::addLog('No checkout ID in cookie, redirect.', 3);
+                $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing checkout ID.', 'validation'));
                 die('reload');
             }
         }
@@ -49,7 +52,6 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id);
         PaysonCheckout2::paysonAddLog('Cart ID: ' . $cartId);
-        PaysonCheckout2::paysonAddLog('Query: ' . print_r($_REQUEST, true));
         PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout->status);
 
         $cart = new Cart($cartId);
@@ -130,8 +132,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             /*
              * Common reason for ending up with a mismatch between checkout and cart totals is that the customer has selected 
              * a different country in the checkout. Here the cart has been updated to reflect the VAT of the selected country. 
-             * Here we update the checkout to match the cart, return 500 to stop the purchase and save a file for JS to look for.
-             * If JS finds this file it will reload the checkout page to reflect changes.
+             * Here we update the checkout to match the cart
              */
             $cartCurrency = new Currency($cart->id_currency);
 

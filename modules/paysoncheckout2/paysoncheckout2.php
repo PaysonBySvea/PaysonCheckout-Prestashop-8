@@ -31,7 +31,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.9';
+        $this->version = '3.0.10';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -758,7 +758,7 @@ class PaysonCheckout2 extends PaymentModule
             $checkout->customer->postalCode = $address->postcode;
             $checkout->customer->street = $address->address1;
         }
-        
+
         $checkout->payData->items = $this->orderItemsList($cart, $payson, $currency);
 
         return $checkout;

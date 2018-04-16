@@ -23,15 +23,15 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
         // Give order confirmation a chance to finish
         sleep(2);
         
-        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *', 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Notification Query: ' . print_r($_REQUEST, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *');
+        PaysonCheckout2::paysonAddLog('Notification Query: ' . print_r($_REQUEST, true));
 
         $call = Tools::getValue('call');
 
         if ($call == 'notification') {
             $cartId = (int) Tools::getValue('id_cart');
             if (!isset($cartId) || $cartId == null) {
-                PaysonCheckout2::paysonAddLog('Notification No cart ID.', 2, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Notification No cart ID.', 2);
                 var_dump(http_response_code(500));
                 exit();
             }
@@ -43,16 +43,15 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
             if (Tools::getIsset('checkout') && Tools::getValue('checkout') != null) {
                 // Get checkout ID from query
                 $checkoutId = Tools::getValue('checkout');
-
-                PaysonCheckout2::paysonAddLog('Notification Got checkout ID: ' . $checkoutId . ' from query.', 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Notification Got checkout ID: ' . $checkoutId . ' from query.');
             } else {
                 // Get checkout ID from DB
                 $checkoutId = $payson->getPaysonOrderEventId($cartId);
                 if (isset($checkoutId) && $checkoutId != null) {
-                    PaysonCheckout2::paysonAddLog('Notification Got checkout ID: ' . $checkoutId . ' from DB.', 1, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Notification Got checkout ID: ' . $checkoutId . ' from DB.');
                 } else {
                     // Unable to get checkout ID
-                    PaysonCheckout2::paysonAddLog('Notification No checkout ID.', 2, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Notification No checkout ID.', 2);
                     var_dump(http_response_code(500));
                     exit();
                 }
@@ -60,7 +59,7 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
             
             $checkout = $paysonApi->GetCheckout($checkoutId);
 
-            PaysonCheckout2::paysonAddLog('Notification Checkout Status: ' . $checkout->status, 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Notification Checkout Status: ' . $checkout->status);
 
             switch ($checkout->status) {
                 case 'created':
@@ -68,22 +67,22 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                     exit();
                 case 'readyToShip':
                     $cart = new Cart($cartId);
-                    PaysonCheckout2::paysonAddLog('Notification Cart ID: ' . $cart->id, 1, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Notification Cart ID: ' . $cart->id);
                     $orderCreated = false;
                     if ($cart->OrderExists() == false) {
                         // Create PS order
                         $orderCreated = $payson->createOrderPS($cart->id, $checkout);
                         
                         if ($orderCreated == false) {
-                            Logger::addLog('Notification Unable to create order.', 3, null, null, null, true);
+                            Logger::addLog('Notification Unable to create order.', 3);
                             
                             var_dump(http_response_code(500));
                             exit();
                         } else {
-                            PaysonCheckout2::paysonAddLog('Notification New order ID: ' . $orderCreated, 1, null, null, null, true);
+                            PaysonCheckout2::paysonAddLog('Notification New order ID: ' . $orderCreated);
                         }
                     } else {
-                        PaysonCheckout2::paysonAddLog('Notification Order already created.', 1, null, null, null, true);
+                        PaysonCheckout2::paysonAddLog('Notification Order already created.');
                     }
                     var_dump(http_response_code(200));
                     exit();
@@ -112,7 +111,7 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                     var_dump(http_response_code(200));
                     exit();
                 default:
-                    PaysonCheckout2::paysonAddLog('Notification Unknown Checkout Status: ' . $checkout->status, 2, null, null, null, true);
+                    PaysonCheckout2::paysonAddLog('Notification Unknown Checkout Status: ' . $checkout->status, 2);
                     var_dump(http_response_code(200));
                     exit();
             }

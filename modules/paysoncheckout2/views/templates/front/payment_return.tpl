@@ -25,9 +25,9 @@
       
       {else}
 <p>
-    {if isset($payson_error)}
+    {if isset($payson_errors)}
         <div class="alert alert-warning">
-            {$payson_error|escape:'html':'UTF-8'}
+            {$payson_errors|escape:'html':'UTF-8'}
         </div>
     {/if}
 </p>
