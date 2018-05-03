@@ -24,13 +24,30 @@
 {/if}
 
 <div class="row">
-    <div class="col-xs-4">
+    <div class="col-xs-12">
             <div class="panel">
                     <div class="panel-heading"><i class="icon-home"></i> {l s='Payson Checkout 2.0' mod='paysoncheckout2'}</div>
                     <div class="row">
                             <p>{l s='With Payson Checkout 2.0 you can accept payments via invoice, card, internet bank, partial payment or sms.' mod='paysoncheckout2'}</p>
                     </div>
             </div>
+    </div>
+    <div class="col-xs-4">
+        <div class="panel">
+                <div class="panel-heading"><i class="icon-question"></i> {l s='Documentation' mod='paysoncheckout2'}</div>
+                <div class="row">
+                        <p>
+                                <a href="{$module_dir|escape:'htmlall':'UTF-8'}doc/readme_sv.pdf" target="_blank" id="documentation-en" class="btn btn-default" title="{l s='Documentation' mod='paysoncheckout2'}">
+                                        <i class="icon-file-text"></i> {l s='Documentation' mod='paysoncheckout2'} SV
+                                </a>
+                        
+                                <a href="{$module_dir|escape:'htmlall':'UTF-8'}doc/readme_en.pdf" target="_blank" id="documentation-en" class="btn btn-default" title="{l s='Documentation' mod='paysoncheckout2'}">
+                                        <i class="icon-file-text"></i> {l s='Documentation' mod='paysoncheckout2'} EN
+                                </a>
+                        </p>
+                        
+                </div>
+        </div>
     </div>
     <div class="col-xs-4">
             <div class="panel">

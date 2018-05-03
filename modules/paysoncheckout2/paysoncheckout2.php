@@ -101,8 +101,8 @@ class PaysonCheckout2 extends PaymentModule
                 Configuration::deleteByName('PAYSON_ORDER_CREDITED_STATE') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_TEMPLATE') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_TESTAGENTID') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_TESTAPIKEY') == false ||
+                //Configuration::deleteByName('PAYSONCHECKOUT2_TESTAGENTID') == false ||
+                //Configuration::deleteByName('PAYSONCHECKOUT2_TESTAPIKEY') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS') == false
         ) {
             return false;
@@ -176,8 +176,8 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_TEMPLATE', Tools::getValue('PAYSONCHECKOUT2_TEMPLATE'));
             Configuration::updateValue('PAYSONCHECKOUT2_REQUIRE_PHONE', 1);
             //Configuration::updateValue('PAYSONCHECKOUT2_SHOW_PHONE', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_PHONE'));
-            Configuration::updateValue('PAYSONCHECKOUT2_TESTAGENTID', (int) Tools::getValue('PAYSONCHECKOUT2_TESTAGENTID'));
-            Configuration::updateValue('PAYSONCHECKOUT2_TESTAPIKEY', Tools::getValue('PAYSONCHECKOUT2_TESTAPIKEY'));
+            //Configuration::updateValue('PAYSONCHECKOUT2_TESTAGENTID', (int) Tools::getValue('PAYSONCHECKOUT2_TESTAGENTID'));
+            //Configuration::updateValue('PAYSONCHECKOUT2_TESTAPIKEY', Tools::getValue('PAYSONCHECKOUT2_TESTAPIKEY'));
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS', Tools::getValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS'));
             $saved = true;
         }
@@ -257,27 +257,27 @@ class PaysonCheckout2 extends PaymentModule
                     'required' => false,
                     'desc' => $this->l('Enter your API-key for Payson Checkout 2.0'),
                 ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->l('TestAgent ID'),
-                    'name' => 'PAYSONCHECKOUT2_TESTAGENTID',
-                    'class' => 'fixed-width-lg',
-                    'required' => false,
-                    'desc' => $this->l('Enter your TestAgent ID for Payson Checkout 2.0'),
-                ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->l('TestAgent API-key'),
-                    'name' => 'PAYSONCHECKOUT2_TESTAPIKEY',
-                    'class' => 'fixed-width-lg',
-                    'required' => false,
-                    'desc' => $this->l('Enter your TestAgent API-key for Payson Checkout 2.0'),
-                ),
+//                array(
+//                    'type' => 'text',
+//                    'label' => $this->l('TestAgent ID'),
+//                    'name' => 'PAYSONCHECKOUT2_TESTAGENTID',
+//                    'class' => 'fixed-width-lg',
+//                    'required' => false,
+//                    'desc' => $this->l('Enter your TestAgent ID for Payson Checkout 2.0'),
+//                ),
+//                array(
+//                    'type' => 'text',
+//                    'label' => $this->l('TestAgent API-key'),
+//                    'name' => 'PAYSONCHECKOUT2_TESTAPIKEY',
+//                    'class' => 'fixed-width-lg',
+//                    'required' => false,
+//                    'desc' => $this->l('Enter your TestAgent API-key for Payson Checkout 2.0'),
+//                ),
                 array(
                     'type' => 'select',
-                    'label' => $this->l('Canceled order status'),
-                    'name' => 'PAYSON_ORDER_CANCEL_STATE',
-                    'desc' => $this->l('Order status Canceled will be sent to Payson when this order status is set.'),
+                    'label' => $this->l('Shipped order status'),
+                    'name' => 'PAYSON_ORDER_SHIPPED_STATE',
+                    'desc' => $this->l('Order status Shipped will be sent to Payson when this order status is set.'),
                     'options' => array(
                         'query' => $orderStates,
                         'id' => 'id_order_state',
@@ -286,9 +286,9 @@ class PaysonCheckout2 extends PaymentModule
                 ),
                 array(
                     'type' => 'select',
-                    'label' => $this->l('Shipped order status'),
-                    'name' => 'PAYSON_ORDER_SHIPPED_STATE',
-                    'desc' => $this->l('Order status Shipped will be sent to Payson when this order status is set.'),
+                    'label' => $this->l('Canceled order status'),
+                    'name' => 'PAYSON_ORDER_CANCEL_STATE',
+                    'desc' => $this->l('Order status Canceled will be sent to Payson when this order status is set.'),
                     'options' => array(
                         'query' => $orderStates,
                         'id' => 'id_order_state',
@@ -546,8 +546,8 @@ class PaysonCheckout2 extends PaymentModule
             'PAYSON_ORDER_SHIPPED_STATE' => Tools::getValue('PAYSON_ORDER_SHIPPED_STATE', Configuration::get('PAYSON_ORDER_SHIPPED_STATE')),
             'PAYSON_ORDER_CREDITED_STATE' => Tools::getValue('PAYSON_ORDER_CREDITED_STATE', Configuration::get('PAYSON_ORDER_CREDITED_STATE')),
             'PAYSONCHECKOUT2_TEMPLATE' => Tools::getValue('PAYSONCHECKOUT2_TEMPLATE', Configuration::get('PAYSONCHECKOUT2_TEMPLATE')),
-            'PAYSONCHECKOUT2_TESTAGENTID' => Tools::getValue('PAYSONCHECKOUT2_TESTAGENTID', Configuration::get('PAYSONCHECKOUT2_TESTAGENTID')),
-            'PAYSONCHECKOUT2_TESTAPIKEY' => Tools::getValue('PAYSONCHECKOUT2_TESTAPIKEY', Configuration::get('PAYSONCHECKOUT2_TESTAPIKEY')),
+            //'PAYSONCHECKOUT2_TESTAGENTID' => Tools::getValue('PAYSONCHECKOUT2_TESTAGENTID', Configuration::get('PAYSONCHECKOUT2_TESTAGENTID')),
+            //'PAYSONCHECKOUT2_TESTAPIKEY' => Tools::getValue('PAYSONCHECKOUT2_TESTAPIKEY', Configuration::get('PAYSONCHECKOUT2_TESTAPIKEY')),
             'PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS' => Tools::getValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS', Configuration::get('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS')),
         );
     }
@@ -668,26 +668,26 @@ class PaysonCheckout2 extends PaymentModule
         $paysonMerchant->reference = $cart->id;
         $paysonMerchant->validationUri = $validationUri;
 
-        PaysonCheckout2::paysonAddLog('PCO Merchant: ' . print_r($paysonMerchant, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('PCO Merchant: ' . print_r($paysonMerchant, true));
 
         $paysonOrder = new PaysonEmbedded\PayData($currency->iso_code);
         $paysonOrder->items = $this->orderItemsList($cart, $payson, $currency);
 
-        PaysonCheckout2::paysonAddLog('PCO Order: ' . print_r($paysonOrder, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('PCO Order: ' . print_r($paysonOrder, true));
 
         //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
         $activeCountries = Country::getCountries($this->context->language->id, true, false, false);
         $moduleCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
-        PaysonCheckout2::paysonAddLog('Language ID: ' . $this->context->language->id, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Active countries: ' . print_r($activeCountries, true), 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Module countries: ' . print_r($moduleCountries, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Language ID: ' . $this->context->language->id);
+        PaysonCheckout2::paysonAddLog('Active countries: ' . print_r($activeCountries, true));
+        PaysonCheckout2::paysonAddLog('Module countries: ' . print_r($moduleCountries, true));
         $allowedDeliveryCountries = array();
         foreach ($activeCountries as $country) {
             if (in_array($country['iso_code'], $moduleCountries)) {
                 $allowedDeliveryCountries[] = $country['iso_code'];
             }
         }
-        PaysonCheckout2::paysonAddLog('Valid countries: ' . print_r($allowedDeliveryCountries, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Valid countries: ' . print_r($allowedDeliveryCountries, true));
 
         if (!is_array($allowedDeliveryCountries) || count($allowedDeliveryCountries) < 1) {
             // null will show all countries
@@ -696,7 +696,7 @@ class PaysonCheckout2 extends PaymentModule
 
         $paysonGui = new PaysonEmbedded\Gui($this->languagePayson(Language::getIsoById($id_lang)), Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'), Configuration::get('PAYSONCHECKOUT2_VERIFICATION'), (int) Configuration::get('PAYSONCHECKOUT2_REQUIRE_PHONE'), $allowedDeliveryCountries, null);
 
-        PaysonCheckout2::paysonAddLog('PCO GUI: ' . print_r($paysonGui, true), 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('PCO GUI: ' . print_r($paysonGui, true));
 
         if (Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
             // Create test customer
@@ -776,14 +776,14 @@ class PaysonCheckout2 extends PaymentModule
             $this->context = Context::getContext();
         }
 
-        PaysonCheckout2::paysonAddLog('Start create order.', 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Start create order.');
 
         // Load cart
         $cart = new Cart((int) $cart_id);
         //$cart = $this->context->cart;
 
-        PaysonCheckout2::paysonAddLog('Cart ID: ' . $cart_id, 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id, 1, null, null, null, true);
+        PaysonCheckout2::paysonAddLog('Cart ID: ' . $cart_id);
+        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id);
 
         try {
             // Check if order exists
@@ -823,9 +823,9 @@ class PaysonCheckout2 extends PaymentModule
                 //$total = $cart->getOrderTotal(true, Cart::BOTH);
                 $total = $checkout->payData->totalPriceIncludingTax;
                 
-                PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id, 1, null, null, null, true);
-                PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier, 1, null, null, null, true);
-                PaysonCheckout2::paysonAddLog('Cart total: ' . $total, 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id);
+                PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier);
+                PaysonCheckout2::paysonAddLog('Cart total: ' . $total);
 
                 // Create order
                 $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', array(), (int) $currency->id, false, $customer->secure_key);
@@ -838,10 +838,10 @@ class PaysonCheckout2 extends PaymentModule
 
                 return $order;
             } else {
-                PaysonCheckout2::paysonAddLog('PS order already exits.', 2, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('PS order already exits.', 2);
             }
         } catch (Exception $ex) {
-            PaysonCheckout2::paysonAddLog('PS failed to create order: ' . $ex->getMessage(), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('PS failed to create order: ' . $ex->getMessage());
         }
         return false;
     }
@@ -970,22 +970,22 @@ class PaysonCheckout2 extends PaymentModule
      * @return the object of PaysonApi
      * 
      */
-
     public function getPaysonApiInstance()
     {
         require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/lib/paysonapi.php');
+        $testMode = false;
+        $agentid = trim(Configuration::get('PAYSONCHECKOUT2_AGENTID'));
+        $apiKey = trim(Configuration::get('PAYSONCHECKOUT2_APIKEY'));
+        
         if ((int) Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
-            if (Tools::strlen(trim(Configuration::get('PAYSONCHECKOUT2_TESTAGENTID'))) > 0 && Tools::strlen(trim(Configuration::get('PAYSONCHECKOUT2_TESTAPIKEY'))) > 0) {
-                // Use TestAgent
-                return new PaysonEmbedded\PaysonApi(trim(Configuration::get('PAYSONCHECKOUT2_TESTAGENTID')), trim(Configuration::get('PAYSONCHECKOUT2_TESTAPIKEY')), true);
-            } else {
-                // Sandbox
-                return new PaysonEmbedded\PaysonApi('4', '2acab30d-fe50-426f-90d7-8c60a7eb31d4', true);
+            $testMode = true;
+            if (Tools::strlen($agentid) < 1 && Tools::strlen($apiKey) < 1) {
+                $agentid = '4';
+                $apiKey = '2acab30d-fe50-426f-90d7-8c60a7eb31d4';
             }
-        } else {
-            // Production mode
-            return new PaysonEmbedded\PaysonApi(trim(Configuration::get('PAYSONCHECKOUT2_AGENTID')), trim(Configuration::get('PAYSONCHECKOUT2_APIKEY')), false);
         }
+        
+        return new PaysonEmbedded\PaysonApi($agentid, $apiKey, $testMode);
     }
 
     public function addPaysonCustomerPS($cartId, $checkout)

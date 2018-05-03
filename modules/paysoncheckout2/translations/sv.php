@@ -13,7 +13,7 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_93cba07454f06a4a960172bbd
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_bafd7322c6e97d25b6299b5d6fe8920b'] = 'nej';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_30178f9917e8f5045a9bf72c4e78e014'] = 'Aktivera Payson Checkout 2.0';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_4245499695408b974322be6f01b0d17a'] = 'Testläge';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_66f0e1c0ff0ff50091049e36ded9ad07'] = 'Kontrollera installationen innan produktionsläge. I testläge krävs inget Agent Id eller API-nyckel, det är valfritt att ange TestAgent ID och API-nyckel för TestAgent.';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_66f0e1c0ff0ff50091049e36ded9ad07'] = 'I testläge krävs inget Agent ID eller API-nyckel';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_55577a934750fdb92628f56b350dac15'] = 'Agent ID';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_59f535306b4e06f493677bbe1244862c'] = 'Ange Agent ID för Payson Checkout 2.0';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_cc8b83c31b3b0ca1486efaf61c51706e'] = 'API-nyckel';
@@ -22,12 +22,12 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_d031f044ceed0df53ed9a5cb6
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c3932beaf46dd46dc0aedceea930b98a'] = 'Ange TestAgent ID';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_bdf2806395c5d4823716a213babe3d9a'] = 'API-nyckel för TestAgent';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_eefbdbcb11cf96269807ba11c9b02bac'] = 'Ange API-nyckel för TestAgent';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_9b265b715911ffea729872d7480d9226'] = 'Orderstatus för avbruten order';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_82ba96165dec2008041796e79d70ab77'] = 'Meddela Payson att order har avbrutits';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_6aacd1a3038132fa2b1dd3bc95626826'] = 'Orderstatus för skickad order';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_443ef96afac11a60a51825c810f595cf'] = 'Meddela Payson att order ha skickats';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_6c694a4ece13c2bdbceb0abf07379f66'] = 'Orderstatus för återbetald order';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_1cedf8af48b705d52f12142224f4e25b'] = 'Meddela Payson att order ska återbetalas';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_9b265b715911ffea729872d7480d9226'] = 'Orderstatus för avbruten order';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_82ba96165dec2008041796e79d70ab77'] = 'Meddela Payson att order har avbrutits';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_6c694a4ece13c2bdbceb0abf07379f66'] = 'Orderstatus för krediterad order';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_1cedf8af48b705d52f12142224f4e25b'] = 'Meddela Payson att order ska krediteras';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_d8c42b8bd0d94b14ac75ca433526e5d1'] = 'Tema';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_e81be752ae10203be74b75cb520dca15'] = 'Betalfönstrets tema';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_804d9b0b216a703391004d947a444509'] = 'Vitt formulär på grå bakgrund';
@@ -93,6 +93,7 @@ $_MODULE['<{paysoncheckout2}prestashop>validation_7ba90027fa9a7e7a4f34ccfa0944d8
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_c888438d14855d7d96a2724ee9c306bd'] = 'Inställningarna uppdaterades';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_d9ced9ff2c00b058ebb12a987e537c43'] = 'Payson Checkout 2.0';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_1d20467cb407a055be0023c5fcb9b332'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning, SMS-betalning och delbetalning.';
+$_MODULE['<{paysoncheckout2}prestashop>payson_admin_5b6cf869265c13af8566f192b4ab3d2a'] = 'Dokumentation';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_08bf17fe5b46a5dc73be7ec80e1a3d68'] = 'Payson TestAgent';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_68824ecc6e889a0aed80b5cf754e1c8d'] = 'Skapa TestAgent';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_7e95cc0c50c6d216aeb027f48c1d35be'] = 'PaysonKonto';
