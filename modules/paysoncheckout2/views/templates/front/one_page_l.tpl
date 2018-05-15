@@ -26,7 +26,7 @@
 
 {if isset($vouchererrors) && $vouchererrors!=''}
 <div class="alert alert-warning">
-	{$vouchererrors|escape:'html':'UTF-8'}
+    {$vouchererrors|escape:'html':'UTF-8'}
 </div>
 {/if}
 	
@@ -57,10 +57,43 @@
                     {include file='checkout/_partials/cart-detailed.tpl' cart=$cart}
                 </div>
             
-                {if isset($left_to_get_free_shipping) AND $left_to_get_free_shipping>0}
+                <!-- terms -->
+                {if $conditions_to_approve|count}
+                    <div class="card cart-container terms-card">
+                        <div class="card-block">
+                            <form id="conditions-to-approve" method="GET">
+                              <ul>
+                                {foreach from=$conditions_to_approve item="condition" key="condition_name"}
+                                  <li>
+                                    <div class="float-xs-left">
+                                      <span class="custom-checkbox">
+                                        <input  id    = "conditions_to_approve[{$condition_name}]"
+                                                name  = "conditions_to_approve[{$condition_name}]"
+                                                required
+                                                type  = "checkbox"
+                                                value = "1"
+                                                class = "conditions_to_approve_checkbox ps-shown-by-js"
+                                        >
+                                        <span><i class="material-icons rtl-no-flip checkbox-checked">&#xE5CA;</i></span>
+                                      </span>
+                                    </div>
+                                    <div class="condition-label">
+                                      <label class="js-terms" for="conditions_to_approve[{$condition_name}]">
+                                        {$condition nofilter}
+                                      </label>
+                                    </div>
+                                  </li>
+                                {/foreach}
+                              </ul>
+                            </form>
+                        </div>
+                    </div>
+                {/if}
+                
+                {if isset($free_shipping_price_amount) AND $free_shipping_price_amount>0}
                     <div class="card cart-container">
-                        <div class="payson-infobox">
-                                {l s='Shop for' mod='paysoncheckout2'}&nbsp;<strong>{Tools::displayPrice($left_to_get_free_shipping)}</strong>&nbsp;{l s='more, and you will qualify for free shipping.' mod='paysoncheckout2'}
+                        <div class="card-block free-shipping">
+                                {l s='Free shipping when you shop products for more than' mod='paysoncheckout2'}&nbsp;<strong>{Tools::displayPrice($free_shipping_price_amount)}</strong>&nbsp;{l s='excl. shipping.' mod='paysoncheckout2'}
                         </div>
                     </div>
                 {/if}
@@ -83,7 +116,7 @@
                     </div>
                     <hr class="separator">
                     
-                    <div id="paysonpaymentwindow">{$payson_checkout nofilter}{* IFRAME, no escaping possible *}</div>
+                    <div id="paysonpaymentwindow"></div>
                 </div>  
         </div>
         
@@ -186,6 +219,17 @@
                     </form>
                 </div>
             {/if}
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Close' d='Shop.Theme.Global'}">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-body">
+            </div>
         </div>
     </div>
 </div>

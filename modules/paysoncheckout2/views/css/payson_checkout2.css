@@ -1,3 +1,29 @@
+    #module-paysoncheckout2-pconepage .modal-content {
+            padding: 10px;
+    }
+
+    #module-paysoncheckout2-pconepage .condition-label {
+        margin-left: 2.5rem;
+        margin-top: .625rem;
+    }
+    
+    #module-paysoncheckout2-pconepage .terms-card .card-block {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    #module-paysoncheckout2-pconepage .row .bootstrap-touchspin {
+        min-width: 69px;
+    }
+    
+    #module-paysoncheckout2-pconepage #conditions-to-approve ul {
+        margin-bottom: 0;
+    }
+    
+    #module-paysoncheckout2-pconepage .card .free-shipping {
+        
+    }
+    
     #module-paysoncheckout2-pconepage #giftwrappingextracost {
        margin: -3px 0 0 3px;
     }
@@ -20,8 +46,9 @@
     }
     
     #module-paysoncheckout2-pconepage #paysonpaymentwindow {
-        padding: 1.5em;
-        height: 569px;
+        padding: 1rem;
+        height: auto;
+        overflow: hidden;
     }
     
     /*moved items */
@@ -35,7 +62,7 @@
     }
 
     .payson-main {
-        font-size: 16px;
+        /*font-size: 16px;*/
     }
 
     #module-paysoncheckout2-validation #iframepayson, #module-paysoncheckout2-confirmation #iframepayson, #module-paysoncheckout2-payment #paysonpaymentwindow {
@@ -203,11 +230,14 @@
         font-size: 18px;
     }
     
-    .alternative_methods {
+    #module-paysoncheckout2-pconepage .alternative_methods {
         text-transform: none;
         font-size: 14px;
         float: right;
         font-weight: normal;
+        position: absolute;
+        right: 1rem;
+        top: 1.5rem;
     }
     
     @media (max-width: 992px) {

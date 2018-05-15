@@ -21,11 +21,12 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
     public $display_column_left = false;
     public $display_column_right = false;
-
+    
     public function setMedia()
     {
         parent::setMedia();
         $this->context->controller->addCSS(_MODULE_DIR_ . 'paysoncheckout2/views/css/payson_checkout2.css', 'all');
+        Media::addJsDef(array('acceptTermsMessage' => $this->module->l('You must agree to the terms of service before continuing.', 'pconepage')));
         $this->addJS(_MODULE_DIR_ . 'paysoncheckout2/views/js/payson_checkout2.js');
     }
 
@@ -218,6 +219,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $orderTotalwithDiscounts = $this->context->cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING, null, null, false);
                     $left_to_get_free_shipping = ($free_fees_price - $orderTotalwithDiscounts);
                     $this->context->smarty->assign('left_to_get_free_shipping', $left_to_get_free_shipping);
+                    $this->context->smarty->assign('free_shipping_price_amount', $free_fees_price);
                 }
 
                 // Free shipping based on order weight
@@ -233,12 +235,18 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                 // Check for validation/confirmation errors
                 if (isset($this->context->cookie->validation_error) && $this->context->cookie->validation_error != null) {
                     PaysonCheckout2::paysonAddLog('Validation or confirmation error message: ' . $this->context->cookie->validation_error);
-                    $this->context->smarty->assign('payson_errors', $this->context->cookie->validation_error);
+                    //$this->context->smarty->assign('payson_errors', $this->context->cookie->validation_error);
                     //$errMess = $this->context->cookie->validation_error;
                     // Delete old messages
                     $this->context->cookie->__set('validation_error', null);
                 }
 
+                // Terms to approve
+                $conditionsToApproveFinder = new ConditionsToApproveFinder(
+                    $this->context,
+                    $this->getTranslator()
+                );
+                
                 // Assign smarty tpl variables
                 $this->context->smarty->assign(array(
                     'discounts' => $this->context->cart->getCartRules(),
@@ -259,6 +267,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     'PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS' => (int) Configuration::get('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS'),
                     'pcoUrl' => $this->context->link->getModuleLink('paysoncheckout2', 'pconepage', array(), true),
                     'validateUrl' => $this->context->link->getModuleLink('paysoncheckout2', 'validation', array(), true),
+                    'conditions_to_approve' => $conditionsToApproveFinder->getConditionsToApproveForTemplate(),
                 ));
 
                 // Check for error and exit if any

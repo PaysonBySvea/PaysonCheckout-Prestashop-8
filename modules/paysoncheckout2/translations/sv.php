@@ -74,6 +74,7 @@ $_MODULE['<{paysoncheckout2}prestashop>confirmation_2a2a882b8ae33a58e08b5aabdcd9
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_21c9772e6ce2c8cdec4a0fb8ffeb54fb'] = 'ID för kundvagn saknas.';
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_6207a9d398bc43acd874788dcdce36d6'] = 'ID för betalning saknas.';
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_cb268be076ce5dfc305bf47b65202c84'] = 'Betalningens status var';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_5508a53851720a210e50f7b8a6f66f46'] = 'Du måste godkänna köpvillkoren för att gå vidare.';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_99099c3c11a7638335f047fd4199c9fa'] = 'Ogiltigt meddelande';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_dd6b089a49908d671c3e9cc8dc5899ae'] = 'Ogiltigt meddelande';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_e15b9d349af7453e81350c8ffd2a7615'] = 'Ange en kod';
@@ -105,8 +106,8 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_l_f5bf48aa40cad7891eb709fcf1fde1
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_86024cad1e83101d97359d7351051156'] = 'produkter';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_ecba3578d8cd65126d4a47c76b3c9c2d'] = 'Gratis frakt!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_b75443a19207ed3a3552edda86536857'] = 'Kundvagn';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_l_2987d64f1582b81fc5b5fd6dfb66d05e'] = 'Handla för';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_l_92746f146c1c8b717efaaf5e3209ed94'] = 'till för gratis frakt.';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_576dc3c8fee48522648cdd45eaa43319'] = ' ';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_c453a4b8e8d98e82f35b67f433e3b4da'] = 'Betalning';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_569fd05bdafa1712c4f6be5b153b8418'] = 'Andra betalalternativ';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
@@ -122,8 +123,8 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_r_f5bf48aa40cad7891eb709fcf1fde1
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_86024cad1e83101d97359d7351051156'] = 'produkts';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_ecba3578d8cd65126d4a47c76b3c9c2d'] = 'Gratis frakt!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_b75443a19207ed3a3552edda86536857'] = 'Kundvagn';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_r_2987d64f1582b81fc5b5fd6dfb66d05e'] = 'Handla för';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_r_92746f146c1c8b717efaaf5e3209ed94'] = 'till för gratis frakt.';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_r_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_r_576dc3c8fee48522648cdd45eaa43319'] = ' ';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_e7a6ca4e744870d455a57b644f696457'] = 'Gratis!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_4c2a8fe7eaf24721cc7a9f0175115bd4'] = 'Meddelande';

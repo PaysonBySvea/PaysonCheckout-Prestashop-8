@@ -25,6 +25,10 @@ $(document).ready(function() {
       }
     );
 
+    if (sessionStorage.conditions_to_approve_checkbox === 'true') {
+        $('.conditions_to_approve_checkbox').prop('checked', true);
+    }
+
     $('.payson-click-trigger').each(function() {
         var el = $(this);
         var elTarget = el.parent().parent().find('.pco-target');
@@ -32,6 +36,24 @@ $(document).ready(function() {
             el.toggleClass('payson-click-trigger--inactive');
             elTarget.fadeToggle(150);
         });
+    });
+    
+    $('.js-terms a').on('click', function(event) {
+        event.preventDefault();
+        var url = $(event.target).attr('href');
+        if (url) {
+          url += '?content_only=1';
+          $.get(url, function (content) {
+            $('#modal').find('.modal-body').html($(content).find('.page-cms').contents());
+          });
+        }
+        $('#modal').modal('show');
+    });
+    
+    // Approve terms
+    $('.conditions_to_approve_checkbox').bind('change', function() {
+        sessionStorage.setItem('conditions_to_approve_checkbox', $(this).prop('checked'));
+        updateCheckout({pco_update: '1'}, false, true);
     });
     
     // Change carrier
@@ -46,7 +68,6 @@ $(document).ready(function() {
                 sendLockDown();
                 updateCheckout(callData, true,  true);
             }
-            
         });
     });
     
@@ -70,47 +91,63 @@ $(document).ready(function() {
         updateCheckout(callData, true, true);
     });
 
-    function updateCheckout(callData, updateCart, updateCheckout) {
-        upReq = null;
-        upReq = $.ajax({
-            type: 'GET',
-            url: pcourl,
-            async: true,
-            cache: false,
-            data: callData,
-            beforeSend: function()
-            { 
-                if (upReq !== null) {
-                    upReq.abort();
-                }
-            },
-            success: function(returnData)
-            {
-                if (updateCheckout === true) {
-                    if (returnData === 'reload') {
-                        location.href = pcourl;
-                    } else {
-                        $("#paysonpaymentwindow").html(returnData);
-                        setTimeout(function() {
-                            if ($('#paysonpaymentwindow').length) {
-                                $('#paysonpaymentwindow').height('auto');
-                            }
-                        }, 300);
-                    }
-                }
-                if (updateCart === true) {
-                    prestashop.emit('updateCart', {
-                        reason: 'orderChange'
-                    });
-                }
-                
-                sendRelease();
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                //console.log(returnData);
-                sendRelease();
+    function termsChecked() {
+	var is_ok = true;
+	$(".conditions_to_approve_checkbox").each(function() {
+            if (!$(this).prop('checked')) {
+                    is_ok = false;
             }
-        });
+	});
+	
+	return is_ok;
+    }
+
+    function updateCheckout(callData, updateCart, updateCheckout) {
+        if (termsChecked()) {
+            if (!$('#paysonIframe').length) {
+                $('#paysonpaymentwindow').html('');
+                $('#paysonpaymentwindow').height('519px');
+            }
+
+            upReq = null;
+            upReq = $.ajax({
+                type: 'GET',
+                url: pcourl,
+                async: true,
+                cache: false,
+                data: callData,
+                beforeSend: function()
+                { 
+                    if (upReq !== null) {
+                        upReq.abort();
+                    }
+                },
+                success: function(returnData)
+                {
+                    if (updateCheckout === true) {
+                        if (returnData === 'reload') {
+                            location.href = pcourl;
+                        } else {
+                            $("#paysonpaymentwindow").html(returnData);
+                        }
+                    }
+                    if (updateCart === true) {
+                        prestashop.emit('updateCart', {
+                            reason: 'orderChange'
+                        });
+                    }
+
+                    sendRelease();
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    //console.log(returnData);
+                    sendRelease();
+                }
+            });
+        } else {
+            sendRelease();
+            $("#paysonpaymentwindow").html(acceptTermsMessage);
+        }
     }
 
     function sendLockDown() {
@@ -127,13 +164,12 @@ $(document).ready(function() {
         if ($('#paysonIframe').length) {
             document.getElementById('paysonIframe').contentWindow.postMessage('release', '*');
         }
+        setTimeout(function() {
+            if ($('#paysonpaymentwindow').length) {
+                $('#paysonpaymentwindow').height('auto');
+            }
+        }, 500);
     }
-
-    setTimeout(function() {
-        if ($('#paysonpaymentwindow').length) {
-            $('#paysonpaymentwindow').height('auto');
-        }
-    }, 300);
     
     // Validate order on PaysonEmbeddedAddressChanged event
     function validateOrder(callData) {
@@ -156,11 +192,6 @@ $(document).ready(function() {
                     //sendLockDown();
                     location.href = pcourl;
                 } else {
-                    setTimeout(function() {
-                        if ($('#paysonpaymentwindow').length) {
-                            $('#paysonpaymentwindow').height('auto');
-                        }
-                    }, 500);
                     sendRelease();
                 }
             },
@@ -176,6 +207,8 @@ $(document).ready(function() {
         var callData = {validate_order: '1', checkout: pco_checkout_id, id_cart: id_cart};
         validateOrder(callData);
     }, true);
+    
+    updateCheckout({pco_update: '1'}, false, true);
 });
 
 $(window).resize(function() {
