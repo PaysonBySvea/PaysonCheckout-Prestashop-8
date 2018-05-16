@@ -17,10 +17,22 @@
 class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontController
 {
 
+    public $ssl = false;
+    
+    public function __construct()
+    {
+        parent::__construct();
+
+        if (Configuration::get('PS_SSL_ENABLED')) {
+            $this->ssl = true;
+        }
+    }
+    
     public function setMedia()
     {
         parent::setMedia();
         $this->context->controller->addCSS(_MODULE_DIR_ . 'paysoncheckout2/views/css/payson_checkout2.css', 'all');
+        $this->addJS(_MODULE_DIR_ . 'paysoncheckout2/views/js/payson_checkout2_confirmation.js');
     }
 
     public function init()

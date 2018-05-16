@@ -17,6 +17,17 @@
 class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontController
 {
 
+    public $ssl = false;
+    
+    public function __construct()
+    {
+        parent::__construct();
+
+        if (Configuration::get('PS_SSL_ENABLED')) {
+            $this->ssl = true;
+        }
+    }
+    
     public function init()
     {
         parent::init();

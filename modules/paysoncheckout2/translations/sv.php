@@ -3,7 +3,7 @@
 global $_MODULE;
 $_MODULE = array();
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_d9ced9ff2c00b058ebb12a987e537c43'] = 'Payson Checkout 2.0';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_b09e4836ad3384c8e31d902583b64aab'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning, SMS-betalning och delbetalning.';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_b09e4836ad3384c8e31d902583b64aab'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning och delbetalning.';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_a02758d758e8bec77a33d7f392eb3f8a'] = 'Ingen valuta inställd för modul.';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c98133549a6943937cd3d4c70887e451'] = 'Betald med Payson Checkout 2.0';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_43c7582c40594c3fe32a6634ef9dcb07'] = 'Skicka inte uppdaterad orderstatus';
@@ -74,7 +74,7 @@ $_MODULE['<{paysoncheckout2}prestashop>confirmation_2a2a882b8ae33a58e08b5aabdcd9
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_21c9772e6ce2c8cdec4a0fb8ffeb54fb'] = 'ID för kundvagn saknas.';
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_6207a9d398bc43acd874788dcdce36d6'] = 'ID för betalning saknas.';
 $_MODULE['<{paysoncheckout2}prestashop>confirmation_cb268be076ce5dfc305bf47b65202c84'] = 'Betalningens status var';
-$_MODULE['<{paysoncheckout2}prestashop>pconepage_5508a53851720a210e50f7b8a6f66f46'] = 'Du måste godkänna köpvillkoren för att gå vidare.';
+$_MODULE['<{paysoncheckout2}prestashop>pconepage_5508a53851720a210e50f7b8a6f66f46'] = 'Godkänn köpvillkoren för att gå vidare.';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_99099c3c11a7638335f047fd4199c9fa'] = 'Ogiltigt meddelande';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_dd6b089a49908d671c3e9cc8dc5899ae'] = 'Ogiltigt meddelande';
 $_MODULE['<{paysoncheckout2}prestashop>pconepage_e15b9d349af7453e81350c8ffd2a7615'] = 'Ange en kod';
@@ -93,7 +93,7 @@ $_MODULE['<{paysoncheckout2}prestashop>validation_6207a9d398bc43acd874788dcdce36
 $_MODULE['<{paysoncheckout2}prestashop>validation_7ba90027fa9a7e7a4f34ccfa0944d8a3'] = 'Din kundvagn har uppdaterats. Kontrollera kundvagnen innan beställning slutförs.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_c888438d14855d7d96a2724ee9c306bd'] = 'Inställningarna uppdaterades';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_d9ced9ff2c00b058ebb12a987e537c43'] = 'Payson Checkout 2.0';
-$_MODULE['<{paysoncheckout2}prestashop>payson_admin_1d20467cb407a055be0023c5fcb9b332'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning, SMS-betalning och delbetalning.';
+$_MODULE['<{paysoncheckout2}prestashop>payson_admin_1d20467cb407a055be0023c5fcb9b332'] = 'Med Payson Checkout 2.0 får du som e-handlare tillgång till samtliga betalsätt så som faktura, internetbank, kortbetalning och delbetalning.';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_5b6cf869265c13af8566f192b4ab3d2a'] = 'Dokumentation';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_08bf17fe5b46a5dc73be7ec80e1a3d68'] = 'Payson TestAgent';
 $_MODULE['<{paysoncheckout2}prestashop>payson_admin_68824ecc6e889a0aed80b5cf754e1c8d'] = 'Skapa TestAgent';
