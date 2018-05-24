@@ -54,7 +54,7 @@ class PaysonCheckout2 extends PaymentModule
             define('_PCO_LOG_', Configuration::get('PAYSONCHECKOUT2_LOG'));
         }
         
-        $this->illNameChars = array('?', '#', '!', '=', '&', '{', '}', '[', ']', '{', '}', '(', ')', ':', ',', ';', '+', '"', "'");
+        $this->illNameChars = array('?', '#', '!', '=', '&', '{', '}', '[', ']', '{', '}', '(', ')', ':', ',', ';', '+', '"', "'", "¤");
     }
 
     public function install()
@@ -996,10 +996,9 @@ class PaysonCheckout2 extends PaymentModule
 
         $customer = new Customer();
         
-        $illChars = $this->illNameChars;
-        $firstName = str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->firstName > 31) ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
+        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
         // $checkout->customer->lastName is null if customer is business
-        $lastName = $checkout->customer->lastName != null ? str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->lastName > 31) ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
+        $lastName = $checkout->customer->lastName != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->lastName) > 31 ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
         
         $customer->firstname = $firstName;
         $customer->lastname = $lastName;
@@ -1025,10 +1024,9 @@ class PaysonCheckout2 extends PaymentModule
         
         $address = new Address();
         
-        $illChars = $this->illNameChars;
-        $firstName = str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->firstName > 31) ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
+        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
         // $checkout->customer->lastName is null if customer is business
-        $lastName = $checkout->customer->lastName != null ? str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->lastName > 31) ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
+        $lastName = $checkout->customer->lastName != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->lastName) > 31 ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
         
         $address->firstname = $firstName;
         $address->lastname = $lastName;
@@ -1057,10 +1055,9 @@ class PaysonCheckout2 extends PaymentModule
         
         $address = new Address(Address::getFirstCustomerAddressId((int) $customerId));
         
-        $illChars = $this->illNameChars;
-        $firstName = str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->firstName > 31) ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
+        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
         // $checkout->customer->lastName is null if customer is business
-        $lastName = $checkout->customer->lastName != null ? str_replace($illChars, array(' '), (Tools::strlen($checkout->customer->lastName > 31) ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
+        $lastName = $checkout->customer->lastName != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->lastName) > 31 ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : $firstName;
         
         $address->firstname = $firstName;
         $address->lastname = $lastName;
