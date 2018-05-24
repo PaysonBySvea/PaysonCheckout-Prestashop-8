@@ -357,9 +357,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             PaysonCheckout2::paysonAddLog('Got existing checkout with ID: ' . $checkout->id);
         } else {
             // Create a new checkout
-            $checkoutId = $paysonApi->CreateCheckout($payson->createPaysonCheckout($customer, $this->context->cart, $payson, $cartCurrency, $this->context->language->id, $address));
-            // Get checkout
-            $checkout = $paysonApi->GetCheckout($checkoutId);
+            $checkout = $paysonApi->CreateGetCheckout($payson->createPaysonCheckout($customer, $this->context->cart, $payson, $cartCurrency, $this->context->language->id, $address));
             // Save checkout ID in cookie
             $this->context->cookie->__set('paysonCheckoutId', $checkout->id);
             // Save data in Payson order table

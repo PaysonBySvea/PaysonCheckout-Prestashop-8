@@ -33,7 +33,7 @@ namespace PaysonEmbedded {
 
         public function __construct($merchantId, $apiKey, $useTestEnvironment = false) {
             $this->useTestEnvironment = $useTestEnvironment;
-            $this->merchantId =$merchantId;
+            $this->merchantId = $merchantId;
             $this->apiKey = $apiKey;
             
             if (!function_exists('curl_exec')) {
@@ -56,6 +56,15 @@ namespace PaysonEmbedded {
                 throw new PaysonApiException("Checkout Id not received of unclear reason");
             }
             return $checkoutId;
+        }
+        
+        public function CreateGetCheckout(Checkout $checkout) {
+            $result = $this->doCurlRequest('POST', $this->getUrl(self::ACTION_CHECKOUTS), $checkout->toArray(), true);
+            $newCheckout = Checkout::create(json_decode($result));
+            if(!$newCheckout->id) {
+                throw new PaysonApiException("Checkout ID not received of unclear reason");
+            }
+            return $newCheckout;
         }
         
         public function UpdateCheckout($checkout) {
@@ -86,7 +95,7 @@ namespace PaysonEmbedded {
             return Account::create(json_decode($result));
         }
 
-        private function doCurlRequest($method, $url, $postfields) {
+        private function doCurlRequest($method, $url, $postfields, $returnBody = false) {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->authorizationHeader());
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -109,6 +118,9 @@ namespace PaysonEmbedded {
             if ($response_code == 200) {
                 return $body;
             } elseif ($response_code == 201) {
+                if ($returnBody == true) {
+                    return $body;
+                }
                 return $result;
             } elseif ($result == false) {
                 throw new PaysonApiException('Curl error: '.curl_error($ch));
