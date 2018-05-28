@@ -61,30 +61,45 @@ $(document).ready(function() {
     $('.payson-select-list__item').each(function() {
         var el = $(this);
         el.click(function() {
-            if (!el.hasClass('selected')) {
-                var deliveryId = el.find('input[type=radio]').val();
-                el.siblings().removeClass('selected');
-                el.addClass('selected');
-                sendLockDown();
-                updateCheckout({pco_update: '1', delivery_option: {0:deliveryId}}, true,  true);
+            if (termsChecked()) {
+                if (!el.hasClass('selected')) {
+                    var deliveryId = el.find('input[type=radio]').val();
+                    el.siblings().removeClass('selected');
+                    el.addClass('selected');
+                    sendLockDown();
+                    updateCheckout({pco_update: '1', delivery_option: {0:deliveryId}}, true,  true);
+                }
+            } else {
+                $('#modal').find('.modal-body').html(acceptTermsMessage);
+                $('#modal').modal('show');
             }
         });
     });
     
     // Order message
     $('#savemessagebutton').click(function() {
-        sendLockDown();
-        updateCheckout({pco_update: '1', message: $('#message').val()}, true, false);
+        if (termsChecked()) {
+            sendLockDown();
+            updateCheckout({pco_update: '1', message: $('#message').val()}, true, true);
+        } else {
+            $('#modal').find('.modal-body').html(acceptTermsMessage);
+            $('#modal').modal('show');
+        }
     });
     
     // Gift wrapping
     $('#savegiftbutton').click(function() {
-        var gift = 0;
-        if ($('#gift').is(':checked')) {
-            gift = 1;
+        if (termsChecked()) {
+            var gift = 0;
+            if ($('#gift').is(':checked')) {
+                gift = 1;
+            }
+            sendLockDown();
+            updateCheckout({pco_update: '1', gift_message: $('#gift_message').val(), gift: gift}, true, true);
+        } else {
+            $('#modal').find('.modal-body').html(acceptTermsMessage);
+            $('#modal').modal('show');
         }
-        sendLockDown();
-        updateCheckout({pco_update: '1', gift_message: $('#gift_message').val(), gift: gift}, true, true);
     });
 
     // If terms approved
@@ -100,42 +115,43 @@ $(document).ready(function() {
 
     // Update checkout
     function updateCheckout(callData, updateCart, updateCheckout) {
-        if (!reqInProcess) {
+        if (!reqInProcess && (typeof pcourl !== typeof undefined)) {
             reqInProcess = true;
-            if (!$('#paysonIframe').length && termsChecked()) {
-                $('#paysonpaymentwindow').html('');
-                $('#paysonpaymentwindow').height('519px');
-            }
-            $.ajax({
-                type: 'GET',
-                url: pcourl,
-                async: true,
-                cache: false,
-                data: callData,
-                success: function(returnData) {
-                    if (updateCheckout === true) {
-                        if (returnData === 'reload') {
-                            location.href = pcourl;
-                        } else {
-                            if (termsChecked()) {
-                                $("#paysonpaymentwindow").html(returnData);
+            if (termsChecked()) {
+                if (!$('#paysonIframe').length) {
+                    $('#paysonpaymentwindow').html('');
+                    $('#paysonpaymentwindow').height('519px');
+                }
+
+                $.ajax({
+                    type: 'GET',
+                    url: pcourl,
+                    async: true,
+                    cache: false,
+                    data: callData,
+                    success: function(returnData) {
+                        if (updateCheckout === true) {
+                            if (returnData === 'reload') {
+                                location.href = pcourl;
                             } else {
-                                sendRelease();
-                                $("#paysonpaymentwindow").html(acceptTermsMessage);
+                                $("#paysonpaymentwindow").html(returnData);
                             }
                         }
+                        if (updateCart === true) {
+                            prestashop.emit('updateCart', {
+                                reason: 'orderChange'
+                            });
+                        }
+                        sendRelease();
+                    },
+                    error: function() {
+                        sendRelease();
                     }
-                    if (updateCart === true) {
-                        prestashop.emit('updateCart', {
-                            reason: 'orderChange'
-                        });
-                    }
-                    sendRelease();
-                },
-                error: function() {
-                    sendRelease();
-                }
-            });
+                });
+            } else {
+               sendRelease();
+               $("#paysonpaymentwindow").html(acceptTermsMessage);
+            }
             reqInProcess = false;
         }
     }

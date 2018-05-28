@@ -14,21 +14,25 @@
 *}
 {extends "$layout"}
 {block name="content"}
-<script type="text/javascript">
-    // <![CDATA[
-    var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
-    var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
-    var id_cart = '{$id_cart|intval}';
-    var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
-    var currencyBlank = '{$currencyBlank|intval}';
-    var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
-    var currencyRate = '{$currencyRate|floatval}';
-    var currencyFormat = '{$currencyFormat|intval}';
-    var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
-    var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
-    var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
-    // ]]>
-</script>
+    
+{if isset($pcoUrl)}
+    <script type="text/javascript">
+        // <![CDATA[
+        var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+        var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
+        var id_cart = '{$id_cart|intval}';
+        var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+        var currencyBlank = '{$currencyBlank|intval}';
+        var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
+        var currencyRate = '{$currencyRate|floatval}';
+        var currencyFormat = '{$currencyFormat|intval}';
+        var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
+        var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
+        var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
+        // ]]>
+    </script>
+ {/if}
+ 
     <section>
         <p>
             {if isset($payson_errors)}

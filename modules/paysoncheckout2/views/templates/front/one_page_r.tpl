@@ -30,21 +30,24 @@
 </div>
 {/if}
 	
-<script type="text/javascript">
-    // <![CDATA[
-    var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
-    var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
-    var id_cart = '{$id_cart|intval}';
-    var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
-    var currencyBlank = '{$currencyBlank|intval}';
-    var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
-    var currencyRate = '{$currencyRate|floatval}';
-    var currencyFormat = '{$currencyFormat|intval}';
-    var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
-    var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
-    var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
-    // ]]>
-</script>
+{if isset($pcoUrl)}
+    <script type="text/javascript">
+        // <![CDATA[
+        var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+        var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
+        var id_cart = '{$id_cart|intval}';
+        var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+        var currencyBlank = '{$currencyBlank|intval}';
+        var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
+        var currencyRate = '{$currencyRate|floatval}';
+        var currencyFormat = '{$currencyFormat|intval}';
+        var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
+        var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
+        var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
+        // ]]>
+    </script>
+{/if}
+
 <div class="payson-cf payson-main">
     <div id="payson_cart_summary_wrapp">
         <div class="cart-grid-body col-xs-12 col-lg-8">
@@ -118,13 +121,14 @@
     </div><!-- /.col-xs-12-->
 
     <div class="cart-grid-body payson-box col-xs-12 col-md-4">
-        <div class="card">
-            <div class="card-block">
-                <h1 class="h1">
-                    {l s='Carrier' mod='paysoncheckout2'}
-                </h1>
-            </div>
-            <hr class="separator">
+        {if  $delivery_options|@count != 0}
+            <div class="card">
+                <div class="card-block">
+                    <h1 class="h1">
+                        {l s='Carrier' mod='paysoncheckout2'}
+                    </h1>
+                </div>
+                <hr class="separator">
                 <div class="card-block">
                     <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
                     <ul class="payson-select-list has-tooltips">
@@ -155,7 +159,8 @@
                     </ul>
                     </form>
                 </div>
-        </div>
+            </div>
+        {/if}
 
         <div class="card">
             <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcomessage">

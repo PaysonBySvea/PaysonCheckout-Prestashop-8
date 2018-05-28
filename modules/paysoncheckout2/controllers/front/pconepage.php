@@ -66,9 +66,9 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             if (!$message_result) {
                 $this->context->smarty->assign('gift_error', $this->module->l('Invalid message', 'pconepage'));
                 PaysonCheckout2::paysonAddLog('Unable to save message.', 1, null, null, null, true);
-                die('error');
+                //die('error');
             }
-            die('success');
+            //die('success');
         }
 
         // Discounts, coupons
@@ -148,7 +148,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             // Class PaysonCheckout2
             require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
             $payson = new PaysonCheckout2();
-            
+
             if (isset($this->context->cart) && $this->context->cart->nbProducts() > 0) {
                 // Set default delivery option on cart if needed
                 if (!$this->context->cart->getDeliveryOption(null, true)) {
@@ -256,7 +256,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $this->context,
                     $this->getTranslator()
                 );
-                
+
                 // Assign smarty tpl variables
                 $this->context->smarty->assign(array(
                     'discounts' => $this->context->cart->getCartRules(),
@@ -285,43 +285,48 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     throw new Exception($errMess);
                 }
 
-                // Initiate Payson API
-                $paysonApi = $payson->getPaysonApiInstance();
-                PaysonCheckout2::paysonAddLog('Payson API initiated. Agent ID: ' . $paysonApi->getMerchantId());
+                $checkoutSnippet = '';
+                $checkoutId = '';
+                if (Tools::getIsset('pco_update')) {
+                    // Initiate Payson API
+                    $paysonApi = $payson->getPaysonApiInstance();
+                    PaysonCheckout2::paysonAddLog('Payson API initiated. Agent ID: ' . $paysonApi->getMerchantId());
 
-                $getCheckout = $this->getCheckout($payson, $paysonApi, $customer, $cartCurrency, $address);
-                $checkout = $getCheckout['checkout'];
-                $isNewCheckout = $getCheckout['newcheckout'];
+                    $getCheckout = $this->getCheckout($payson, $paysonApi, $customer, $cartCurrency, $address);
+                    $checkout = $getCheckout['checkout'];
+                    $isNewCheckout = $getCheckout['newcheckout'];
 
-                if (!$isNewCheckout) {
-                    // Check if we need to create a new checkout if language or currency differs between cart and checkout
-                    if (!$payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency) || ($payson->languagePayson(Language::getIsoById($this->context->language->id)) !== $payson->languagePayson($checkout->gui->locale))) {
-                        $this->context->cookie->__set('paysonCheckoutId', null);
-                        $getCheckout = $this->getCheckout($payson, $paysonApi, $customer, $cartCurrency, $address);
-                        $checkout = $getCheckout['checkout'];
-                        $isNewCheckout = $getCheckout['newcheckout'];
-                    } else {
-                        if ($payson->canUpdate($checkout->status)) {
-                            // Update checkout
-                            $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $this->context->cart, $payson, $address, $cartCurrency));
-                        } else {
-                            // E.g for expired checkouts
+                    if (!$isNewCheckout) {
+                        // Check if we need to create a new checkout if language or currency differs between cart and checkout
+                        if (!$payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency) || ($payson->languagePayson(Language::getIsoById($this->context->language->id)) !== $payson->languagePayson($checkout->gui->locale))) {
                             $this->context->cookie->__set('paysonCheckoutId', null);
+                            $getCheckout = $this->getCheckout($payson, $paysonApi, $customer, $cartCurrency, $address);
+                            $checkout = $getCheckout['checkout'];
+                            $isNewCheckout = $getCheckout['newcheckout'];
+                        } else {
+                            if ($payson->canUpdate($checkout->status)) {
+                                // Update checkout
+                                $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $this->context->cart, $payson, $address, $cartCurrency));
+                            } else {
+                                // E.g for expired checkouts
+                                $this->context->cookie->__set('paysonCheckoutId', null);
+                            }
                         }
                     }
+                    $checkoutSnippet = $checkout->snippet;
+                    $checkoutId = $checkout->id;
                 }
 
                 // Assign some more smarty tpl variables
                 $this->context->smarty->assign(array(
-                    'pco_checkout_id' => $checkout->id,
-                    'payson_checkout' => $checkout->snippet,
+                    'pco_checkout_id' => $checkoutId,
+                    'payson_checkout' => $checkoutSnippet,
                 ));
-
-                // If AJAX return snippet
+                
                 if (Tools::getIsset('pco_update')) {
-                    die($checkout->snippet);
+                    die($checkoutSnippet);
                 }
-
+                
                 // Show checkout
                 $this->displayCheckout();
             } else {

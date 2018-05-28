@@ -29,22 +29,25 @@
     {$vouchererrors|escape:'html':'UTF-8'}
 </div>
 {/if}
-	
-<script type="text/javascript">
-    // <![CDATA[
-    var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
-    var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
-    var id_cart = '{$id_cart|intval}';
-    var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
-    var currencyBlank = '{$currencyBlank|intval}';
-    var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
-    var currencyRate = '{$currencyRate|floatval}';
-    var currencyFormat = '{$currencyFormat|intval}';
-    var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
-    var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
-    var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
-    // ]]>
-</script>
+
+{if isset($pcoUrl)}
+    <script type="text/javascript">
+        // <![CDATA[
+        var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+        var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
+        var id_cart = '{$id_cart|intval}';
+        var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+        var currencyBlank = '{$currencyBlank|intval}';
+        var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
+        var currencyRate = '{$currencyRate|floatval}';
+        var currencyFormat = '{$currencyFormat|intval}';
+        var txtProduct = '{l s='product' js=1 mod='paysoncheckout2'}';
+        var txtProducts = '{l s='products' js=1 mod='paysoncheckout2'}';
+        var freeShippingTranslation = '{l s='Free Shipping!' js=1 mod='paysoncheckout2'}';
+        // ]]>
+    </script>
+{/if}
+
 <div class="payson-cf payson-main">
     <div id="payson_cart_summary_wrapp">
         <div class="cart-grid-body col-xs-12 col-lg-8 left-col">
@@ -134,42 +137,44 @@
                 </div>
             {/block}
 
-            <div class="card">
-                <div class="card-block">
-                    <h1 class="h1">
-                        {l s='Carrier' mod='paysoncheckout2'}
-                    </h1>
-                </div>
-                <hr class="separator">
+            {if  $delivery_options|@count != 0} 
+                <div class="card">
                     <div class="card-block">
-                        <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
-                        <ul class="payson-select-list has-tooltips">
-                            {foreach from=$delivery_options item=carrier key=carrier_id}
-                            <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
-                                <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
-                                <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
-                                    {*<span class="payson-select-list__item__status">
-                                        <i class="icon-ok"></i>
-                                    </span>*}
-                                    <span class="payson-select-list__item__title">
-                                        {$carrier.name|escape:'html':'UTF-8'}
-                                    </span>
-                                    <span class="payson-select-list__item__nbr">
-                                        {if $carrier.price && !$free_shipping}
-                                            {Tools::displayPrice($carrier.price_with_tax)}
-                                        {else}
-                                            {l s='Free!' mod='paysoncheckout2'}
-                                        {/if}
-                                    </span>
-
-                                </label>
-                            </li>
-                            {/foreach}
-                        </ul>
-                        </form>
+                        <h1 class="h1">
+                            {l s='Carrier' mod='paysoncheckout2'}
+                        </h1>
                     </div>
-            </div>
+                    <hr class="separator">
+                        <div class="card-block">
+                            <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
+                            <ul class="payson-select-list has-tooltips">
+                                {foreach from=$delivery_options item=carrier key=carrier_id}
+                                <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
+                                    <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
+                                    <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
+                                        {*<span class="payson-select-list__item__status">
+                                            <i class="icon-ok"></i>
+                                        </span>*}
+                                        <span class="payson-select-list__item__title">
+                                            {$carrier.name|escape:'html':'UTF-8'}
+                                        </span>
+                                        <span class="payson-select-list__item__nbr">
+                                            {if $carrier.price && !$free_shipping}
+                                                {Tools::displayPrice($carrier.price_with_tax)}
+                                            {else}
+                                                {l s='Free!' mod='paysoncheckout2'}
+                                            {/if}
+                                        </span>
 
+                                    </label>
+                                </li>
+                                {/foreach}
+                            </ul>
+                            </form>
+                        </div>
+                </div>
+            {/if}
+                        
             <div class="card">
                 <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcomessage">
                     <div class="card-block">
