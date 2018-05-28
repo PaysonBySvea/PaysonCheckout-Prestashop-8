@@ -33,6 +33,9 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         parent::init();
         PaysonCheckout2::paysonAddLog('* ' . __FILE__ . ' -> ' . __METHOD__ . ' *');
 
+        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
+        $payson = new PaysonCheckout2();
+        
         $this->context->cookie->__set('validation_error', null);
         
         $cartId = (int) Tools::getValue('id_cart');
@@ -42,21 +45,29 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             die('reload');
         }
         
-        $checkoutId = Tools::getValue('checkout');
-        if (!isset($checkoutId) || $checkoutId == null) {
-            if (isset($this->context->cookie->paysonCheckoutId) && $this->context->cookie->paysonCheckoutId != null) {
-                // Get checkout ID from cookie
-                $checkoutId = $this->context->cookie->paysonCheckoutId;
-                PaysonCheckout2::paysonAddLog('No checkout ID in query, loaded: ' . $checkoutId . ' from cookie.');
+        if (isset($this->context->cookie->paysonCheckoutId) && $this->context->cookie->paysonCheckoutId != null) {
+            // Get checkout ID from cookie
+            $checkoutId = $this->context->cookie->paysonCheckoutId;
+            PaysonCheckout2::paysonAddLog('Got checkout ID: ' . $checkoutId . ' from cookie.');
+        } else {
+            // Get checkout ID from query
+            if (Tools::getIsset('checkout') && Tools::getValue('checkout') != null) {
+                $checkoutId = Tools::getValue('checkout');
+                PaysonCheckout2::paysonAddLog('Got checkout ID: ' . $checkoutId . ' from query.');
             } else {
-                Logger::addLog('No checkout ID in cookie, redirect.', 3);
-                $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing checkout ID.', 'validation'));
-                die('reload');
+                // Get checkout ID from DB
+                $checkoutId = $payson->getPaysonOrderEventId($cartId);
+                if (isset($checkoutId) && $checkoutId != null) {
+                    PaysonCheckout2::paysonAddLog('Got checkout ID: ' . $checkoutId . ' from DB.');
+                } else {
+                    // Unable to get checkout ID
+                    Logger::addLog('Unable to get checkout ID, reload page.', 3);
+                    $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing checkout ID.', 'validation'));
+                    die('reload');
+                }
             }
         }
         
-        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
-        $payson = new PaysonCheckout2();
         $paysonApi = $payson->getPaysonApiInstance();
 
         $checkout = $paysonApi->GetCheckout($checkoutId);
