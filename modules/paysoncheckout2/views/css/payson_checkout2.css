@@ -21,8 +21,16 @@
         min-width: 69px;
     }
     
-    #module-paysoncheckout2-pconepage #conditions-to-approve ul {
+    #module-paysoncheckout2-pconepage .terms-and-options ul {
         margin-bottom: 0;
+    }
+    
+    #module-paysoncheckout2-pconepage .terms-and-options ul label {
+        cursor: pointer;
+        -webkit-user-select: none;  
+        -moz-user-select: none;    
+        -ms-user-select: none;      
+        user-select: none;
     }
     
     #module-paysoncheckout2-pconepage .card .free-shipping {

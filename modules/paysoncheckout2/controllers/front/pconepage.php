@@ -44,8 +44,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
     {
         // Gift wrapping
         if (Tools::getIsset('gift_message')) {
-            PaysonCheckout2::paysonAddLog('Start to save gift wrapping.', 1, null, null, null, true);
-            PaysonCheckout2::paysonAddLog('Gift is: ' . (int) (Tools::getValue('gift')), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Start to save gift wrapping.');
+            PaysonCheckout2::paysonAddLog('Gift is: ' . (int) (Tools::getValue('gift')));
             $this->context->cart->gift = (int) (Tools::getValue('gift'));
             $gift_message = Tools::getValue('gift_message');
             $gift_error = '';
@@ -60,12 +60,12 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
         // Order message
         if (Tools::getIsset('message')) {
-            PaysonCheckout2::paysonAddLog('Start to save message: ' . Tools::getValue('message'), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Start to save message: ' . Tools::getValue('message'));
             $messageContent = Tools::getValue('message');
             $message_result = $this->updateMessage($messageContent, $this->context->cart);
             if (!$message_result) {
                 $this->context->smarty->assign('gift_error', $this->module->l('Invalid message', 'pconepage'));
-                PaysonCheckout2::paysonAddLog('Unable to save message.', 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Unable to save message.');
                 //die('error');
             }
             //die('success');
@@ -111,7 +111,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
         if (Tools::getIsset('delivery_option')) {
             $newDeliveryOption = Tools::getValue('delivery_option');
 
-            PaysonCheckout2::paysonAddLog('Updating delivery option: ' . print_r($newDeliveryOption, true), 1, null, null, null, true);
+            PaysonCheckout2::paysonAddLog('Updating delivery option: ' . print_r($newDeliveryOption, true));
 
             if ($this->validateDeliveryOption($newDeliveryOption)) {
                 if ((int) $this->context->cart->id_address_delivery > 0) {
@@ -122,19 +122,26 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                 }
                 $this->context->cart->setDeliveryOption($newDeliveryOption);
 
-                PaysonCheckout2::paysonAddLog('Carrier ID: ' . $this->context->cart->id_carrier, 1, null, null, null, true);
-                PaysonCheckout2::paysonAddLog('Addres ID: ' . $this->context->cart->id_address_delivery, 1, null, null, null, true);
-                PaysonCheckout2::paysonAddLog('Updated delivery option: ' . print_r($newDeliveryOption, true), 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Carrier ID: ' . $this->context->cart->id_carrier);
+                PaysonCheckout2::paysonAddLog('Addres ID: ' . $this->context->cart->id_address_delivery);
+                PaysonCheckout2::paysonAddLog('Updated delivery option: ' . print_r($newDeliveryOption, true));
             }
 
             if (!$this->context->cart->update()) {
                 $this->context->smarty->assign(array('vouchererrors' => $this->module->l('Could not save carrier selection', 'pconepage'),));
-                PaysonCheckout2::paysonAddLog('Unable to update delivey option.', 1, null, null, null, true);
+                PaysonCheckout2::paysonAddLog('Unable to update delivey option.');
             }
 
             // See if rules apply here
             CartRule::autoRemoveFromCart($this->context);
             CartRule::autoAddToCart($this->context);
+        }
+        
+        // Newsletter subscription
+        if (Tools::getIsset('newsletter_sub')) {
+            $val = Tools::getValue('newsletter_sub');
+            $this->context->cookie->__set('newsletter_sub', $val);
+            die('success');
         }
     }
     
@@ -275,9 +282,12 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     'delivery_options' => $delivery_options,
                     'delivery_option' => $delivery_option,
                     'PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS' => (int) Configuration::get('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS'),
+                    'PAYSONCHECKOUT2_SHOW_TERMS' => (int) Configuration::get('PAYSONCHECKOUT2_SHOW_TERMS'),
+                    'PAYSONCHECKOUT2_NEWSLETTER' => (int) Configuration::get('PAYSONCHECKOUT2_NEWSLETTER'),
                     'pcoUrl' => $this->context->link->getModuleLink('paysoncheckout2', 'pconepage', array(), true),
                     'validateUrl' => $this->context->link->getModuleLink('paysoncheckout2', 'validation', array(), true),
                     'conditions_to_approve' => $conditionsToApproveFinder->getConditionsToApproveForTemplate(),
+                    'newsletter_optin_text' => $this->module->l('Sign up for our newsletter', 'pconepage'),
                 ));
 
                 // Check for error and exit if any

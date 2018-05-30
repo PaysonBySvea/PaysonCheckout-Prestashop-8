@@ -27,6 +27,11 @@ $(document).ready(function() {
     if (sessionStorage.conditions_to_approve_checkbox === 'true') {
         $('.conditions_to_approve_checkbox').prop('checked', true);
     }
+    
+    // Check newsletter optin
+    if (sessionStorage.newsletter_optin_checkbox === 'true') {
+        $('.newsletter_optin_checkbox').prop('checked', true);
+    }
 
     // Show/hide cards
     $('.payson-click-trigger').each(function() {
@@ -43,10 +48,10 @@ $(document).ready(function() {
         event.preventDefault();
         var url = $(event.target).attr('href');
         if (url) {
-          url += '?content_only=1';
-          $.get(url, function (content) {
-            $('#modal').find('.modal-body').html($(content).find('.page-cms').contents());
-          });
+            url += '?content_only=1';
+            $.get(url, function (content) {
+              $('#modal').find('.modal-body').html($(content).find('.page-cms').contents());
+            });
         }
         $('#modal').modal('show');
     });
@@ -55,6 +60,12 @@ $(document).ready(function() {
     $('.conditions_to_approve_checkbox').bind('change', function() {
         sessionStorage.setItem('conditions_to_approve_checkbox', $(this).prop('checked'));
         updateCheckout({pco_update: '1'}, false, true);
+    });
+    
+    // Optin newsletter
+    $('.newsletter_optin_checkbox').bind('change', function() {
+        sessionStorage.setItem('newsletter_optin_checkbox', $(this).prop('checked'));
+        updateCheckout({pco_update: '1', newsletter_sub: $(this).prop('checked')}, false, false);
     });
     
     // Change carrier
@@ -107,7 +118,7 @@ $(document).ready(function() {
 	var is_ok = true;
 	$(".conditions_to_approve_checkbox").each(function() {
             if (!$(this).prop('checked')) {
-                    is_ok = false;
+                is_ok = false;
             }
 	});
 	return is_ok;

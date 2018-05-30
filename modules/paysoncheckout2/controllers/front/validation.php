@@ -78,23 +78,21 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $cart = new Cart($cartId);
 
-        // Create or update customer
-        $id_customer = (int) (Customer::customerExists($checkout->customer->email, true, true));
-
-        if ($id_customer > 0) {
-            $customer = new Customer($id_customer);
-            $address = $payson->updatePaysonAddressPS(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
-            if (!Validate::isLoadedObject($address)) {
-                // Registred customer has no addres in PS, create new
-                $address = $payson->addPaysonAddressPS(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
-            }
+        // Add or update customer
+        if ((int) Customer::customerExists($checkout->customer->email, true, true) > 0) {
+            $customer = new Customer((int) Customer::customerExists($checkout->customer->email, true, true));
         } else {
-            // Create a new customer in PS
             $customer = $payson->addPaysonCustomerPS($cart->id, $checkout);
-            // Create a new customer address in PS
-            $address = $payson->addPaysonAddressPS(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
         }
+        // Update or create address
+        $address = $payson->updateCreatePsAddress(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
 
+        if ((int) $customer->newsletter !== 1 && $this->context->cookie->newsletter_sub == true) {
+            $customer->newsletter = 1;
+            $customer->update();
+            PaysonCheckout2::paysonAddLog('Updated customer newsletter settting.');
+        }
+        
         $new_delivery_options = array();
         $new_delivery_options[(int) ($address->id)] = $cart->id_carrier . ',';
         $new_delivery_options_serialized = serialize($new_delivery_options);

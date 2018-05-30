@@ -60,35 +60,59 @@
                     {include file='checkout/_partials/cart-detailed.tpl' cart=$cart}
                 </div>
             
-                <!-- terms -->
-                {if $conditions_to_approve|count}
-                    <div class="card cart-container terms-card">
+                <!-- terms and newsletter-->
+                {if (($conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS) || (isset($PAYSONCHECKOUT2_NEWSLETTER) && $PAYSONCHECKOUT2_NEWSLETTER))}
+                    <div class="card cart-container terms-card terms-and-options">
                         <div class="card-block">
-                            <form id="conditions-to-approve" method="GET">
-                              <ul>
-                                {foreach from=$conditions_to_approve item="condition" key="condition_name"}
-                                  <li>
-                                    <div class="float-xs-left">
-                                      <span class="custom-checkbox">
-                                        <input  id    = "conditions_to_approve[{$condition_name}]"
-                                                name  = "conditions_to_approve[{$condition_name}]"
-                                                required
-                                                type  = "checkbox"
-                                                value = "1"
-                                                class = "conditions_to_approve_checkbox ps-shown-by-js"
-                                        >
-                                        <span><i class="material-icons rtl-no-flip checkbox-checked">&#xE5CA;</i></span>
-                                      </span>
-                                    </div>
-                                    <div class="condition-label">
-                                      <label class="js-terms" for="conditions_to_approve[{$condition_name}]">
-                                        {$condition nofilter}
-                                      </label>
-                                    </div>
-                                  </li>
-                                {/foreach}
-                              </ul>
-                            </form>
+                            {if ($conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS)}
+                                <form id="conditions-to-approve" method="GET">
+                                  <ul>
+                                    {foreach from=$conditions_to_approve item="condition" key="condition_name"}
+                                      <li>
+                                        <div class="float-xs-left">
+                                          <span class="custom-checkbox">
+                                            <input  id    = "conditions_to_approve[{$condition_name}]"
+                                                    name  = "conditions_to_approve[{$condition_name}]"
+                                                    required
+                                                    type  = "checkbox"
+                                                    value = "1"
+                                                    class = "conditions_to_approve_checkbox ps-shown-by-js"
+                                            >
+                                            <span><i class="material-icons rtl-no-flip checkbox-checked">&#xE5CA;</i></span>
+                                          </span>
+                                        </div>
+                                        <div class="condition-label">
+                                          <label class="js-terms" for="conditions_to_approve[{$condition_name}]">
+                                            {$condition nofilter}{* no escaping possible *}
+                                          </label>
+                                        </div>
+                                      </li>
+                                    {/foreach}
+                                  </ul>
+                                </form>
+                            {/if}
+                            {if isset($PAYSONCHECKOUT2_NEWSLETTER) && $PAYSONCHECKOUT2_NEWSLETTER}
+                                <ul>
+                                    <li>
+                                      <div class="float-xs-left">
+                                        <span class="custom-checkbox">
+                                          <input  id    = "newsletter_optin"
+                                                  name  = "newsletter_optin"
+                                                  type  = "checkbox"
+                                                  value = "1"
+                                                  class = "newsletter_optin_checkbox ps-shown-by-js"
+                                          >
+                                          <span><i class="material-icons rtl-no-flip checkbox-checked">&#xE5CA;</i></span>
+                                        </span>
+                                      </div>
+                                      <div class="condition-label">
+                                        <label for="newsletter_optin">
+                                          {$newsletter_optin_text|escape:'html':'UTF-8'}
+                                        </label>
+                                      </div>
+                                    </li>
+                                </ul>
+                            {/if}
                         </div>
                     </div>
                 {/if}
