@@ -307,8 +307,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $isNewCheckout = $getCheckout['newcheckout'];
 
                     if (!$isNewCheckout) {
-                        // Check if we need to create a new checkout if language or currency differs between cart and checkout
-                        if (!$payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency) || ($payson->languagePayson(Language::getIsoById($this->context->language->id)) !== $payson->languagePayson($checkout->gui->locale))) {
+                        // Check if we need to create a new checkout if language or currency differs between cart and checkout or if it expired
+                        if (($checkout->status == 'expired') || !$payson->checkCurrencyName($cartCurrency->iso_code, $checkout->payData->currency) || ($payson->languagePayson(Language::getIsoById($this->context->language->id)) !== $payson->languagePayson($checkout->gui->locale))) {
                             $this->context->cookie->__set('paysonCheckoutId', null);
                             $getCheckout = $this->getCheckout($payson, $paysonApi, $customer, $cartCurrency, $address);
                             $checkout = $getCheckout['checkout'];
@@ -318,7 +318,6 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                                 // Update checkout
                                 $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $this->context->cart, $payson, $address, $cartCurrency));
                             } else {
-                                // E.g for expired checkouts
                                 $this->context->cookie->__set('paysonCheckoutId', null);
                             }
                         }
