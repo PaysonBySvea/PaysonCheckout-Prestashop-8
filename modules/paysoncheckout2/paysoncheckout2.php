@@ -32,7 +32,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.12';
+        $this->version = '3.0.13';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -1313,7 +1313,7 @@ class PaysonCheckout2 extends PaymentModule
                     }
                     
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
-                        if ($checkout->status == 'shipped') {
+                        if ($checkout->status == 'shipped' || $checkout->status == 'paidToAccount') {
                             try {
                                 PaysonCheckout2::paysonAddLog('Updating Payson order status to credited.');
 
