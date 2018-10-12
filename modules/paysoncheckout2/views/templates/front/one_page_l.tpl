@@ -129,17 +129,14 @@
                     <div class="card-block">
                         <h1 class="h1">
                             {l s='Payment' mod='paysoncheckout2'}
-                            <span>
-                                {if isset($PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS) && $PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS}
-                                    <a
-                                        href="{$link->getPageLink('order', true, null, 'step=1')|escape:'html':'UTF-8'}"
-                                        class="alternative_methods"
-                                        title="{l s='Other payment methods' mod='paysoncheckout2'}">
-                                        <span>{l s='Other payment methods' mod='paysoncheckout2'}<i class="icon-chevron-right right"></i></span>
-                                    </a>
-                                {/if}
-                            </span>
                         </h1>
+                        {if isset($PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS) && $PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS}
+                            <span class="wrap-alternative-methods">
+                                <a href="{$link->getPageLink('order', true, null, 'step=1')|escape:'html':'UTF-8'}" class="alternative-methods" title="{l s='Other payment methods' mod='paysoncheckout2'}">
+                                    <span>{l s='Other payment methods' mod='paysoncheckout2'}</span>
+                                </a>
+                            </span>
+                        {/if}   
                     </div>
                     <hr class="separator">
                     

@@ -108,7 +108,7 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_l_b75443a19207ed3a3552edda865368
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_576dc3c8fee48522648cdd45eaa43319'] = ' ';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_c453a4b8e8d98e82f35b67f433e3b4da'] = 'Betalning';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_l_569fd05bdafa1712c4f6be5b153b8418'] = 'Andra betalalternativ';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_569fd05bdafa1712c4f6be5b153b8418'] = 'Andra betalmetoder';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_e7a6ca4e744870d455a57b644f696457'] = 'Gratis!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_4c2a8fe7eaf24721cc7a9f0175115bd4'] = 'Meddelande';
