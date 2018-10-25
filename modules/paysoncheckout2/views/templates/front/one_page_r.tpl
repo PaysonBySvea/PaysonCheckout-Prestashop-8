@@ -48,7 +48,7 @@
     </script>
 {/if}
 
-<div class="payson-cf payson-main">
+<div class="payson-cf payson-main op-r-align">
     <div id="payson_cart_summary_wrapp">
         <div class="cart-grid-body col-xs-12 col-lg-8">
 
