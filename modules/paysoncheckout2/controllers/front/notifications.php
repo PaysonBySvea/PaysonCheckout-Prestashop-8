@@ -57,11 +57,12 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                 }
             }
             
-            $checkout = $paysonApi->GetCheckout($checkoutId);
+            $checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
+            $checkout = $checkoutClient->get(array('id' => $checkoutId));
 
-            PaysonCheckout2::paysonAddLog('Notification Checkout Status: ' . $checkout->status);
+            PaysonCheckout2::paysonAddLog('Notification Checkout Status: ' . $checkout['status']);
 
-            switch ($checkout->status) {
+            switch ($checkout['status']) {
                 case 'created':
                     var_dump(http_response_code(200));
                     exit();
@@ -111,7 +112,7 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                     var_dump(http_response_code(200));
                     exit();
                 default:
-                    PaysonCheckout2::paysonAddLog('Notification Unknown Checkout Status: ' . $checkout->status, 2);
+                    PaysonCheckout2::paysonAddLog('Notification Unknown Checkout Status: ' . $checkout['status'], 2);
                     var_dump(http_response_code(200));
                     exit();
             }

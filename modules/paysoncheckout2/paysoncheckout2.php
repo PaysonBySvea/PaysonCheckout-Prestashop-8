@@ -32,7 +32,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.15';
+        $this->version = '3.0.16';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -663,17 +663,23 @@ class PaysonCheckout2 extends PaymentModule
         $notificationUri = $this->context->link->getModuleLink('paysoncheckout2', 'notifications', array('trackingId' => $trackingId, 'id_cart' => $cart->id, 'call' => 'notification'));
         $cms = new CMS((int) (Configuration::get('PS_CONDITIONS_CMS_ID')), (int) ($this->context->cookie->id_lang));
         $termsUri = $this->context->link->getCMSLink($cms, $cms->link_rewrite, Configuration::get('PS_SSL_ENABLED'));
-        $validationUri = null;
 
-        $paysonMerchant = new PaysonEmbedded\Merchant($checkoutUri, $confirmationUri, $notificationUri, $termsUri, null, $payson->moduleVersion);
-        $paysonMerchant->reference = $cart->id;
-        $paysonMerchant->validationUri = $validationUri;
-
+        $paysonMerchant = array(
+            'termsUri' => $termsUri,
+            'checkoutUri' => $checkoutUri,
+            'confirmationUri' => $confirmationUri,
+            'notificationUri' => $notificationUri,
+            'integrationInfo' => $payson->moduleVersion,
+            'reference' => $cart->id,
+            'validationUri' => null,
+            'partnerId' => null,
+        );
         PaysonCheckout2::paysonAddLog('PCO Merchant: ' . print_r($paysonMerchant, true));
 
-        $paysonOrder = new PaysonEmbedded\PayData($currency->iso_code);
-        $paysonOrder->items = $this->orderItemsList($cart, $payson, $currency);
-
+        $paysonOrder = array(
+            'currency' => $currency->iso_code,
+            'items' => $this->orderItemsList($cart, $payson, $currency),
+        );
         PaysonCheckout2::paysonAddLog('PCO Order: ' . print_r($paysonOrder, true));
 
         //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
@@ -695,20 +701,51 @@ class PaysonCheckout2 extends PaymentModule
             $allowedDeliveryCountries = null;
         }
 
-        $paysonGui = new PaysonEmbedded\Gui($this->languagePayson(Language::getIsoById($id_lang)), Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'), Configuration::get('PAYSONCHECKOUT2_VERIFICATION'), (int) Configuration::get('PAYSONCHECKOUT2_REQUIRE_PHONE'), $allowedDeliveryCountries, null);
-
+        $paysonGui = array(
+            'colorScheme' => Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'),
+            'locale' => $this->languagePayson(Language::getIsoById($id_lang)), 
+            'verification' => Configuration::get('PAYSONCHECKOUT2_VERIFICATION'),
+            'requestPhone' => (int) Configuration::get('PAYSONCHECKOUT2_REQUIRE_PHONE'),
+            'countries' => $allowedDeliveryCountries,
+            'phoneOptional' => null,
+        );
         PaysonCheckout2::paysonAddLog('PCO GUI: ' . print_r($paysonGui, true));
 
         if (Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
             // Create test customer
-            $paysonCustomer = new PaysonEmbedded\Customer('Tess T', 'Persson', 'test@payson.se', 1111111, "4605092222", 'Stan', 'SE', '99999', '');
+            $paysonCustomer = array(
+                'firstName' => 'Tess T',
+                'lastName' => 'Persson',
+                'email' => 'test@payson.se',
+                'phone' => 1111111,
+                'identityNumber' => '4605092222',
+                'city' => 'Stan', 
+                'countryCode' => 'SE',
+                'postalCode' => '99999',
+                'street' => '',
+                'type' => 'person', 
+            );
         } else {
-            $paysonCustomer = $customer->email == null ? null : new PaysonEmbedded\Customer($customer->firstname, $customer->lastname, $customer->email, $address->phone, "", $address->city, Country::getIsoById($address->id_country), $address->postcode, $address->address1);
+            if ($customer->email == null) {
+                $paysonCustomer = null;
+            } else {
+                // Logged in customer
+                $paysonCustomer = array(
+                    'firstName' => $customer->firstname,
+                    'lastName' => $customer->lastname,
+                    'email' => $customer->email,
+                    'phone' => $address->phone,
+                    'identityNumber' => '',
+                    'city' => $address->city, 
+                    'countryCode' => Country::getIsoById($address->id_country),
+                    'postalCode' => $address->postcode,
+                    'street' => $address->address1,
+                    'type' => 'person', 
+                );
+            }
         }
 
-        $checkout = new PaysonEmbedded\Checkout($paysonMerchant, $paysonOrder, $paysonGui, $paysonCustomer);
-
-        return $checkout;
+        return array('merchant' => $paysonMerchant, 'order' => $paysonOrder, 'gui' => $paysonGui, 'customer' => $paysonCustomer);
     }
 
     /**
@@ -749,18 +786,18 @@ class PaysonCheckout2 extends PaymentModule
 
     public function updatePaysonCheckout($checkout, $customer, $cart, $payson, $address, $currency)
     {
-        if ($customer->email != null && $checkout->status != 'readyToPay') {
-            $checkout->customer->firstName = $customer->firstname;
-            $checkout->customer->lastName = $customer->lastname;
-            $checkout->customer->email = $customer->email;
-            $checkout->customer->phone = $address->phone;
-            $checkout->customer->city = $address->city;
-            $checkout->customer->countryCode = Country::getIsoById($address->id_country);
-            $checkout->customer->postalCode = $address->postcode;
-            $checkout->customer->street = $address->address1;
+        if ($customer->email != null && $checkout['status'] != 'readyToPay') {
+            $checkout['customer']['firstName'] = $customer->firstname;
+            $checkout['customer']['lastName'] = $customer->lastname;
+            $checkout['customer']['email'] = $customer->email;
+            $checkout['customer']['phone'] = $address->phone;
+            $checkout['customer']['city'] = $address->city;
+            $checkout['customer']['countryCode'] = Country::getIsoById($address->id_country);
+            $checkout['customer']['postalCode'] = $address->postcode;
+            $checkout['customer']['street'] = $address->address1;
         }
 
-        $checkout->payData->items = $this->orderItemsList($cart, $payson, $currency);
+        $checkout['order']['items'] = $this->orderItemsList($cart, $payson, $currency);
 
         return $checkout;
     }
@@ -784,7 +821,7 @@ class PaysonCheckout2 extends PaymentModule
         //$cart = $this->context->cart;
 
         PaysonCheckout2::paysonAddLog('Cart ID: ' . $cart_id);
-        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id);
+        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout['id']);
 
         try {
             // Check if order exists
@@ -792,13 +829,13 @@ class PaysonCheckout2 extends PaymentModule
                 $currency = new Currency($cart->id_currency);
 
                 // Add or load customer
-                if ((int) Customer::customerExists($checkout->customer->email, true, true) > 0) {
-                    $customer = new Customer(Customer::customerExists($checkout->customer->email, true, true));
+                if ((int) Customer::customerExists($checkout['customer']['email'], true, true) > 0) {
+                    $customer = new Customer(Customer::customerExists($checkout['customer']['email'], true, true));
                 } else {
                     $customer = $this->addPaysonCustomerPS($cart->id, $checkout);
                 }
                 // Update or create address
-                $address = $this->updateCreatePsAddress(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
+                $address = $this->updateCreatePsAddress(Country::getByIso($checkout['customer']['countryCode']), $checkout, $customer->id);
 
                 $cart->secure_key = $customer->secure_key;
                 $cart->id_customer = $customer->id;
@@ -808,14 +845,14 @@ class PaysonCheckout2 extends PaymentModule
                 Cache::clean($cache_id);
                 $cart = new Cart($cart->id);
 
-                $comment = $this->l('Checkout ID:') . ' ' . $checkout->id . "\n";
-                $comment .= $this->l('Checkout Status:') . ' ' . $checkout->status . "\n";
+                $comment = $this->l('Checkout ID:') . ' ' . $checkout['id'] . "\n";
+                $comment .= $this->l('Checkout Status:') . ' ' . $checkout['status'] . "\n";
                 $comment .= $this->l('Cart ID:') . ' ' . $customer->id . "\n";
 
                 // Order total
                 //$total = (float) $cart->getOrderTotal(true, Cart::BOTH) < $checkout->payData->totalPriceIncludingTax + 2 && (float) $cart->getOrderTotal(true, Cart::BOTH) > $checkout->payData->totalPriceIncludingTax - 2? (float) $cart->getOrderTotal(true, Cart::BOTH) : $checkout->payData->totalPriceIncludingTax;
                 //$total = $cart->getOrderTotal(true, Cart::BOTH);
-                $total = $checkout->payData->totalPriceIncludingTax;
+                $total = $checkout['order']['totalPriceIncludingTax'];
                 
                 PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id);
                 PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier);
@@ -894,19 +931,19 @@ class PaysonCheckout2 extends PaymentModule
         if ($psOrder > 0) {
             $sql .= '`order_id` = "' . (int) $psOrder . '",';
         }
-        $sql .= '`payment_status` = "' . pSQL($checkout->status) . '",
+        $sql .= '`payment_status` = "' . pSQL($checkout['status']) . '",
             `updated` = NOW(),
-            `sender_email` = "' . pSQL($checkout->customer->email) . '", 
-            `currency_code` = "' . pSQL($checkout->payData->currency) . '",
+            `sender_email` = "' . pSQL($checkout['customer']['email']) . '", 
+            `currency_code` = "' . pSQL($checkout['order']['currency']) . '",
             `tracking_id` = "",
             `type` = "embedded",
-            `shippingAddress_name` = "' . pSQL($checkout->customer->firstName) . '",
-            `shippingAddress_lastname` = "' . pSQL($checkout->customer->lastName) . '",
-            `shippingAddress_street_address` = "' . pSQL($checkout->customer->street) . '",
-            `shippingAddress_postal_code` = "' . pSQL($checkout->customer->postalCode) . '",
-            `shippingAddress_city` = "' . pSQL($checkout->customer->city) . '",
-            `shippingAddress_country` = "' . pSQL($checkout->customer->countryCode) . '"
-            WHERE `checkout_id` = "' . pSQL($checkout->id) . '"';
+            `shippingAddress_name` = "' . pSQL($checkout['customer']['firstName']) . '",
+            `shippingAddress_lastname` = "' . pSQL($checkout['customer']['lastName']) . '",
+            `shippingAddress_street_address` = "' . pSQL($checkout['customer']['street']) . '",
+            `shippingAddress_postal_code` = "' . pSQL($checkout['customer']['postalCode']) . '",
+            `shippingAddress_city` = "' . pSQL($checkout['customer']['city']) . '",
+            `shippingAddress_country` = "' . pSQL($checkout['customer']['countryCode']) . '"
+            WHERE `checkout_id` = "' . pSQL($checkout['id']) . '"';
 
         Db::getInstance()->execute($sql);
     }
@@ -966,33 +1003,33 @@ class PaysonCheckout2 extends PaymentModule
      */
     public function getPaysonApiInstance()
     {
-        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/lib/paysonapi.php');
-        $testMode = false;
-        $agentid = trim(Configuration::get('PAYSONCHECKOUT2_AGENTID'));
+        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysonpayments/include.php');
+        $apiUrl = \Payson\Payments\Transport\Connector::PROD_BASE_URL;
+        $agentId = trim(Configuration::get('PAYSONCHECKOUT2_AGENTID'));
         $apiKey = trim(Configuration::get('PAYSONCHECKOUT2_APIKEY'));
         
         if ((int) Configuration::get('PAYSONCHECKOUT2_MODE') == 1) {
-            $testMode = true;
-            if (Tools::strlen($agentid) < 1 && Tools::strlen($apiKey) < 1) {
-                $agentid = '4';
+            $apiUrl = \Payson\Payments\Transport\Connector::TEST_BASE_URL;
+            if (Tools::strlen($agentId) < 1 && Tools::strlen($apiKey) < 1) {
+                $agentId = '4';
                 $apiKey = '2acab30d-fe50-426f-90d7-8c60a7eb31d4';
             }
         }
         
-        return new PaysonEmbedded\PaysonApi($agentid, $apiKey, $testMode);
+        return \Payson\Payments\Transport\Connector::init($agentId, $apiKey, $apiUrl);
     }
 
     public function addPaysonCustomerPS($cartId, $checkout)
     {
-        PaysonCheckout2::paysonAddLog('Create PS Customer - Checkout customer: ' . print_r($checkout->customer, true));
+        PaysonCheckout2::paysonAddLog('Create PS Customer - Checkout customer: ' . print_r($checkout['customer'], true));
         
         $cart = new Cart((int) ($cartId));
 
         $customer = new Customer();
         
-        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
+        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout['customer']['firstName']) > 31 ? Tools::substr($checkout['customer']['firstName'], 0, 31) : $checkout['customer']['firstName']));
         // $checkout->customer->lastName is null if customer is business
-        $lastName = $checkout->customer->lastName != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->lastName) > 31 ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : '-';
+        $lastName = $checkout['customer']['lastName'] != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout['customer']['lastName']) > 31 ? Tools::substr($checkout['customer']['lastName'], 0, 31) : $checkout['customer']['lastName'])) : '-';
         
         $customer->firstname = $firstName;
         $customer->lastname = $lastName;
@@ -1003,7 +1040,7 @@ class PaysonCheckout2 extends PaymentModule
         $customer->id_default_group = (int) (Configuration::get('PS_CUSTOMER_GROUP', null, $cart->id_shop));
         $customer->optin = 0;
         $customer->active = 1;
-        $customer->email = $checkout->customer->email;
+        $customer->email = $checkout['customer']['email'];
         $customer->id_gender = 0;
         $customer->add();
         
@@ -1014,7 +1051,7 @@ class PaysonCheckout2 extends PaymentModule
 
     public function updateCreatePsAddress($countryId, $checkout, $customerId)
     {
-        PaysonCheckout2::paysonAddLog('Update or Create PS Address - Checkout customer: ' . print_r($checkout->customer, true));
+        PaysonCheckout2::paysonAddLog('Update or Create PS Address - Checkout customer: ' . print_r($checkout['customer'], true));
         PaysonCheckout2::paysonAddLog('Customer ID: ' . print_r($customerId, true));
         PaysonCheckout2::paysonAddLog('Address ID: ' . print_r(Address::getFirstCustomerAddressId((int) $customerId), true));
         
@@ -1026,25 +1063,25 @@ class PaysonCheckout2 extends PaymentModule
             $address = new Address(Address::getFirstCustomerAddressId((int) $customerId));
         }
 
-        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->firstName) > 31 ? Tools::substr($checkout->customer->firstName, 0, 31) : $checkout->customer->firstName));
+        $firstName = str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout['customer']['firstName']) > 31 ? Tools::substr($checkout['customer']['firstName'], 0, 31) : $checkout['customer']['firstName']));
         // $checkout->customer->lastName is null if customer is business
-        $lastName = $checkout->customer->lastName != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout->customer->lastName) > 31 ? Tools::substr($checkout->customer->lastName, 0, 31) : $checkout->customer->lastName)) : '-';
+        $lastName = $checkout['customer']['lastName'] != null ? str_replace($this->illNameChars, array(' '), (Tools::strlen($checkout['customer']['lastName']) > 31 ? Tools::substr($checkout['customer']['lastName'], 0, 31) : $checkout['customer']['lastName'])) : '-';
         
         $address->firstname = $firstName;
         $address->lastname = $lastName;
         
-        if ($checkout->customer->type == 'business') {
+        if ($checkout['customer']['type'] == 'business') {
             $address->company = $firstName;
         }
         
-        $address->address1 = $checkout->customer->street;
+        $address->address1 = $checkout['customer']['street'];
         $address->address2 = '';
-        $address->city = $checkout->customer->city;
-        $address->postcode = $checkout->customer->postalCode;
+        $address->city = $checkout['customer']['city'];
+        $address->postcode = $checkout['customer']['postalCode'];
         $address->country = Country::getNameById(Configuration::get('PS_LANG_DEFAULT'), $countryId);
         $address->id_customer = $customerId;
         $address->id_country = $countryId;
-        $address->phone = $checkout->customer->phone != null ? $checkout->customer->phone : '-';
+        $address->phone = $checkout['customer']['phone'] != null ? $checkout['customer']['phone'] : '-';
         //$address->phone_mobile = $checkout->customer->phone != null ? $checkout->customer->phone : '-';
         //$address->id_state   = (int)$customer->id_state;
         $address->alias = $this->l('Payson account address');
@@ -1071,7 +1108,6 @@ class PaysonCheckout2 extends PaymentModule
 
     public function orderItemsList($cart, $payson, $currency = null)
     {
-        require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/lib/orderitem.php');
         $lastrate = "notset";
         $has_different_rates = false;
 
@@ -1096,7 +1132,13 @@ class PaysonCheckout2 extends PaymentModule
 
             $product_price = Tools::ps_round($cartProduct['price_wt'], $cur * _PS_PRICE_DISPLAY_PRECISION_);
             $attributes_small = isset($cartProduct['attributes_small']) ? $cartProduct['attributes_small'] : '';
-            $orderitemslist[] = new PaysonEmbedded\OrderItem($cartProduct['name'] . ' ' . $attributes_small, $product_price, $cartProduct['cart_quantity'], number_format($my_taxrate, 3, '.', ''), $cartProduct['id_product']);
+            $orderitemslist[] = array(
+                'name' => $cartProduct['name'] . ' ' . $attributes_small, 
+                'unitPrice' => $product_price, 
+                'quantity' => $cartProduct['cart_quantity'], 
+                'taxrate' => number_format($my_taxrate, 3, '.', ''), 
+                'reference' => $cartProduct['id_product']
+            );
         }
 
         $cartDiscounts = $cart->getDiscounts();
@@ -1115,7 +1157,14 @@ class PaysonCheckout2 extends PaymentModule
             if (!empty($cartDiscounts) && (!empty($cartDiscounts[0]['obj'])) && $cartDiscounts[0]['obj']->free_shipping) {
                 $shippingToSubtractFromDiscount = $total_shipping_wt;
             } else {
-                $orderitemslist[] = new PaysonEmbedded\OrderItem(isset($carrier->name) ? $carrier->name : $this->l('Shipping'), $total_shipping_wt, 1, number_format($carriertax_rate, 2, '.', ''), $this->l('Shipping'), PaysonEmbedded\OrderItemType::SERVICE);
+                $orderitemslist[] = array(
+                    'name' => isset($carrier->name) ? $carrier->name : $this->l('Shipping'), 
+                    'unitPrice' =>  $total_shipping_wt, 
+                    'quantity' => 1, 
+                    'taxrate' => number_format($carriertax_rate, 2, '.', ''), 
+                    'reference' => $this->l('Shipping'),
+                    'type' => 'SERVICE',
+                );
             }
         }
 
@@ -1142,14 +1191,27 @@ class PaysonCheckout2 extends PaymentModule
             if ($totalCartValue <= $total_discounts) {
                 $value_real = 0;
             }
-
-            $orderitemslist[] = new PaysonEmbedded\OrderItem($cart_rule["name"], -(Tools::ps_round(($value_real - $shippingToSubtractFromDiscount), $cur * _PS_PRICE_DISPLAY_PRECISION_)), 1, number_format(($discount_tax_rate * 0.01), 4, '.', ''), $this->l('Discount'), PaysonEmbedded\OrderItemType::DISCOUNT);
+            $orderitemslist[] = array(
+                    'name' => $cart_rule["name"], 
+                    'unitPrice' => -(Tools::ps_round(($value_real - $shippingToSubtractFromDiscount), $cur * _PS_PRICE_DISPLAY_PRECISION_)), 
+                    'quantity' => 1, 
+                    'taxrate' => number_format(($discount_tax_rate * 0.01), 4, '.', ''), 
+                    'reference' => $this->l('Discount'),
+                    'type' => 'DISCOUNT',
+                );
             $total_discounts += $value_real;
         }
 
         if ($cart->gift) {
             $wrappingTemp = number_format(Tools::convertPrice((float) $cart->getGiftWrappingPrice(false), Currency::getCurrencyInstance((int) $cart->id_currency)), Configuration::get('PS_PRICE_DISPLAY_PRECISION'), '.', '') * number_format((((($cart->getOrderTotal(true, Cart::ONLY_WRAPPING) * 100) / $cart->getOrderTotal(false, Cart::ONLY_WRAPPING))) / 100), 2, '.', '');
-            $orderitemslist[] = new PaysonEmbedded\OrderItem($this->l('Gift Wrapping'), $wrappingTemp, 1, number_format((((($cart->getOrderTotal(true, Cart::ONLY_WRAPPING) * 100) / $cart->getOrderTotal(false, Cart::ONLY_WRAPPING)) - 100) / 100), 2, '.', ''), 'wrapping', PaysonEmbedded\OrderItemType::SERVICE);
+            $orderitemslist[] = array(
+                    'name' => $this->l('Gift Wrapping'), 
+                    'unitPrice' => $wrappingTemp, 
+                    'quantity' => 1, 
+                    'taxrate' => number_format((((($cart->getOrderTotal(true, Cart::ONLY_WRAPPING) * 100) / $cart->getOrderTotal(false, Cart::ONLY_WRAPPING)) - 100) / 100), 2, '.', ''), 
+                    'reference' => 'wrapping',
+                    'type' => 'SERVICE',
+                );
         }
 
         return $orderitemslist;
@@ -1197,73 +1259,75 @@ class PaysonCheckout2 extends PaymentModule
                 if (isset($checkout_id) && $checkout_id !== null) {
                     try {
                         $paysonApi = $this->getPaysonApiInstance();
-                        $checkout = $paysonApi->GetCheckout($checkout_id);
-                        PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout->status);
+                        $checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
+                        $checkout = $checkoutClient->get(array('id' => $checkout_id));
+                        PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout['status']);
                     } catch (Exception $e) {
                         $this->adminDisplayWarning($this->l('Unable to get Payson order.'));
                         Logger::addLog('Unable to get Payson order.', 3, null, null, null, true);
                         return false;
                     }
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
-                        if ($checkout->status == 'readyToShip') {
+                        if ($checkout['status'] == 'readyToShip') {
                             try {
                                 PaysonCheckout2::paysonAddLog('Updating Payson order ststus to shipped.', 1, null, null, null, true);
                                 
-                                $checkout->status = 'shipped';
-                                $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
+                                $checkout['status'] = 'shipped';
+                                $updatedCheckout = $checkoutClient->update($checkout);
 
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
-                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Shipped. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Shipped. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
+                            Logger::addLog('Failed to update Payson order status to Shipped. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
 
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop)) {
-                        if ($checkout->status == 'readyToShip') {
+                        if ($checkout['status'] == 'readyToShip') {
                             try {
                                 PaysonCheckout2::paysonAddLog('Updating Payson order status to canceled.', 1, null, null, null, true);
 
-                                $checkout->status = 'canceled';
-                                $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
+                                $checkout['status'] = 'canceled';
+                                $updatedCheckout = $checkoutClient->update($checkout);
 
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
-                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Canceled. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Canceled. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
+                            Logger::addLog('Failed to update Payson order status to Canceled. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
                     
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
-                        if ($checkout->status == 'shipped' || $checkout->status == 'paidToAccount') {
+                        if ($checkout['status'] == 'shipped' || $checkout['status'] == 'paidToAccount') {
                             try {
                                 PaysonCheckout2::paysonAddLog('Updating Payson order status to credited.');
 
-                                foreach ($checkout->payData->items as $item) {
-                                    $item->creditedAmount = ($item->unitPrice*$item->quantity);
+                                foreach ($checkout['order']['items'] as &$item) {
+                                    $item['creditedAmount'] = ($item['unitPrice']*$item['quantity']);
                                 }
-
-                                $updatedCheckout = $paysonApi->UpdateCheckout($checkout);
+                                unset($item);
+                                
+                                $updatedCheckout = $checkoutClient->update($checkout);
                                 
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
-                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout->status);
+                                PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
                                 Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Shipped before it can be set to Credited. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout->status, 3, null, null, null, true);
+                            Logger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
                 } else {

@@ -69,23 +69,23 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         }
         
         $paysonApi = $payson->getPaysonApiInstance();
+$checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
+        $checkout = $checkoutClient->get(array('id' => $checkoutId));
 
-        $checkout = $paysonApi->GetCheckout($checkoutId);
-
-        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout->id);
+        PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout['id']);
         PaysonCheckout2::paysonAddLog('Cart ID: ' . $cartId);
-        PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout->status);
+        PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout['status']);
 
         $cart = new Cart($cartId);
 
         // Add or update customer
-        if ((int) Customer::customerExists($checkout->customer->email, true, true) > 0) {
-            $customer = new Customer((int) Customer::customerExists($checkout->customer->email, true, true));
+        if ((int) Customer::customerExists($checkout['customer']['email'], true, true) > 0) {
+            $customer = new Customer((int) Customer::customerExists($checkout['customer']['email'], true, true));
         } else {
             $customer = $payson->addPaysonCustomerPS($cart->id, $checkout);
         }
         // Update or create address
-        $address = $payson->updateCreatePsAddress(Country::getByIso($checkout->customer->countryCode), $checkout, $customer->id);
+        $address = $payson->updateCreatePsAddress(Country::getByIso($checkout['customer']['countryCode']), $checkout, $customer->id);
 
         if ((int) $customer->newsletter !== 1 && $this->context->cookie->newsletter_sub == true) {
             $customer->newsletter = 1;
@@ -140,9 +140,9 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         $cart = new Cart($cart->id);
 
         //PaysonCheckout2::paysonAddLog('Cart: ' . print_r($cart, true), 1, null, null, null, true);
-        PaysonCheckout2::paysonAddLog('Checkout country: ' . $checkout->customer->countryCode);
+        PaysonCheckout2::paysonAddLog('Checkout country: ' . $checkout['customer']['countryCode']);
 
-        $checkoutTotal = $checkout->payData->totalPriceIncludingTax;
+        $checkoutTotal = $checkout['order']['totalPriceIncludingTax'];
         $cartTotal = $cart->getOrderTotal(true, Cart::BOTH);
 
         PaysonCheckout2::paysonAddLog('Checkout total: ' . $checkoutTotal);
@@ -157,7 +157,8 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             $cartCurrency = new Currency($cart->id_currency);
 
             // Update checkout object
-            $checkout = $paysonApi->UpdateCheckout($payson->updatePaysonCheckout($checkout, $customer, $cart, $payson, $address, $cartCurrency));
+            $checkoutData = $payson->updatePaysonCheckout($checkout, $customer, $cart, $payson, $address, $cartCurrency);
+            $checkout = $checkoutClient->update($checkoutData);
 
             // Update data in Payson order table
             $payson->updatePaysonOrderEvent($checkout, $cart->id);
