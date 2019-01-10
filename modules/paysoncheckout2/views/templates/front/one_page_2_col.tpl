@@ -1,5 +1,5 @@
 {*
-* 2018 Payson AB
+* 2019 Payson AB
 *
 * NOTICE OF LICENSE
 *
@@ -9,7 +9,7 @@
 * http://opensource.org/licenses/afl-3.0.php
 *
 *  @author    Payson AB <integration@payson.se>
-*  @copyright 2018 Payson AB
+*  @copyright 2019 Payson AB
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
 {extends $layout}
@@ -17,6 +17,12 @@
 {block name='content'}
 
 {capture name=path}{l s='Checkout' mod='paysoncheckout2'}{/capture}
+
+{if isset($custom_css) && $custom_css != ''}
+<style>
+    {$custom_css|escape:'html':'UTF-8'}
+</style>
+{/if}
 
 {if isset($payson_errors)}
 <div class="payson-infobox">

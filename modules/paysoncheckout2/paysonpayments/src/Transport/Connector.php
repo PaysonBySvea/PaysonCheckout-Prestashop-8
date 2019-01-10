@@ -1,4 +1,18 @@
 <?php
+/**
+ * 2019 Payson AB
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ *  @author    Payson AB <integration@payson.se>
+ *  @copyright 2019 Payson AB
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 namespace Payson\Payments\Transport;
 
@@ -87,7 +101,7 @@ class Connector
     /**
      * Initializes connector instance
      * Defaults to test agent with Agent ID 4 and test environment
-     * 
+     *
      * @param string $agentId Agent ID
      * @param string $apiKey API Key
      * @param string $apiUrl base URL
@@ -158,6 +172,7 @@ class Connector
      * Validate API base URL
      *
      * @throws PaysonException if base API URL is empty or invalid
+     *
      */
     private function validateBaseApiUrl()
     {
@@ -181,7 +196,7 @@ class Connector
 
     /**
      * cUrl request authorization string
-     * 
+     *
      * base64_encode({agentId}:{apiKey})
      */
     public function createAuthorizationString(Request $request)

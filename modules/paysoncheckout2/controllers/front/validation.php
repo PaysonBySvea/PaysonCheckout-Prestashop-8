@@ -69,7 +69,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         }
         
         $paysonApi = $payson->getPaysonApiInstance();
-$checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
+        $checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
         $checkout = $checkoutClient->get(array('id' => $checkoutId));
 
         PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout['id']);

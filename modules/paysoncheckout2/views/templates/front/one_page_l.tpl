@@ -18,6 +18,12 @@
 
 {capture name=path}{l s='Checkout' mod='paysoncheckout2'}{/capture}
 
+{if isset($custom_css) && $custom_css != ''}
+<style>
+    {$custom_css|escape:'html':'UTF-8'}
+</style>
+{/if}
+
 {if isset($payson_errors)}
 <div class="payson-infobox">
     {$payson_errors|escape:'html':'UTF-8'}

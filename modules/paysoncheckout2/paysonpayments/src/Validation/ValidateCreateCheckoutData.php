@@ -1,6 +1,22 @@
 <?php
+/**
+ * 2019 Payson AB
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ *  @author    Payson AB <integration@payson.se>
+ *  @copyright 2019 Payson AB
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 namespace Payson\Payments\Validation;
+
+use Payson\Payments\Implementation\FormatInputData;
 
 /**
  * Class ValidateCreateCheckoutData
@@ -59,7 +75,7 @@ class ValidateCreateCheckoutData extends ValidationService
     {
         $this->mustBeSet($data['order'], 'currency', 'Currency');
         $this->mustBeString($data['order']['currency'], 'Currency');
-        $this->mustBeInArray(strtolower($data['order']['currency']), array('sek', 'eur'), 'Currency');
+        $this->mustBeInArray($data['order']['currency'], array('sek', 'eur', 'SEK', 'EUR', 'Sek', 'Eur'), 'Currency');
 
         $this->mustBeSet($data['order'], 'items', 'Order Items');
         $this->mustNotBeEmptyArray($data['order']['items'], 'Order Items');

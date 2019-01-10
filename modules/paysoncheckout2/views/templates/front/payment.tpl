@@ -33,14 +33,14 @@
     </script>
  {/if}
  
-    <section>
-        <p>
-            {if isset($payson_errors)}
-                <div class="alert alert-warning">
+    <section class="payson-iframe-section">
+        {if isset($payson_errors)}
+            <div class="alert alert-warning">
+                <p>
                     {$payson_errors|escape:'html':'UTF-8'}
-                </div>
-            {/if}
-        </p>
+                </p>
+            </div>
+        {/if}
         <div id="paysonpaymentwindow">
             {$payson_checkout nofilter}{* IFRAME, no escaping possible *}
         </div>

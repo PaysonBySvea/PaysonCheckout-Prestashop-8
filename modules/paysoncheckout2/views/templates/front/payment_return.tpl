@@ -16,21 +16,22 @@
 
 </div>
 {block name="content"}
-  <section>
-      {if isset($payson_checkout)}
-          {$HOOK_DISPLAY_ORDER_CONFIRMATION nofilter}{* no escaping possible *}
-        <div id="iframepayson">
-            {$payson_checkout nofilter}{* IFRAME, no escaping possible *}
-        </div>
-      
-      {else}
-<p>
-    {if isset($payson_errors)}
-        <div class="alert alert-warning">
-            {$payson_errors|escape:'html':'UTF-8'}
-        </div>
-    {/if}
-</p>
-    {/if}
-  </section>
+    <section class="payson-iframe-section">
+        {if isset($payson_checkout)}
+            {$HOOK_DISPLAY_ORDER_CONFIRMATION nofilter}{* no escaping possible *}
+              <div id="paysonpaymentwindow">
+                  {$payson_checkout nofilter}{* IFRAME, no escaping possible *}
+              </div>
+        {else}
+
+            {if isset($payson_errors)}
+                <div class="alert alert-warning">
+                    <p>
+                        {$payson_errors|escape:'html':'UTF-8'}
+                    </p>
+                </div>
+            {/if}
+
+        {/if}
+    </section>
 {/block}

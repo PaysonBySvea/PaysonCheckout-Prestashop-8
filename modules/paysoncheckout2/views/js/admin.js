@@ -1,5 +1,5 @@
-{*
-* 2018 Payson AB
+/*
+* 2019 Payson AB
 *
 * NOTICE OF LICENSE
 *
@@ -9,9 +9,15 @@
 * http://opensource.org/licenses/afl-3.0.php
 *
 *  @author    Payson AB <integration@payson.se>
-*  @copyright 2018 Payson AB
+*  @copyright 2019 Payson AB
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*}
-<section>
-  <p>{l s='Secure payments with Payson. Pay by invoice, partial payments, card or internet bank' mod='paysoncheckout2'}</p>
-</section>
+*/
+
+$(document).ready(function(){
+    $('.payson.tabbable .nav-tabs a').click(function(){
+        $(this).parent().addClass('active').siblings().removeClass('active');
+        var pane = $(this).attr('href');
+        $('.payson .tab-pane').removeClass('active');
+        $(pane).addClass('active');
+    });
+});

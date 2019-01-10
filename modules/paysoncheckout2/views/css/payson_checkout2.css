@@ -25,12 +25,29 @@
         margin-bottom: 0;
     }
     
+    #module-paysoncheckout2-pconepage .card {
+        background-color: #fff;
+    }
+    
     #module-paysoncheckout2-pconepage .terms-and-options ul label {
         cursor: pointer;
         -webkit-user-select: none;  
         -moz-user-select: none;    
         -ms-user-select: none;      
         user-select: none;
+    }
+    
+    .payson-iframe-section {
+        background-color: #fff;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .payson-iframe-section #paysonpaymentwindow {
+        padding: 0;
+        width: 100%;
+        max-width: 98%;
+        margin: 10px auto;
     }
     
     #module-paysoncheckout2-pconepage .card .free-shipping {
