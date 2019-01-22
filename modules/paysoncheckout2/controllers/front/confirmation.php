@@ -104,6 +104,11 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                     if ($cart->OrderExists() == false) {
                         // Create PS order
                         $newOrderId = $payson->createOrderPS($cart->id, $checkout);
+                        
+                        // Set order id
+                        $checkout['merchant']['reference'] = $newOrderId;
+                        $checkoutClient->update($checkout);
+                        
                         PaysonCheckout2::paysonAddLog('New order ID: ' . $newOrderId);
                     } else {
                         PaysonCheckout2::paysonAddLog('Order already created.');
