@@ -352,6 +352,9 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
 
             // Replace checkout snippet with error message
             $this->context->smarty->assign('payson_checkout', $ex->getMessage());
+            
+            // Delete checkout id cookie, force a new checkout
+            $this->context->cookie->__set('paysonCheckoutId', null);
 
             // If AJAX return error message
             if (Tools::getIsset('pco_update')) {
