@@ -22,6 +22,14 @@ use Payson\Payments\Validation\ValidateCreateCheckoutData;
 use Payson\Payments\Validation\ValidateGetCheckoutData;
 use Payson\Payments\Validation\ValidateUpdateCheckoutData;
 use Payson\Payments\Validation\ValidateListCheckoutsData;
+use Payson\Payments\Validation\ValidateCreateRecurringSubscriptionData;
+use Payson\Payments\Validation\ValidateGetRecurringSubscriptionData;
+use Payson\Payments\Validation\ValidateUpdateRecurringSubscriptionData;
+use Payson\Payments\Validation\ValidateListRecurringSubscriptionsData;
+use Payson\Payments\Validation\ValidateCreateRecurringPaymentData;
+use Payson\Payments\Validation\ValidateGetRecurringPaymentData;
+use Payson\Payments\Validation\ValidateUpdateRecurringPaymentData;
+use Payson\Payments\Validation\ValidateListRecurringPaymentsData;
 
 class ImplementationFactory
 {
@@ -71,4 +79,79 @@ class ImplementationFactory
     {
         return new ListCheckouts($connector, new ValidateListCheckoutsData());
     }
+    
+    /* Recurring Subscription */
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnCreateRecurringSubscriptionClass(Connector $connector)
+    {
+        return new CreateRecurringSubscription($connector, new ValidateCreateRecurringSubscriptionData());
+}
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnGetRecurringSubscriptionClass(Connector $connector)
+    {
+        return new GetRecurringSubscription($connector, new ValidateGetRecurringSubscriptionData());
+    }
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnUpdateRecurringSubscriptionClass(Connector $connector)
+    {
+        return new UpdateRecurringSubscription($connector, new ValidateUpdateRecurringSubscriptionData());
+    }
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnListRecurringSubscriptionsClass(Connector $connector)
+    {
+        return new ListRecurringSubscriptions($connector, new ValidateListRecurringSubscriptionsData());
+    }
+    
+    /* Recurring Payment */
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnCreateRecurringPaymentClass(Connector $connector)
+    {
+        return new CreateRecurringPayment($connector, new ValidateCreateRecurringPaymentData());
+    }
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnGetRecurringPaymentClass(Connector $connector)
+    {
+        return new GetRecurringPayment($connector, new ValidateGetRecurringPaymentData());
+    }
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnUpdateRecurringPaymentClass(Connector $connector)
+    {
+        return new UpdateRecurringPayment($connector, new ValidateUpdateRecurringPaymentData());
+    }
+    
+    /**
+     * @param Connector $connector
+     * @return ImplementationInterface
+     */
+    public static function returnListRecurringPaymentsClass(Connector $connector)
+    {
+        return new ListRecurringPayments($connector, new ValidateListRecurringPaymentsData());
+    }
+    
 }

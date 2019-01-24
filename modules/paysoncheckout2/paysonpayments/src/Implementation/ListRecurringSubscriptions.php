@@ -1,26 +1,12 @@
 <?php
-/**
- * 2019 Payson AB
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- *
- *  @author    Payson AB <integration@payson.se>
- *  @copyright 2019 Payson AB
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */
 
 namespace Payson\Payments\Implementation;
 
 use Payson\Payments\Model\Request;
 
-class ListCheckouts extends ImplementationManager
+class ListRecurringSubscriptions extends ImplementationManager
 {
-    protected $apiUrl = '/Checkouts/';
+    protected $apiUrl = '/RecurringSubscriptions';
 
     /**
      * Request body - JSON
@@ -50,7 +36,6 @@ class ListCheckouts extends ImplementationManager
         $this->requestModel = new Request();
         $this->requestModel->setGetMethod();
         $this->requestModel->setApiUrl($this->connector->getBaseApiUrl() . $this->apiUrl . $queryString);
-        //$this->requestModel->setApiUrl($this->connector->getBaseApiUrl() . $this->apiUrl);
     }
 
     /**
