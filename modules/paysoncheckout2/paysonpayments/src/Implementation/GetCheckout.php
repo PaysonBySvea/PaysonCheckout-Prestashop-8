@@ -54,6 +54,16 @@ class GetCheckout extends ImplementationManager
     }
 
     /**
+     * Modify data for request
+     *
+     * @param array $data
+     */
+    public function modifyData($data)
+    {
+        return $data;
+    }
+    
+    /**
      * Invoke request call
      *
      * @throws PaysonException

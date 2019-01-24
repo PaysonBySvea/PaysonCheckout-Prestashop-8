@@ -28,6 +28,13 @@ use Payson\Payments\Implementation\ImplementationFactory;
 class CheckoutClient
 {
     /**
+     * Version
+     *
+     * @var string
+     */
+    public static $sdkVersion = 'CO2PHPSDK_2.0.1';
+    
+    /**
      * Connector
      *
      * @var Connector

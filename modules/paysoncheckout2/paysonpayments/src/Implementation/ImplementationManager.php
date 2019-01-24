@@ -62,6 +62,7 @@ abstract class ImplementationManager implements ImplementationInterface
     public function execute($data)
     {
         $data = FormatInputData::formatArrayKeysToLower($data);
+        $data = $this->modifyData($data);
         $this->validateData($data);
         $this->prepareData($data);
         $this->invoke();
@@ -88,6 +89,12 @@ abstract class ImplementationManager implements ImplementationInterface
      * @param array $data
      */
     abstract public function prepareData($data);
+    
+    /**
+     * Modify body data
+     * @param array $data
+     */
+    abstract public function modifyData($data);
 
     /**
      * Invoke API

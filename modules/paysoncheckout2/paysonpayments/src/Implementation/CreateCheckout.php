@@ -17,6 +17,7 @@
 namespace Payson\Payments\Implementation;
 
 use Payson\Payments\Model\Request;
+use Payson\Payments\CheckoutClient;
 
 class CreateCheckout extends ImplementationManager
 {
@@ -41,7 +42,7 @@ class CreateCheckout extends ImplementationManager
     }
 
     /**
-     * Prepare date for request
+     * Prepare data for request
      *
      * @param array $data
      */
@@ -53,6 +54,20 @@ class CreateCheckout extends ImplementationManager
         $this->requestModel->setApiUrl($this->connector->getBaseApiUrl() . $this->apiUrl);
     }
 
+    /**
+     * Modify data for request
+     *
+     * @param array $data
+     */
+    public function modifyData($data)
+    {
+        $integrationInfo = 'NONE';
+        if (isset($data['merchant']['integrationinfo'])) {
+            $integrationInfo = $data['merchant']['integrationinfo'];
+        }
+        $data['merchant']['integrationinfo'] = CheckoutClient::$sdkVersion . '|' . $integrationInfo;
+        return $data;
+    }
 
     /**
      * Invoke request call

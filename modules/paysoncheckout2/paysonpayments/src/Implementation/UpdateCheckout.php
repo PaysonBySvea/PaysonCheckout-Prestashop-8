@@ -54,6 +54,16 @@ class UpdateCheckout extends ImplementationManager
         $this->requestModel->setApiUrl($this->connector->getBaseApiUrl() . $this->apiUrl . $checkoutId);
     }
 
+    /**
+     * Modify data for request
+     *
+     * @param array $data
+     */
+    public function modifyData($data)
+    {
+        return $data;
+    }
+    
     public function invoke()
     {
         $this->responseHandler = $this->connector->sendRequest($this->requestModel);

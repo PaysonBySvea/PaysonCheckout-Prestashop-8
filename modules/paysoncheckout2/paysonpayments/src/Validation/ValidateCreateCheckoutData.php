@@ -16,8 +16,6 @@
 
 namespace Payson\Payments\Validation;
 
-use Payson\Payments\Implementation\FormatInputData;
-
 /**
  * Class ValidateCreateCheckoutData
  * @package Payson\Payments\Validation
@@ -65,6 +63,8 @@ class ValidateCreateCheckoutData extends ValidationService
             $this->mustBeString($merchantData[$field], 'Merchant ' . $field);
             $this->lengthMustBeBetween(trim($merchantData[$field]), 9, 600, 'Merchant ' . $field . ' should contain http:// or https:// and');
         }
+        
+        $this->lengthMustBeBetween(trim($merchantData['integrationinfo']), 0, 100, 'Merchant integrationInfo');
     }
 
     /**

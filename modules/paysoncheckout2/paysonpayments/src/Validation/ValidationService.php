@@ -158,7 +158,7 @@ abstract class ValidationService
     
     /**
      * @param mixed $data
-     * @param array $haystack
+     * @param array $hayStack
      * @param string $dataTitle
      * @throws PaysonException
      */
