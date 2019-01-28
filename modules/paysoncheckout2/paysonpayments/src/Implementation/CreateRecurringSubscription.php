@@ -51,7 +51,9 @@ class CreateRecurringSubscription extends ImplementationManager
         if (isset($data['merchant']['integrationinfo'])) {
             $integrationInfo = $data['merchant']['integrationinfo'];
         }
-        $data['merchant']['integrationinfo'] = SdkVersion::$sdkVersion . '|' . $integrationInfo;
+        if (strpos($integrationInfo, SdkVersion::$sdkVersion) === false) {
+            $data['merchant']['integrationinfo'] = SdkVersion::$sdkVersion . '|' . $integrationInfo;
+        }
         return $data;
     }
 
