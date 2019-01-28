@@ -69,18 +69,22 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                 case 'readyToShip':
                     $cart = new Cart($cartId);
                     PaysonCheckout2::paysonAddLog('Notification Cart ID: ' . $cart->id);
-                    $orderCreated = false;
+                    $newOrderId = false;
                     if ($cart->OrderExists() == false) {
                         // Create PS order
-                        $orderCreated = $payson->createOrderPS($cart->id, $checkout);
+                        $newOrderId = $payson->createOrderPS($cart->id, $checkout);
                         
-                        if ($orderCreated == false) {
+                        if ($newOrderId == false) {
                             Logger::addLog('Notification Unable to create order.', 3);
                             
                             var_dump(http_response_code(500));
                             exit();
                         } else {
-                            PaysonCheckout2::paysonAddLog('Notification New order ID: ' . $orderCreated);
+                            PaysonCheckout2::paysonAddLog('Notification New order ID: ' . $newOrderId);
+                            
+                            // Set order id
+                            $checkout['merchant']['reference'] = $newOrderId;
+                            $checkoutClient->update($checkout);
                         }
                     } else {
                         PaysonCheckout2::paysonAddLog('Notification Order already created.');

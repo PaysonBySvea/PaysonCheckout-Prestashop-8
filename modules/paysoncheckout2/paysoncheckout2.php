@@ -906,12 +906,16 @@ class PaysonCheckout2 extends PaymentModule
                 $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', array(), (int) $currency->id, false, $customer->secure_key);
 
                 // Get new order ID
-                $order = Order::getOrderByCartId((int) ($cart->id));
+                $orderId = Order::getOrderByCartId((int) ($cart->id));
 
                 // Save order number in DB
-                $this->updatePaysonOrderEvent($checkout, $cart->id, (int) $order);
+                $this->updatePaysonOrderEvent($checkout, $cart->id, (int) $orderId);
+                
+                // Set transcation ID (purchase ID)
+                $order = new Order((int) $orderId);
+                $this->setTransactionId($order->reference, $checkout['purchaseId']);
 
-                return $order;
+                return $orderId;
             } else {
                 PaysonCheckout2::paysonAddLog('PS order already exits.', 2);
             }
@@ -992,6 +996,13 @@ class PaysonCheckout2 extends PaymentModule
         Db::getInstance()->execute($sql);
     }
 
+    public function setTransactionId($ps_order_ref, $transaction_id)
+    {
+        Db::getInstance()->update('order_payment', array(
+            'transaction_id' => pSQL($transaction_id),
+        ), 'order_reference = "'.pSQL($ps_order_ref).'"');
+    }
+    
     public function getSnippetUrl($snippet)
     {
         $str = "url='";
