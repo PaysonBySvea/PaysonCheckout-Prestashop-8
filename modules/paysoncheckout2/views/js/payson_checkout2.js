@@ -141,11 +141,16 @@ $(document).ready(function() {
                     cache: false,
                     data: callData,
                     success: function(returnData) {
+                        
                         if (updateCheckout === true) {
                             if (returnData === 'reload') {
                                 location.href = pcourl;
                             } else {
-                                $("#paysonpaymentwindow").html(returnData);
+                                if ($('#paysonIframe').length && returnData.indexOf("paysonContainer") !== -1) {
+                                    sendUpdate();
+                                } else {
+                                    $("#paysonpaymentwindow").html(returnData);
+                                }
                             }
                         }
                         if (updateCart === true) {
@@ -189,6 +194,13 @@ $(document).ready(function() {
                 $('#paysonpaymentwindow').height('auto');
             }
         }, 500);
+    }
+    
+    // Update iframe
+    function sendUpdate() {
+        if ($('#paysonIframe').length) {
+            document.getElementById('paysonIframe').contentWindow.postMessage('updatePage', '*');
+        }
     }
     
     // Validate order
