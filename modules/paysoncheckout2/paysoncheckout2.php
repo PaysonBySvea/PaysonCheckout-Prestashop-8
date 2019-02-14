@@ -1400,7 +1400,7 @@ class PaysonCheckout2 extends PaymentModule
         }
     }
     
-    public static function paysonAddLog($message, $severity = 1, $errorCode = null, $objectType = null, $objectId = null, $allowDuplicate = false, $idEmployee = null)
+    public static function paysonAddLog($message, $severity = 1, $errorCode = null, $objectType = null, $objectId = null, $allowDuplicate = true, $idEmployee = null)
     {
         if (_PCO_LOG_) {
             Logger::addLog($message, $severity, $errorCode, $objectType, $objectId, $allowDuplicate, $idEmployee);
