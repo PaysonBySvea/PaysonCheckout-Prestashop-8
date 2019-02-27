@@ -1316,6 +1316,8 @@ class PaysonCheckout2 extends PaymentModule
 
             if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CANCEL_STATE', null, null, $order->id_shop) || $newOrderStatus->id == Configuration::get('PAYSON_ORDER_CREDITED_STATE', null, null, $order->id_shop)) {
                 $checkout_id = $this->getPaysonOrderEventId($order->id_cart);
+                PaysonCheckout2::paysonAddLog('Cart ID from order: ' . $order->id_cart);
+                PaysonCheckout2::paysonAddLog('Checkout ID from DB: ' . $checkout_id);
 
                 if (isset($checkout_id) && $checkout_id !== null) {
                     try {
@@ -1325,7 +1327,8 @@ class PaysonCheckout2 extends PaymentModule
                         PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout['status']);
                     } catch (Exception $e) {
                         $this->adminDisplayWarning($this->l('Unable to get Payson order.'));
-                        Logger::addLog('Unable to get Payson order.', 3, null, null, null, true);
+                        Logger::addLog('Unable to get Payson order when trying to update order status.', 3, null, null, null, true);
+                        Logger::addLog('Message: ' . $e->getMessage(), 1, null, null, null, true);
                         return false;
                     }
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
