@@ -289,6 +289,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     'conditions_to_approve' => $conditionsToApproveFinder->getConditionsToApproveForTemplate(),
                     'newsletter_optin_text' => $this->module->l('Sign up for our newsletter', 'pconepage'),
                     'custom_css' => Configuration::get('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == 1 ? trim(Configuration::get('PAYSONCHECKOUT2_CUSTOM_CSS')) : '',
+                    'hookDisplayBeforeCarrier' =>  Hook::exec('displayBeforeCarrier'),
+                    'hookDisplayAfterCarrier' =>  Hook::exec('displayAfterCarrier'),
                 ));
 
                 // Check for error and exit if any

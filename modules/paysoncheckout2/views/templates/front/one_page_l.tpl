@@ -164,7 +164,7 @@
                 </div>
             {/block}
 
-            {if  $delivery_options|@count != 0} 
+            {if (isset($delivery_options) && $delivery_options|@count != 0) || isset($hookDisplayBeforeCarrier) || isset($hookDisplayAfterCarrier)}
                 <div class="card">
                     <div class="card-block">
                         <h1 class="h1">
@@ -172,6 +172,14 @@
                         </h1>
                     </div>
                     <hr class="separator">
+                    
+                    {if isset($hookDisplayBeforeCarrier) && $hookDisplayBeforeCarrier != ''} 
+                        <div id="hook-display-before-carrier" class="card-block">
+                            {$hookDisplayBeforeCarrier nofilter}
+                        </div>
+                    {/if}
+                    
+                    {if (isset($delivery_options) && $delivery_options|@count != 0)}
                         <div class="card-block">
                             <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
                             <ul class="payson-select-list has-tooltips">
@@ -199,6 +207,13 @@
                             </ul>
                             </form>
                         </div>
+                    {/if}
+                        
+                    {if isset($hookDisplayAfterCarrier) && $hookDisplayAfterCarrier != ''} 
+                        <div id="hook-display-after-carrier" class="card-block">
+                            {$hookDisplayAfterCarrier nofilter}
+                        </div>
+                    {/if}
                 </div>
             {/if}
                         

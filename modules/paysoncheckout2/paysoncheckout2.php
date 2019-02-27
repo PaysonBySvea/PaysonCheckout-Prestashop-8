@@ -29,7 +29,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.17';
+        $this->version = '3.0.18';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -57,7 +57,13 @@ class PaysonCheckout2 extends PaymentModule
     
     public function install()
     {
-        if (parent::install() == false || !$this->registerHook('paymentOptions') || !$this->registerHook('paymentReturn') || !$this->registerHook('actionOrderStatusUpdate')) {
+        if (parent::install() == false || 
+                !$this->registerHook('paymentOptions') ||
+                !$this->registerHook('paymentReturn') ||
+                !$this->registerHook('actionOrderStatusUpdate') ||
+                !$this->registerHook('displayBeforeCarrier') ||
+                !$this->registerHook('displayAfterCarrier')
+                ) {
             return false;
         }
         

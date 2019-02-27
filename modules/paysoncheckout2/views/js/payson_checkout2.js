@@ -141,7 +141,6 @@ $(document).ready(function() {
                     cache: false,
                     data: callData,
                     success: function(returnData) {
-                        
                         if (updateCheckout === true) {
                             if (returnData === 'reload') {
                                 location.href = pcourl;

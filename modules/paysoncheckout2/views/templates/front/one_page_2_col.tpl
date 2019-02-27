@@ -79,10 +79,10 @@
             {/block}
                 
             <!-- terms and newsletter-->
-            {if (($conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS) || (isset($PAYSONCHECKOUT2_NEWSLETTER) && $PAYSONCHECKOUT2_NEWSLETTER))}
+            {if ((isset($conditions_to_approve) && $conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS) || (isset($PAYSONCHECKOUT2_NEWSLETTER) && $PAYSONCHECKOUT2_NEWSLETTER))}
                 <div class="card cart-container terms-card terms-and-options">
                     <div class="card-block">
-                        {if ($conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS)}
+                        {if (isset($conditions_to_approve) && $conditions_to_approve|count && isset($PAYSONCHECKOUT2_SHOW_TERMS) && $PAYSONCHECKOUT2_SHOW_TERMS)}
                             <form id="conditions-to-approve" method="GET">
                               <ul>
                                 {foreach from=$conditions_to_approve item="condition" key="condition_name"}
@@ -142,8 +142,8 @@
                     </div>
                 </div>
             {/if}
-
-            {if  $delivery_options|@count != 0} 
+            
+            {if (isset($delivery_options) && $delivery_options|@count != 0) || isset($hookDisplayBeforeCarrier) || isset($hookDisplayAfterCarrier)}
                 <div class="card">
                     <div class="card-block">
                         <h1 class="h1">
@@ -151,33 +151,48 @@
                         </h1>
                     </div>
                     <hr class="separator">
-                    <div class="card-block">
-                        <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
-                        <ul class="payson-select-list has-tooltips">
-                            {foreach from=$delivery_options item=carrier key=carrier_id}
-                            <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
-                                <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
-                                <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
-                                    {*<span class="payson-select-list__item__status">
-                                        <i class="icon-ok"></i>
-                                    </span>*}
-                                    <span class="payson-select-list__item__title">
-                                        {$carrier.name|escape:'html':'UTF-8'}
-                                    </span>
-                                    <span class="payson-select-list__item__nbr">
-                                        {if $carrier.price && !$free_shipping}
-                                            {Tools::displayPrice($carrier.price_with_tax)}
-                                        {else}
-                                            {l s='Free!' mod='paysoncheckout2'}
-                                        {/if}
-                                    </span>
+                    
+                    {if isset($hookDisplayBeforeCarrier) && $hookDisplayBeforeCarrier != ''} 
+                        <div id="hook-display-before-carrier" class="card-block">
+                            {$hookDisplayBeforeCarrier nofilter}
+                        </div>
+                    {/if}
+                    
+                    {if (isset($delivery_options) && $delivery_options|@count != 0)}
+                        <div class="card-block">
+                            <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
+                            <ul class="payson-select-list has-tooltips">
+                                {foreach from=$delivery_options item=carrier key=carrier_id}
+                                <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
+                                    <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
+                                    <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
+                                        {*<span class="payson-select-list__item__status">
+                                            <i class="icon-ok"></i>
+                                        </span>*}
+                                        <span class="payson-select-list__item__title">
+                                            {$carrier.name|escape:'html':'UTF-8'}
+                                        </span>
+                                        <span class="payson-select-list__item__nbr">
+                                            {if $carrier.price && !$free_shipping}
+                                                {Tools::displayPrice($carrier.price_with_tax)}
+                                            {else}
+                                                {l s='Free!' mod='paysoncheckout2'}
+                                            {/if}
+                                        </span>
 
-                                </label>
-                            </li>
-                            {/foreach}
-                        </ul>
-                        </form>
-                    </div>
+                                    </label>
+                                </li>
+                                {/foreach}
+                            </ul>
+                            </form>
+                        </div>
+                    {/if}
+                    
+                    {if isset($hookDisplayAfterCarrier) && $hookDisplayAfterCarrier != ''} 
+                        <div id="hook-display-after-carrier" class="card-block">
+                            {$hookDisplayAfterCarrier nofilter}
+                        </div>
+                    {/if}
                 </div>
             {/if}
                         
