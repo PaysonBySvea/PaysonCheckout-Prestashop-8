@@ -939,7 +939,7 @@ class PaysonCheckout2 extends PaymentModule
 
     public function getPaysonOrderEventId($cartId)
     {
-        $result = Db::getInstance()->getValue('SELECT checkout_id FROM `' . _DB_PREFIX_ . 'payson_embedded_order` WHERE `cart_id` = ' . (int) $cartId);
+        $result = Db::getInstance()->getValue('SELECT checkout_id FROM `' . _DB_PREFIX_ . 'payson_embedded_order` WHERE `cart_id` = ' . (int) $cartId . ' ORDER BY `payson_embedded_id` DESC');
         return $result;
     }
     /*
