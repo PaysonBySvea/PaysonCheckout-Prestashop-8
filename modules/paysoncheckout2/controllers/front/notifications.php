@@ -75,7 +75,7 @@ class PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontContr
                         $newOrderId = $payson->createOrderPS($cart->id, $checkout);
                         
                         if ($newOrderId == false) {
-                            Logger::addLog('Notification Unable to create order.', 3);
+                            PrestaShopLogger::addLog('Notification Unable to create order.', 3);
                             
                             var_dump(http_response_code(500));
                             exit();

@@ -40,7 +40,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         
         $cartId = (int) Tools::getValue('id_cart');
         if (!isset($cartId) || $cartId < 1 || $cartId == null) {
-            Logger::addLog('No cart ID in query.', 3);
+            PrestaShopLogger::addLog('No cart ID in query.', 3);
             $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing cart ID.', 'validation'));
             die('reload');
         }
@@ -61,7 +61,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
                     PaysonCheckout2::paysonAddLog('Got checkout ID: ' . $checkoutId . ' from DB.');
                 } else {
                     // Unable to get checkout ID
-                    Logger::addLog('Unable to get checkout ID, reload page.', 3);
+                    PrestaShopLogger::addLog('Unable to get checkout ID, reload page.', 3);
                     $this->context->cookie->__set('validation_error', $this->module->l('Validation message', 'validation') . ': ' . $this->module->l('Missing checkout ID.', 'validation'));
                     die('reload');
                 }

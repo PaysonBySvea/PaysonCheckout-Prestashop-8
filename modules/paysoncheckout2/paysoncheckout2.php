@@ -29,7 +29,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.18';
+        $this->version = '3.0.19';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -1327,8 +1327,8 @@ class PaysonCheckout2 extends PaymentModule
                         PaysonCheckout2::paysonAddLog('Payson order current status is: ' . $checkout['status']);
                     } catch (Exception $e) {
                         $this->adminDisplayWarning($this->l('Unable to get Payson order.'));
-                        Logger::addLog('Unable to get Payson order when trying to update order status.', 3, null, null, null, true);
-                        Logger::addLog('Message: ' . $e->getMessage(), 1, null, null, null, true);
+                        PrestaShopLogger::addLog('Unable to get Payson order when trying to update order status.', 3, null, null, null, true);
+                        PrestaShopLogger::addLog('Message: ' . $e->getMessage(), 1, null, null, null, true);
                         return false;
                     }
                     if ($newOrderStatus->id == Configuration::get('PAYSON_ORDER_SHIPPED_STATE', null, null, $order->id_shop)) {
@@ -1343,11 +1343,11 @@ class PaysonCheckout2 extends PaymentModule
                                 PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
-                                Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
+                                PrestaShopLogger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Shipped. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Shipped. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
+                            PrestaShopLogger::addLog('Failed to update Payson order status to Shipped. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
 
@@ -1363,11 +1363,11 @@ class PaysonCheckout2 extends PaymentModule
                                 PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
-                                Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
+                                PrestaShopLogger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Waiting for send before it can be set to Canceled. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Canceled. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
+                            PrestaShopLogger::addLog('Failed to update Payson order status to Canceled. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
                     
@@ -1394,16 +1394,16 @@ class PaysonCheckout2 extends PaymentModule
                                 PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
                                 $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
-                                Logger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
+                                PrestaShopLogger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
                             $this->adminDisplayWarning($this->l('Payson order must have status Shipped before it can be set to Credited. Please log in to your PaysonAccount to manually edit order.'));
-                            Logger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
+                            PrestaShopLogger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
                 } else {
                     $this->adminDisplayWarning($this->l('Failed to send updated order stauts to Payson. Please log in to your PaysonAccount to manually edit order.'));
-                    Logger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID.', 3, null, null, null, true);
+                    PrestaShopLogger::addLog('Failed to send updated order stauts to Payson. Unable to get checkout ID.', 3, null, null, null, true);
                 }
             }
         }
@@ -1412,7 +1412,7 @@ class PaysonCheckout2 extends PaymentModule
     public static function paysonAddLog($message, $severity = 1, $errorCode = null, $objectType = null, $objectId = null, $allowDuplicate = true, $idEmployee = null)
     {
         if (_PCO_LOG_) {
-            Logger::addLog($message, $severity, $errorCode, $objectType, $objectId, $allowDuplicate, $idEmployee);
+            PrestaShopLogger::addLog($message, $severity, $errorCode, $objectType, $objectId, $allowDuplicate, $idEmployee);
         }
     }
 }
