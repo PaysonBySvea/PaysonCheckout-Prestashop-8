@@ -18,10 +18,10 @@
 {if isset($pcoUrl)}
     <script type="text/javascript">
         // <![CDATA[
-        var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+        var pcourl = '{Tools::htmlentitiesDecodeUTF8($pcoUrl) nofilter}';
         var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
         var id_cart = '{$id_cart|intval}';
-        var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+        var validateurl = '{Tools::htmlentitiesDecodeUTF8($validateUrl) nofilter}';
         var currencyBlank = '{$currencyBlank|intval}';
         var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
         var currencyRate = '{$currencyRate|floatval}';

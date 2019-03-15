@@ -39,10 +39,10 @@
 {if isset($pcoUrl)}
     <script type="text/javascript">
         // <![CDATA[
-        var pcourl = '{$pcoUrl|escape:'javascript':'UTF-8'}';
+        var pcourl = '{Tools::htmlentitiesDecodeUTF8($pcoUrl) nofilter}';
         var pco_checkout_id = '{$pco_checkout_id|escape:'javascript':'UTF-8'}';
         var id_cart = '{$id_cart|intval}';
-        var validateurl = '{$validateUrl|escape:'javascript':'UTF-8'}';
+        var validateurl = '{Tools::htmlentitiesDecodeUTF8($validateUrl) nofilter}';
         var currencyBlank = '{$currencyBlank|intval}';
         var currencySign = '{$currencySign|escape:'javascript':'UTF-8'}';
         var currencyRate = '{$currencyRate|floatval}';
@@ -164,7 +164,7 @@
                 </div>
             {/block}
 
-            {if (isset($delivery_options) && $delivery_options|@count != 0) || isset($hookDisplayBeforeCarrier) || isset($hookDisplayAfterCarrier)}
+            {if isset($controllername) && (isset($delivery_options) && $delivery_options|@count != 0) || isset($hookDisplayBeforeCarrier) || isset($hookDisplayAfterCarrier)}
                 <div class="card">
                     <div class="card-block">
                         <h1 class="h1">
@@ -187,9 +187,6 @@
                                 <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
                                     <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
                                     <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
-                                        {*<span class="payson-select-list__item__status">
-                                            <i class="icon-ok"></i>
-                                        </span>*}
                                         <span class="payson-select-list__item__title">
                                             {$carrier.name|escape:'html':'UTF-8'}
                                         </span>
@@ -216,29 +213,31 @@
                     {/if}
                 </div>
             {/if}
-                        
-            <div class="card">
-                <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcomessage">
-                    <div class="card-block">
-                        <h1 class="h1 payson-click-trigger {if !$message.message}payson-click-trigger--inactive{/if}">
-                            {l s='Message' mod='paysoncheckout2'}
-                        </h1>
-                    </div>
-                    <hr class="separator">
-                    <div class="pco-target" {if !$message.message}style="display: none;"{/if}>
+                  
+            {if isset($controllername)}
+                <div class="card">
+                    <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcomessage">
                         <div class="card-block">
-                            <p id="messagearea">
-                                <textarea id="message" name="message" class="payson-input payson-input--area payson-input--full" placeholder="{l s='Add additional information to your order (optional)' mod='paysoncheckout2'}">{$message.message|escape:'htmlall':'UTF-8'}</textarea>
-                                <button type="button" name="savemessagebutton" id="savemessagebutton" class="btn btn-primary">
-                                    <span>{l s='Save' mod='paysoncheckout2'}</span>
-                                </button>
-                            </p>
+                            <h1 class="h1 payson-click-trigger {if !$message.message}payson-click-trigger--inactive{/if}">
+                                {l s='Message' mod='paysoncheckout2'}
+                            </h1>
                         </div>
-                    </div>
-                </form>
-            </div>
-                
-            {if $giftAllowed==1}
+                        <hr class="separator">
+                        <div class="pco-target" {if !$message.message}style="display: none;"{/if}>
+                            <div class="card-block">
+                                <p id="messagearea">
+                                    <textarea id="message" name="message" class="payson-input payson-input--area payson-input--full" placeholder="{l s='Add additional information to your order (optional)' mod='paysoncheckout2'}">{$message.message|escape:'htmlall':'UTF-8'}</textarea>
+                                    <button type="button" name="savemessagebutton" id="savemessagebutton" class="btn btn-primary">
+                                        <span>{l s='Save' mod='paysoncheckout2'}</span>
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {/if}
+            
+            {if isset($controllername) && $giftAllowed==1}
                 <div class="card">
                     <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcogift">
                         <div class="card-block">

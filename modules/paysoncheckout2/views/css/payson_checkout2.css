@@ -81,6 +81,10 @@
         overflow: hidden;
     }
     
+    #module-paysoncheckout2-pconepage .payson-carrier-info .carrier-logo, #module-paysoncheckout2-pconepage .payson-carrier-info .carrier-name, #module-paysoncheckout2-pconepage .payson-carrier-info .carrier-delay {
+        text-align: left;
+    }
+    
     /*moved items */
     #module-paysoncheckout2-pconepage .left-col .right-col {
         float: none;

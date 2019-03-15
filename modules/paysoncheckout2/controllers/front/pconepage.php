@@ -155,6 +155,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             // Class PaysonCheckout2
             require_once(_PS_MODULE_DIR_ . 'paysoncheckout2/paysoncheckout2.php');
             $payson = new PaysonCheckout2();
+            
+            $this->context->smarty->assign('custom_css', Configuration::get('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == 1 ? trim(Configuration::get('PAYSONCHECKOUT2_CUSTOM_CSS')) : '');
 
             if (isset($this->context->cart) && $this->context->cart->nbProducts() > 0) {
                 // Set default delivery option on cart if needed
@@ -210,16 +212,19 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $customer = new Customer();
                 }
 
+                PaysonCheckout2::paysonAddLog('Refresh cart summmary');
                 // Refresh cart summary
                 $this->context->cart->getSummaryDetails();
                 $this->assignSummaryInformations();
 
+                PaysonCheckout2::paysonAddLog('Get delivery options');
                 // Get delivery options
                 $checkoutSession = $this->getCheckoutSession();
                 $delivery_options = $checkoutSession->getDeliveryOptions();
                 $delivery_options_finder_core = new DeliveryOptionsFinder($this->context, $this->getTranslator(), $this->objectPresenter, new PriceFormatter());
                 $delivery_option = $delivery_options_finder_core->getSelectedDeliveryOption();
 
+                PaysonCheckout2::paysonAddLog('Check free shipping cart rule');
                 // Free shipping cart rule
                 $free_shipping = false;
                 foreach ($this->context->cart->getCartRules() as $rule) {
@@ -228,7 +233,8 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                         break;
                     }
                 }
-
+                
+                PaysonCheckout2::paysonAddLog('Check free shipping based on order total');
                 // Free shipping based on order total
                 $configuration = Configuration::getMultiple(array('PS_SHIPPING_FREE_PRICE', 'PS_SHIPPING_FREE_WEIGHT'));
                 if (isset($configuration['PS_SHIPPING_FREE_PRICE']) && $configuration['PS_SHIPPING_FREE_PRICE'] > 0) {
@@ -239,6 +245,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $this->context->smarty->assign('free_shipping_price_amount', $free_fees_price);
                 }
 
+                PaysonCheckout2::paysonAddLog('Check free shipping based on weight');
                 // Free shipping based on order weight
                 if (isset($configuration['PS_SHIPPING_FREE_WEIGHT']) && $configuration['PS_SHIPPING_FREE_WEIGHT'] > 0) {
                     $free_fees_weight = $configuration['PS_SHIPPING_FREE_WEIGHT'];
@@ -247,6 +254,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $this->context->smarty->assign('left_to_get_free_shipping_weight', $left_to_get_free_shipping_weight);
                 }
 
+                PaysonCheckout2::paysonAddLog('Reset error message');
                 // Reset error messages
                 $this->context->smarty->assign('payson_errors', null);
                 // Check for validation/confirmation errors
@@ -258,12 +266,14 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $this->context->cookie->__set('validation_error', null);
                 }
 
+                PaysonCheckout2::paysonAddLog('Find terms to approve');
                 // Terms to approve
                 $conditionsToApproveFinder = new ConditionsToApproveFinder(
                     $this->context,
                     $this->getTranslator()
                 );
 
+                PaysonCheckout2::paysonAddLog('Assign smart vars');
                 // Assign smarty tpl variables
                 $this->context->smarty->assign(array(
                     'discounts' => $this->context->cart->getCartRules(),
@@ -288,20 +298,26 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     'validateUrl' => $this->context->link->getModuleLink('paysoncheckout2', 'validation', array(), true),
                     'conditions_to_approve' => $conditionsToApproveFinder->getConditionsToApproveForTemplate(),
                     'newsletter_optin_text' => $this->module->l('Sign up for our newsletter', 'pconepage'),
-                    'custom_css' => Configuration::get('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == 1 ? trim(Configuration::get('PAYSONCHECKOUT2_CUSTOM_CSS')) : '',
                     'hookDisplayBeforeCarrier' => Hook::exec('displayBeforeCarrier'),
                     'hookDisplayAfterCarrier' => Hook::exec('displayAfterCarrier'),
                     'pco_checkout_id' => '',
                 ));
 
+                PaysonCheckout2::paysonAddLog('Check for error');
                 // Check for error and exit if any
                 if ($errMess !== false) {
                     throw new Exception($errMess);
                 }
 
+                PaysonCheckout2::paysonAddLog('Start Payson');
+                PaysonCheckout2::paysonAddLog('Get if pco_update is set');
+                if (Tools::getIsset('pco_update')) {
+                    PaysonCheckout2::paysonAddLog('Query pco_update from Tools is: ' . Tools::getValue('pco_update'));
+                }
                 $checkoutSnippet = '';
                 $checkoutId = '';
                 if (Tools::getIsset('pco_update')) {
+                    PaysonCheckout2::paysonAddLog('Start Payson API');
                     // Initiate Payson API
                     $paysonApi = $payson->getPaysonApiInstance();
                     PaysonCheckout2::paysonAddLog('Payson API initiated. Agent ID: ' . $paysonApi->getAgentId());
