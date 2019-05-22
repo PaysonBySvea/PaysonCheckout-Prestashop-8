@@ -1042,6 +1042,13 @@ class PaysonCheckout2 extends PaymentModule
             case 'NO':
             case 'NB':
                 return 'NO';
+            case 'CA':
+            case 'GL':
+            case 'EU':
+            case 'ES':
+                return 'ES';
+            case 'DE':
+                return 'DE';
             default:
                 return 'EN';
         }
