@@ -53,6 +53,11 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ae7d309ee49549b45eff33f38
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ddba74edbcd11dc77c41951e0f119af8'] = 'Visa val för nyhetsbrev i kassan';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_8bf3fac6472fda8e32d888cf170353c6'] = 'Kräv att kunderna godkänner butikens köpvillkor i kassan';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_b54c9905da4e495a9449d7574174a498'] = 'Kräv att kunderna godkänner butikens köpvillkor i kassan';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_8189ecf686157db0c0274c1f49373318'] = 'Internationellt';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_d33be7aa4cf95301962b3762473479bd'] = 'Land';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_08214745b3c63971c42ffbca801143d5'] = 'Kundens leveransland';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_7a1920d61156abc05a60135aefe8bc67'] = 'Standard';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_0675001e0d1fe01ddbe5131f777ba3b2'] = 'Baserat på språk';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ce0be71e33226e4c1db2bcea5959f16b'] = 'Logg';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_e2df88d18771a2d4d16d7fe1a8a64a61'] = 'Logga meddelanden';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_515620c51e10b0357072fa4e05a666a6'] = 'Logga meddelanden från Payson Checkout 2.0';

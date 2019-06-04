@@ -29,7 +29,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.20';
+        $this->version = '3.0.21';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -81,6 +81,7 @@ class PaysonCheckout2 extends PaymentModule
         Configuration::updateValue('PAYSONCHECKOUT2_APIKEY', '2acab30d-fe50-426f-90d7-8c60a7eb31d4');
         Configuration::updateValue('PAYSONCHECKOUT2_CUSTOM_CSS', '#module-paysoncheckout2-pconepage .cart-grid-body .card-block h1{color:red;}' . "\r\n" . '#module-paysoncheckout2-pconepage .cart-grid-body .card-block h1{font-size:12px;}');
         Configuration::updateValue('PAYSONCHECKOUT2_USE_CUSTOM_CSS', 0);
+        Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', 'auto');
         
         $this->createPaysonOrderTable();
 
@@ -114,7 +115,8 @@ class PaysonCheckout2 extends PaymentModule
                 Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_TERMS') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_NEWSLETTER') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOM_CSS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == false
+                Configuration::deleteByName('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == false ||
+                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == false
                 
         ) {
             return false;
@@ -186,6 +188,8 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_NEWSLETTER', (int) Tools::getValue('PAYSONCHECKOUT2_NEWSLETTER'));
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS'));
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_TERMS', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_TERMS'));
+            Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY'));
+            
             $saved = true;
         }
         
@@ -504,6 +508,26 @@ class PaysonCheckout2 extends PaymentModule
         
         $fields_form[4]['form'] = array(
             'legend' => array(
+                'title' => $this->l('International'),
+                'icon' => '',
+            ),
+            'input' => array(
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('Customer country'),
+                    'name' => 'PAYSONCHECKOUT2_CUSTOMER_COUNTRY',
+                    'desc' => $this->l('Default customer country'),
+                    'options' => array(
+                        'query' => array(array('id_option' => 'auto', 'name' => $this->l('Default')), array('id_option' => 'assume', 'name' => $this->l('Country based on language'))),
+                        'id' => 'id_option',
+                        'name' => 'name',
+                    ),
+                )
+            )
+        );
+        
+        $fields_form[5]['form'] = array(
+            'legend' => array(
                 'title' => $this->l('Log'),
                 'icon' => '',
             ),
@@ -530,7 +554,7 @@ class PaysonCheckout2 extends PaymentModule
             )
         );
         
-        $fields_form[5]['form'] = array(
+        $fields_form[6]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Save changes'),
                 'icon' => '',
@@ -592,6 +616,7 @@ class PaysonCheckout2 extends PaymentModule
             'PAYSONCHECKOUT2_NEWSLETTER' => Tools::getValue('PAYSONCHECKOUT2_NEWSLETTER', Configuration::get('PAYSONCHECKOUT2_NEWSLETTER')),
             'PAYSONCHECKOUT2_CUSTOM_CSS' => Tools::getValue('PAYSONCHECKOUT2_CUSTOM_CSS', Configuration::get('PAYSONCHECKOUT2_CUSTOM_CSS')),
             'PAYSONCHECKOUT2_USE_CUSTOM_CSS' => Tools::getValue('PAYSONCHECKOUT2_USE_CUSTOM_CSS', Configuration::get('PAYSONCHECKOUT2_USE_CUSTOM_CSS')),
+            'PAYSONCHECKOUT2_CUSTOMER_COUNTRY' => Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', Configuration::get('PAYSONCHECKOUT2_CUSTOMER_COUNTRY')),
         );
     }
 
@@ -696,6 +721,30 @@ class PaysonCheckout2 extends PaymentModule
         return false;
     }
 
+    public function validDeliveryCountries() {
+        //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
+        $activeCountries = Country::getCountries($this->context->language->id, true, false, false);
+        $moduleCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
+        PaysonCheckout2::paysonAddLog('Language ID: ' . $this->context->language->id);
+        PaysonCheckout2::paysonAddLog('Active countries: ' . print_r($activeCountries, true));
+        PaysonCheckout2::paysonAddLog('Module countries: ' . print_r($moduleCountries, true));
+        $allowedDeliveryCountries = array();
+        foreach ($activeCountries as $country) {
+            if (in_array($country['iso_code'], $moduleCountries)) {
+                $allowedDeliveryCountries[] = $country['iso_code'];
+            }
+        }
+        
+        if (!is_array($allowedDeliveryCountries) || count($allowedDeliveryCountries) < 1) {
+            // null will show all countries
+            $allowedDeliveryCountries = null;
+        }
+        
+        PaysonCheckout2::paysonAddLog('Valid countries: ' . print_r($allowedDeliveryCountries, true));
+        
+        return $allowedDeliveryCountries;
+    }
+    
     public function createPaysonCheckout($customer, $cart, $payson, $currency, $id_lang, $address)
     {
         $trackingId = time();
@@ -724,30 +773,11 @@ class PaysonCheckout2 extends PaymentModule
         );
         PaysonCheckout2::paysonAddLog('PCO Order: ' . print_r($paysonOrder, true));
 
-        //$deliveryCountries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
-        $activeCountries = Country::getCountries($this->context->language->id, true, false, false);
-        $moduleCountries = $this->getModuleAllowedCountries((int) $this->getPaysonModuleID(), (int) $this->context->shop->id);
-        PaysonCheckout2::paysonAddLog('Language ID: ' . $this->context->language->id);
-        PaysonCheckout2::paysonAddLog('Active countries: ' . print_r($activeCountries, true));
-        PaysonCheckout2::paysonAddLog('Module countries: ' . print_r($moduleCountries, true));
-        $allowedDeliveryCountries = array();
-        foreach ($activeCountries as $country) {
-            if (in_array($country['iso_code'], $moduleCountries)) {
-                $allowedDeliveryCountries[] = $country['iso_code'];
-            }
-        }
-        PaysonCheckout2::paysonAddLog('Valid countries: ' . print_r($allowedDeliveryCountries, true));
-
-        if (!is_array($allowedDeliveryCountries) || count($allowedDeliveryCountries) < 1) {
-            // null will show all countries
-            $allowedDeliveryCountries = null;
-        }
-
         $paysonGui = array(
             'colorScheme' => Configuration::get('PAYSONCHECKOUT2_COLOR_SCHEME'),
             'locale' => $this->languagePayson(Language::getIsoById($id_lang)),
             'verification' => Configuration::get('PAYSONCHECKOUT2_VERIFICATION'),
-            'countries' => $allowedDeliveryCountries,
+            'countries' => $this->validDeliveryCountries(),
             'phoneOptional' => null,
         );
         switch (Configuration::get('PAYSONCHECKOUT2_PHONE')) {
@@ -774,7 +804,7 @@ class PaysonCheckout2 extends PaymentModule
                 'phone' => 1111111,
                 'identityNumber' => '4605092222',
                 'city' => 'Stan',
-                'countryCode' => 'SE',
+                'countryCode' => $this->countryBasedOnLanguage(Language::getIsoById($id_lang)),
                 'postalCode' => '99999',
                 'street' => '',
                 'type' => 'person',
@@ -788,7 +818,7 @@ class PaysonCheckout2 extends PaymentModule
                 'phone' => isset($address->phone) ? $address->phone : '',
                 'identityNumber' => '',
                 'city' => isset($address->city) ? $address->city : '',
-                'countryCode' => isset($address->id_country) ? Country::getIsoById($address->id_country) : '',
+                'countryCode' => isset($address->id_country) ? Country::getIsoById($address->id_country) : $this->countryBasedOnLanguage(Language::getIsoById($id_lang)),
                 'postalCode' => isset($address->postcode) ? $address->postcode : '',
                 'street' => isset($address->address1) ? $address->address1 : '',
                 'type' => 'person',
@@ -797,7 +827,7 @@ class PaysonCheckout2 extends PaymentModule
 
         return array('merchant' => $paysonMerchant, 'order' => $paysonOrder, 'gui' => $paysonGui, 'customer' => $paysonCustomer);
     }
-
+    
     /**
      * Get ISO codes for modules country restrictions
      *
@@ -1052,6 +1082,40 @@ class PaysonCheckout2 extends PaymentModule
             default:
                 return 'EN';
         }
+    }
+    
+    public function countryBasedOnLanguage($language)
+    {
+        if (Configuration::get('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == 'assume') {
+            switch (Tools::strtoupper($language)) {
+                case 'SE':
+                case 'SV':
+                    return 'SE';
+                case 'FI':
+                    return 'FI';
+                case 'DA':
+                case 'DK':
+                    return 'DK';
+                case 'NO':
+                case 'NB':
+                    return 'NO';
+                case 'CA':
+                case 'GL':
+                case 'EU':
+                case 'ES':
+                    return 'ES';
+                case 'DE':
+                    return 'DE';
+                case 'EN':
+                case 'GB':
+                    return 'GB';
+                default:
+                    return '';
+            }
+        } else {
+             return '';
+        }
+        
     }
     
     public function validPaysonCurrency($currency)
