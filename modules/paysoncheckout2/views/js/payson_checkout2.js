@@ -1,5 +1,5 @@
 /*
-* 2018 Payson AB
+* 2019 Payson AB
 *
 * NOTICE OF LICENSE
 *
@@ -9,7 +9,7 @@
 * http://opensource.org/licenses/afl-3.0.php
 *
 *  @author    Payson AB <integration@payson.se>
-*  @copyright 2018 Payson AB
+*  @copyright 2019 Payson AB
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
@@ -20,6 +20,7 @@ $(document).ready(function() {
         if (event.reason !== 'orderChange') {
             sendLockDown();
             updateCheckout({pco_update: '1'}, false, true);
+            refreshCarriers();
         }
     });
 
@@ -167,6 +168,42 @@ $(document).ready(function() {
                sendRelease();
                $("#paysonpaymentwindow").html(acceptTermsMessage);
             }
+            reqInProcess = false;
+        }
+    }
+
+    // Refresh carriers
+    function refreshCarriers() {
+        if (!reqInProcess && (typeof pcourl !== typeof undefined)) {
+            reqInProcess = true;
+            
+            $.ajax({
+                type: 'GET',
+                url: pcourl,
+                async: true,
+                cache: false,
+                data: {refresh_carriers: '1'},
+                success: function(returnData) {
+                    if (returnData !== 'no_update') {
+                        jsonData = JSON.parse(returnData);
+                        for(var i = 0; i < jsonData.length; i++) {
+                            if (!$(".payson-carrier-card-block .li-delivery-option-" + jsonData[i].id).length) {
+                                // Carrier has been added or removed, reload page
+                                location.href = pcourl;
+                            }
+                        }
+                        
+                        for(var i = 0; i < jsonData.length; i++) {
+                            // Update carrier price
+                            $(".payson-carrier-card-block .li-delivery-option-" + jsonData[i].id + " .payson.carrier-price").html(jsonData[i].price);
+                        }
+                    }
+                },
+                error: function() {
+                    
+                }
+            });
+           
             reqInProcess = false;
         }
     }

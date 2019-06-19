@@ -1,5 +1,5 @@
 {*
-* 2018 Payson AB
+* 2019 Payson AB
 *
 * NOTICE OF LICENSE
 *
@@ -9,7 +9,7 @@
 * http://opensource.org/licenses/afl-3.0.php
 *
 *  @author    Payson AB <integration@payson.se>
-*  @copyright 2018 Payson AB
+*  @copyright 2019 Payson AB
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
 {if $isSaved}	
@@ -26,7 +26,7 @@
 <div class="row">
     <div class="col-xs-12">
             <div class="panel">
-                    <div class="panel-heading"><i class="icon-home"></i> {l s='Payson Checkout 2.0' mod='paysoncheckout2'}</div>
+                    <div class="panel-heading"><i class="icon-home"></i> {l s='Payson Checkout' mod='paysoncheckout2'}</div>
                     <div class="row">
                             <p>{l s='Offer secure payments with Payson. Customers can pay by invoice, partial payments, card or internet bank' mod='paysoncheckout2'}</p>
                     </div>

@@ -144,7 +144,7 @@
             {/if}
             
             {if isset($controllername) && (isset($delivery_options) && $delivery_options|@count != 0) || isset($hookDisplayBeforeCarrier) || isset($hookDisplayAfterCarrier)}
-                <div class="card">
+                <div class="card payson-carrier-card">
                     <div class="card-block">
                         <h1 class="h1">
                             {l s='Carrier' mod='paysoncheckout2'}
@@ -159,11 +159,11 @@
                     {/if}
                     
                     {if (isset($delivery_options) && $delivery_options|@count != 0)}
-                        <div class="card-block">
+                        <div class="card-block payson-carrier-card-block">
                             <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcocarrier">
                             <ul class="payson-select-list has-tooltips">
                                 {foreach from=$delivery_options item=carrier key=carrier_id}
-                                <li class="payson-select-list__item {if $delivery_option == $carrier_id}selected{/if}">
+                                <li class="payson-select-list__item li-delivery-option-{$carrier.id} {if $delivery_option == $carrier_id}selected{/if}">
                                     <input type="radio" class="hidden_pco_radio" name="delivery_option[{$id_address}]" id="delivery_option_{$carrier.id}" value="{$carrier_id}"{if $delivery_option == $carrier_id} checked{/if}>
                                     <label for="delivery_option_{$carrier.id}" class="payson-select-list__item__label">
                                         <div class="row payson-carrier-info">
@@ -207,7 +207,7 @@
             {/if}
             
             {if isset($controllername)}
-                <div class="card">
+                <div class="card payson-message-card">
                     <form action="{$link->getModuleLink('paysoncheckout2', $controllername, [], true)|escape:'html':'UTF-8'}" method="post" id="pcomessage">
                         <div class="card-block">
                             <h1 class="h1 payson-click-trigger {if !$message.message}payson-click-trigger--inactive{/if}">

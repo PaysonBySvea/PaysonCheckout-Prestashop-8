@@ -29,7 +29,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.21';
+        $this->version = '3.0.22';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -39,7 +39,7 @@ class PaysonCheckout2 extends PaymentModule
         $this->bootstrap = true;
         parent::__construct();
 
-        $this->displayName = $this->l('Payson Checkout 2.0');
+        $this->displayName = $this->l('Payson Checkout');
         $this->description = $this->l('Offer secure payments with Payson. Customers can pay by invoice, partial payments, card or internet bank');
 
         $this->moduleVersion = sprintf('CO2_PrestaShop_1.7|%s|%s', $this->version, _PS_VERSION_);
@@ -82,6 +82,9 @@ class PaysonCheckout2 extends PaymentModule
         Configuration::updateValue('PAYSONCHECKOUT2_CUSTOM_CSS', '#module-paysoncheckout2-pconepage .cart-grid-body .card-block h1{color:red;}' . "\r\n" . '#module-paysoncheckout2-pconepage .cart-grid-body .card-block h1{font-size:12px;}');
         Configuration::updateValue('PAYSONCHECKOUT2_USE_CUSTOM_CSS', 0);
         Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', 'auto');
+        Configuration::updateValue('PAYSONCHECKOUT2_STOCK_VALIDATION', 1);
+        Configuration::updateValue('PAYSONCHECKOUT2_SELLER_REF', 'order_id');
+        
         
         $this->createPaysonOrderTable();
 
@@ -116,7 +119,9 @@ class PaysonCheckout2 extends PaymentModule
                 Configuration::deleteByName('PAYSONCHECKOUT2_NEWSLETTER') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOM_CSS') == false ||
                 Configuration::deleteByName('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == false
+                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == false ||
+                Configuration::deleteByName('PAYSONCHECKOUT2_STOCK_VALIDATION') == false ||
+                Configuration::deleteByName('PAYSONCHECKOUT2_SELLER_REF') == false
                 
         ) {
             return false;
@@ -189,6 +194,8 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS'));
             Configuration::updateValue('PAYSONCHECKOUT2_SHOW_TERMS', (int) Tools::getValue('PAYSONCHECKOUT2_SHOW_TERMS'));
             Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY'));
+            Configuration::updateValue('PAYSONCHECKOUT2_STOCK_VALIDATION', Tools::getValue('PAYSONCHECKOUT2_STOCK_VALIDATION'));
+            Configuration::updateValue('PAYSONCHECKOUT2_SELLER_REF', Tools::getValue('PAYSONCHECKOUT2_SELLER_REF'));
             
             $saved = true;
         }
@@ -348,9 +355,32 @@ class PaysonCheckout2 extends PaymentModule
                         'name' => 'name',
                     ),
                 ),
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('Seller reference'),
+                    'name' => 'PAYSONCHECKOUT2_SELLER_REF',
+                    'desc' => $this->l('Seller reference to send to Payson.'),
+                    'options' => array(
+                        'query' => array(
+                            array(
+                                'value' => 'order_id',
+                                'label' => $this->l('Order ID'),
+                            ),
+                            array(
+                                'value' => 'order_ref',
+                                'label' => $this->l('Order reference'),
+                            ),
+                        ),
+                        'id' => 'value',
+                        'name' => 'label',
+                    ),
+                )
             )
         );
 
+        
+        
+        
         $fields_form[2]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Payment window'),
@@ -508,6 +538,34 @@ class PaysonCheckout2 extends PaymentModule
         
         $fields_form[4]['form'] = array(
             'legend' => array(
+                'title' => $this->l('Additional stock validation'),
+                'icon' => '',
+            ),
+            'input' => array(
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Stock validation'),
+                    'name' => 'PAYSONCHECKOUT2_STOCK_VALIDATION',
+                    'is_bool' => true,
+                    'values' => array(
+                        array(
+                            'id' => 'stock_val_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes'),
+                        ),
+                        array(
+                            'id' => 'stock_val_off',
+                            'value' => 0,
+                            'label' => $this->l('No'),
+                        ),
+                    ),
+                    'desc' => $this->l('Perform additional stock validation'),
+                )
+            )
+        );
+        
+        $fields_form[5]['form'] = array(
+            'legend' => array(
                 'title' => $this->l('International'),
                 'icon' => '',
             ),
@@ -526,7 +584,7 @@ class PaysonCheckout2 extends PaymentModule
             )
         );
         
-        $fields_form[5]['form'] = array(
+        $fields_form[6]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Log'),
                 'icon' => '',
@@ -549,12 +607,12 @@ class PaysonCheckout2 extends PaymentModule
                             'label' => $this->l('No'),
                         ),
                     ),
-                    'desc' => $this->l('Check to log messages from Payson Checkout 2.0'),
+                    'desc' => $this->l('Check to log messages from Payson Checkout'),
                 )
             )
         );
         
-        $fields_form[6]['form'] = array(
+        $fields_form[7]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Save changes'),
                 'icon' => '',
@@ -617,6 +675,8 @@ class PaysonCheckout2 extends PaymentModule
             'PAYSONCHECKOUT2_CUSTOM_CSS' => Tools::getValue('PAYSONCHECKOUT2_CUSTOM_CSS', Configuration::get('PAYSONCHECKOUT2_CUSTOM_CSS')),
             'PAYSONCHECKOUT2_USE_CUSTOM_CSS' => Tools::getValue('PAYSONCHECKOUT2_USE_CUSTOM_CSS', Configuration::get('PAYSONCHECKOUT2_USE_CUSTOM_CSS')),
             'PAYSONCHECKOUT2_CUSTOMER_COUNTRY' => Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_COUNTRY', Configuration::get('PAYSONCHECKOUT2_CUSTOMER_COUNTRY')),
+            'PAYSONCHECKOUT2_STOCK_VALIDATION' => Tools::getValue('PAYSONCHECKOUT2_STOCK_VALIDATION', Configuration::get('PAYSONCHECKOUT2_STOCK_VALIDATION')),
+            'PAYSONCHECKOUT2_SELLER_REF' => Tools::getValue('PAYSONCHECKOUT2_SELLER_REF', Configuration::get('PAYSONCHECKOUT2_SELLER_REF')),
         );
     }
 
@@ -693,7 +753,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         if ((int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 1) {
             $iframeOption = new PaymentOption();
-            $iframeOption->setCallToActionText($this->l('Payson Checkout 2.0'))
+            $iframeOption->setCallToActionText($this->l('Payson Checkout'))
                     ->setAction($this->context->link->getModuleLink($this->name, 'pconepage', array('ref' => 'opm'), true))
                     ->setAdditionalInformation($this->context->smarty->fetch('module:paysoncheckout2/views/templates/front/payment_infos.tpl'));
             //->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/logo.png'));

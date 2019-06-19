@@ -1,6 +1,6 @@
 <?php
 /**
- * 2018 Payson AB
+ * 2019 Payson AB
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://opensource.org/licenses/afl-3.0.php
  *
  *  @author    Payson AB <integration@payson.se>
- *  @copyright 2018 Payson AB
+ *  @copyright 2019 Payson AB
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -135,6 +135,26 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             // See if rules apply here
             CartRule::autoRemoveFromCart($this->context);
             CartRule::autoAddToCart($this->context);
+        }
+        
+        // Refresh carriers
+        if (Tools::getIsset('refresh_carriers')) {
+            PaysonCheckout2::paysonAddLog('Get carrier list.');
+           
+            $checkoutSession = $this->getCheckoutSession();
+            $carriers = $checkoutSession->getDeliveryOptions();
+
+            PaysonCheckout2::paysonAddLog('Carrier list: ' . print_r($carriers, true));
+            
+            if (is_array($carriers) && count($carriers) > 0) {
+                $carrier_prices = array();
+                foreach ($carriers as $carrier){
+                    $carrier_prices[] = array('id' => $carrier['id'], 'price' => Tools::displayPrice($carrier['price_with_tax']));
+                }
+                PaysonCheckout2::paysonAddLog('Carrier prices: ' . print_r($carrier_prices, true));
+                die(json_encode($carrier_prices));
+            }
+            die('no_update');
         }
         
         // Newsletter subscription

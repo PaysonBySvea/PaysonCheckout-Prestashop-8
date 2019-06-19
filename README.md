@@ -1,8 +1,8 @@
-# Payson Checkout 2.0 PrestaShop Module
+# Payson Checkout PrestaShop Module
 
 ## Description
 
-Module for PrestaShop implementing Payson Checkout 2.0
+Module for PrestaShop implementing Payson Checkout
 * Support PrestaShop 1.7.x
 
 ## Installation

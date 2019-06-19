@@ -1,6 +1,6 @@
 <?php
 /**
- * 2018 Payson AB
+ * 2019 Payson AB
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://opensource.org/licenses/afl-3.0.php
  *
  *  @author    Payson AB <integration@payson.se>
- *  @copyright 2018 Payson AB
+ *  @copyright 2019 Payson AB
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -82,21 +82,24 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
             PaysonCheckout2::paysonAddLog('Checkout ID: ' . $checkout['id']);
             PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout['status']);
 
-            if ($checkout['status'] == 'readyToShip' && !$cart->checkQuantities()) {
-                PaysonCheckout2::paysonAddLog('A product has run out of stock between checkout and confirmation.');
-                // Only cancel payment if there's no order
-                if ($cart->OrderExists() == false) {
-                    // Set status canceled on Payson order
-                    $checkout['status'] = 'canceled';
-                    $checkoutClient->update($checkout);
-                    PaysonCheckout2::paysonAddLog('Canceled payment at Payson.');
+            if (Configuration::get('PAYSONCHECKOUT2_STOCK_VALIDATION') == 1) {
+                PaysonCheckout2::paysonAddLog('Checking stock.');
+                if ($checkout['status'] == 'readyToShip' && !$cart->checkQuantities()) {
+                    PaysonCheckout2::paysonAddLog('A product has run out of stock between checkout and confirmation.');
+                    // Only cancel payment if there's no order
+                    if ($cart->OrderExists() == false) {
+                        // Cancel Payson payment
+                        $checkout['status'] = 'canceled';
+                        $checkoutClient->update($checkout);
+                        PrestaShopLogger::addLog('Canceled Payson payment due to out of stock, cart: ' . $cartId . ', checkout: ' . $checkoutId, 3, null, null, null, true);
+                    }
+                    // Delete checkout id cookie, force a new checkout
+                    $this->context->cookie->__set('paysonCheckoutId', null);
+                    // Redirect to checkout
+                    Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
                 }
-                // Delete checkout id cookie, force a new chckout
-                $this->context->cookie->__set('paysonCheckoutId', null);
-                // Redirect to checkout
-                Tools::redirect('index.php?fc=module&module=paysoncheckout2&controller=pconepage');
             }
-            
+              
             $newOrderId = false;
             $redirect = false;
 
@@ -108,9 +111,18 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                     if ($cart->OrderExists() == false) {
                         // Create PS order
                         $newOrderId = $payson->createOrderPS($cart->id, $checkout);
-                        
+
                         // Set order id
-                        $checkout['merchant']['reference'] = $newOrderId;
+                        $ref = $newOrderId;
+                        
+                        if (Configuration::get('PAYSONCHECKOUT2_SELLER_REF') == 'order_ref') {
+                            // Load order
+                            $order = new Order($newOrderId);
+
+                            // Set reference
+                            $ref = $order->reference;
+                        }
+                        $checkout['merchant']['reference'] = $ref;
                         $checkoutClient->update($checkout);
                         
                         PaysonCheckout2::paysonAddLog('New order ID: ' . $newOrderId);
