@@ -88,7 +88,7 @@ class ImplementationFactory
     public static function returnCreateRecurringSubscriptionClass(Connector $connector)
     {
         return new CreateRecurringSubscription($connector, new ValidateCreateRecurringSubscriptionData());
-}
+    }
     
     /**
      * @param Connector $connector
@@ -153,5 +153,4 @@ class ImplementationFactory
     {
         return new ListRecurringPayments($connector, new ValidateListRecurringPaymentsData());
     }
-    
 }

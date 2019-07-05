@@ -148,7 +148,7 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
             
             if (is_array($carriers) && count($carriers) > 0) {
                 $carrier_prices = array();
-                foreach ($carriers as $carrier){
+                foreach ($carriers as $carrier) {
                     $carrier_prices[] = array('id' => $carrier['id'], 'price' => Tools::displayPrice($carrier['price_with_tax']));
                 }
                 PaysonCheckout2::paysonAddLog('Carrier prices: ' . print_r($carrier_prices, true));

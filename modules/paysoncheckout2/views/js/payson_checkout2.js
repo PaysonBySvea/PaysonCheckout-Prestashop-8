@@ -225,11 +225,12 @@ $(document).ready(function() {
             document.getElementById('paysonIframe').contentWindow.postMessage('release', '*');
         }
         // Reset height
-        setTimeout(function() {
+        var heightInterval = setInterval(function() {
             if ($('#paysonpaymentwindow').length) {
                 $('#paysonpaymentwindow').height('auto');
+                clearInterval(heightInterval);
             }
-        }, 500);
+        }, 100);
     }
     
     // Update iframe

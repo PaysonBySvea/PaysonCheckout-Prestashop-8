@@ -78,12 +78,23 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $cart = new Cart($cartId);
 
-        // Add or update customer
-        if ((int) Customer::customerExists($checkout['customer']['email'], true, true) > 0) {
-            $customer = new Customer((int) Customer::customerExists($checkout['customer']['email'], true, true));
+        // Load, add or update customer
+        if ($this->context->customer->isLogged() || $this->context->customer->is_guest) {
+            PaysonCheckout2::paysonAddLog('Validation - customer is logged in.');
+            $customer = new Customer((int) ($this->context->cart->id_customer));
+            if ($customer->email != $checkout['customer']['email']) {
+                $customer->email = $checkout['customer']['email'];
+                $customer->update();
+            }
         } else {
-            $customer = $payson->addPaysonCustomerPS($cart->id, $checkout);
+            if ((int) Customer::customerExists($checkout['customer']['email'], true, true) > 0) {
+                PaysonCheckout2::paysonAddLog('Validation - load existing customer.');
+                $customer = new Customer((int) Customer::customerExists($checkout['customer']['email'], true, true));
+            } else {
+                $customer = $payson->addPaysonCustomerPS($cart->id, $checkout);
+            }
         }
+        
         // Update or create address
         $address = $payson->updateCreatePsAddress(Country::getByIso($checkout['customer']['countryCode']), $checkout, $customer->id);
 
@@ -131,8 +142,14 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
 
         $cart->secure_key = $customer->secure_key;
         $cart->id_customer = $customer->id;
-        $cart->id_address_delivery = $address->id;
-        $cart->id_address_invoice = $address->id;
+        if ($cart->id_address_delivery != $cart->id_address_invoice) {
+            // Set Payson address as invoice address only, keep delivery address
+            $cart->id_address_invoice = $address->id;
+        } else {
+            // Set Payson address as both invoice address and delivery address
+            $cart->id_address_delivery = $address->id;
+            $cart->id_address_invoice = $address->id;
+        }
         $cart->save();
 
         $cache_id = 'objectmodel_cart_' . $cart->id . '*';
