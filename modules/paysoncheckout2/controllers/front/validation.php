@@ -77,7 +77,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         PaysonCheckout2::paysonAddLog('Checkout Status: ' . $checkout['status']);
 
         $cart = new Cart($cartId);
-
+        
         // Load, add or update customer
         if ($this->context->customer->isLogged() || $this->context->customer->is_guest) {
             PaysonCheckout2::paysonAddLog('Validation - customer is logged in.');
@@ -87,9 +87,9 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
                 $customer->update();
             }
         } else {
-            if ((int) Customer::customerExists($checkout['customer']['email'], true, true) > 0) {
+            if ((int) Customer::customerExists($checkout['customer']['email'], true, false) > 0) {
                 PaysonCheckout2::paysonAddLog('Validation - load existing customer.');
-                $customer = new Customer((int) Customer::customerExists($checkout['customer']['email'], true, true));
+                $customer = new Customer((int) Customer::customerExists($checkout['customer']['email'], true, false));
             } else {
                 $customer = $payson->addPaysonCustomerPS($cart->id, $checkout);
             }
@@ -104,10 +104,24 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
             PaysonCheckout2::paysonAddLog('Updated customer newsletter settting.');
         }
         
+        if ($cart->id_address_delivery != $cart->id_address_invoice) {
+            // Set Payson address as invoice address only, keep delivery address
+            $cart->id_address_invoice = $address->id;
+        } else {
+            // Set Payson address as both invoice address and delivery address
+            $cart->id_address_delivery = $address->id;
+            $cart->id_address_invoice = $address->id;
+        }
+        $cart->save();
+        
+        PaysonCheckout2::paysonAddLog('$cart->id_address_delivery: ' . $cart->id_address_delivery);
+        
         $new_delivery_options = array();
-        $new_delivery_options[(int) ($address->id)] = $cart->id_carrier . ',';
+        $new_delivery_options[(int) ($cart->id_address_delivery)] = $cart->id_carrier . ',';
+        
         $new_delivery_options_serialized = serialize($new_delivery_options);
 
+        PaysonCheckout2::paysonAddLog('$new_delivery_options_serialized: ' . $new_delivery_options_serialized);
         PaysonCheckout2::paysonAddLog('Address ID: ' . $address->id);
         PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier);
 
@@ -126,7 +140,7 @@ class PaysonCheckout2ValidationModuleFrontController extends ModuleFrontControll
         }
         
         $update_sql = 'UPDATE ' . _DB_PREFIX_ . 'cart_product ' .
-                'SET id_address_delivery=' . (int) $address->id .
+                'SET id_address_delivery=' . (int) ($cart->id_address_delivery) .
                 ' WHERE id_cart=' . (int) $cart->id;
         Db::getInstance()->execute($update_sql);
 

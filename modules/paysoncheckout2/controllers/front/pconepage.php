@@ -211,6 +211,10 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $errMess = $this->module->l('This order does not meet the requirement for minimum order value.', 'pconepage');
                 }
 
+                // Reset cookies
+                $this->context->cookie->__set('alreadyLoggedIn', null);
+                $this->context->cookie->__set('CreatedCustomer', null);
+                
                 // Check customer and address
                 if ($this->context->customer->isLogged() || $this->context->customer->is_guest) {
                     PaysonCheckout2::paysonAddLog($this->context->customer->is_guest == 1 ? 'Customer is: Guest' : 'Customer is: Logged in');
@@ -218,6 +222,9 @@ class PaysonCheckout2PcOnePageModuleFrontController extends ModuleFrontControlle
                     $customer = new Customer((int) ($this->context->cart->id_customer));
                     $address = new Address((int) ($this->context->cart->id_address_invoice));
 
+                    // Set cookie to indicate that this customer was logged in before checkout
+                    $this->context->cookie->__set('alreadyLoggedIn', 1);
+                    
                     if ($address->id_state) {
                         $state = new State((int) ($address->id_state));
                     }

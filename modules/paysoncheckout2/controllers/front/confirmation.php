@@ -162,6 +162,13 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
             $this->context->smarty->assign('payson_checkout', $checkout['snippet']);
             $this->context->smarty->assign('HOOK_DISPLAY_ORDER_CONFIRMATION', Hook::exec('displayOrderConfirmation', array('order' => $order)));
 
+            $customer = new Customer((int) ($order->id_customer));
+            
+            if ((isset($this->context->cookie->alreadyLoggedIn) && $this->context->cookie->alreadyLoggedIn == null)) {
+                PaysonCheckout2::paysonAddLog('Customer was not logged in before checkout.');
+                $customer->mylogout();
+            }
+            
             $this->displayConfirmation();
         } catch (Exception $ex) {
             // Log error message
