@@ -169,24 +169,37 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
                 $customer->mylogout();
             }
             
-            $this->displayConfirmation();
+            $this->displayConfirmation($cart, $customer);
         } catch (Exception $ex) {
-            // Log error message
             PaysonCheckout2::paysonAddLog('Checkout error: ' . $ex->getMessage(), 2);
 
-            // Delete checkout id cookie
             $this->context->cookie->__set('paysonCheckoutId', null);
             
             // Replace checkout snippet with error message
             $this->context->smarty->assign('payson_checkout', $ex->getMessage());
 
-            // Show confirmation
             $this->displayConfirmation();
         }
     }
     
-    protected function displayConfirmation()
+    protected function displayConfirmation($cart, $customer)
     {
-        $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
+        if (Configuration::get('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE') == 1) {
+            PaysonCheckout2::paysonAddLog('Will use PS default confirmation page');
+            // Use default PS order confirmation page
+            if (!$this->context->customer->isLogged(true)) {
+                // If it's a customer that's not logged in or a guest we need to set some values to prevent log in from appearing instead of order confirmation
+                $this->context->cookie->is_guest = 1;
+                $this->context->cookie->id_customer = (int) $customer->id;
+                $this->context->cookie->customer_lastname = $customer->lastname;
+                $this->context->cookie->customer_firstname = $customer->firstname;
+                $this->context->cookie->email = $customer->email;
+            }
+            Tools::redirect('index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
+        } else {
+            PaysonCheckout2::paysonAddLog('Will use Payson confirmation page');
+            // Use Payson order confirmation page
+            $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
+        }
     }
 }

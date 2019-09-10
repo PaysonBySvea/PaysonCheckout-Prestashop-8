@@ -28,7 +28,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.24';
+        $this->version = '3.0.25';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -82,8 +82,7 @@ class PaysonCheckout2 extends PaymentModule
         Configuration::updateValue('PAYSONCHECKOUT2_STOCK_VALIDATION', 1);
         Configuration::updateValue('PAYSONCHECKOUT2_SELLER_REF', 'order_id');
         Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_TYPE', 'individual');
-        
-        
+        Configuration::updateValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE', 0);
         
         $this->createPaysonOrderTable();
 
@@ -98,31 +97,31 @@ class PaysonCheckout2 extends PaymentModule
     public function uninstall()
     {
         if (parent::uninstall() == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_AGENTID') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_APIKEY') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_MODE') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_CONFIRMATION') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_LOG') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_ONE_PAGE') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_VERIFICATION') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_COLOR_SCHEME') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_PHONE') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
-                Configuration::deleteByName('PAYSON_ORDER_SHIPPED_STATE') == false ||
-                Configuration::deleteByName('PAYSON_ORDER_CANCEL_STATE') == false ||
-                Configuration::deleteByName('PAYSON_ORDER_CREDITED_STATE') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_TEMPLATE') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_TERMS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_NEWSLETTER') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOM_CSS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_STOCK_VALIDATION') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_SELLER_REF') == false ||
-                Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_TYPE') == false
-                
+            Configuration::deleteByName('PAYSONCHECKOUT2_AGENTID') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_APIKEY') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_MODE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_CONFIRMATION') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_LOG') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_ONE_PAGE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_VERIFICATION') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_COLOR_SCHEME') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_PHONE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
+            Configuration::deleteByName('PAYSON_ORDER_SHIPPED_STATE') == false ||
+            Configuration::deleteByName('PAYSON_ORDER_CANCEL_STATE') == false ||
+            Configuration::deleteByName('PAYSON_ORDER_CREDITED_STATE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_TEMPLATE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_MODULE_ENABLED') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_OTHER_PAYMENTS') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_SHOW_TERMS') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_NEWSLETTER') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOM_CSS') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_USE_CUSTOM_CSS') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_COUNTRY') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_STOCK_VALIDATION') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_SELLER_REF') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_CUSTOMER_TYPE') == false ||
+            Configuration::deleteByName('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE') == false
         ) {
             return false;
         }
@@ -197,7 +196,8 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_STOCK_VALIDATION', Tools::getValue('PAYSONCHECKOUT2_STOCK_VALIDATION'));
             Configuration::updateValue('PAYSONCHECKOUT2_SELLER_REF', Tools::getValue('PAYSONCHECKOUT2_SELLER_REF'));
             Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_TYPE', Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_TYPE'));
-             
+            Configuration::updateValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE', Tools::getValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE'));
+            
             $saved = true;
         }
         
@@ -552,6 +552,25 @@ class PaysonCheckout2 extends PaymentModule
                         ),
                     ),
                     'desc' => $this->l('Select Yes to require customers to accept the terms and conditions'),
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('PrestaShop confirmation page'),
+                    'name' => 'PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE',
+                    'is_bool' => true,
+                    'values' => array(
+                        array(
+                            'id' => 'ps_conf_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes'),
+                        ),
+                        array(
+                            'id' => 'ps_conf_off',
+                            'value' => 0,
+                            'label' => $this->l('No'),
+                        ),
+                    ),
+                    'desc' => $this->l('Select Yes to use the default PrestaShop order confirmation page'),
                 )
             )
         );
@@ -679,7 +698,7 @@ class PaysonCheckout2 extends PaymentModule
             'PAYSONCHECKOUT2_STOCK_VALIDATION' => Tools::getValue('PAYSONCHECKOUT2_STOCK_VALIDATION', Configuration::get('PAYSONCHECKOUT2_STOCK_VALIDATION')),
             'PAYSONCHECKOUT2_SELLER_REF' => Tools::getValue('PAYSONCHECKOUT2_SELLER_REF', Configuration::get('PAYSONCHECKOUT2_SELLER_REF')),
             'PAYSONCHECKOUT2_CUSTOMER_TYPE' => Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_TYPE', Configuration::get('PAYSONCHECKOUT2_CUSTOMER_TYPE')),
-            
+            'PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE' => Tools::getValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE', Configuration::get('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE')),
         );
     }
 

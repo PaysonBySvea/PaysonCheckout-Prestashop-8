@@ -5,7 +5,7 @@ $_MODULE = array();
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_95f6138c759976d7fa999df2ac9e07f7'] = 'Payson Checkout';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_32e0dbf85967439f451aecfc1829c276'] = 'Säkra betalningar med Payson. Erbjud betalning med faktura, delbetalning, kort eller bankbetalning.';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_a02758d758e8bec77a33d7f392eb3f8a'] = 'Ingen valuta inställd för modul.';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c98133549a6943937cd3d4c70887e451'] = 'Betald med Payson Checkout';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_92d13ab8839ce23bb2a5127c23e65bb9'] = 'Betald med Payson Checkout';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_44ac2a91a5dbc778d8ca81f729071ba9'] = 'Egen CSS används för att ändra utseendet på One Page Checkout';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_13b529e6f1b23c1466366d91befddff2'] = 'Använd egen CSS';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_93cba07454f06a4a960172bbd6e2a435'] = 'Ja';
@@ -65,6 +65,8 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ae7d309ee49549b45eff33f38
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ddba74edbcd11dc77c41951e0f119af8'] = 'Visa val för nyhetsbrev i kassan';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_8bf3fac6472fda8e32d888cf170353c6'] = 'Kräv att kunderna godkänner butikens köpvillkor i kassan';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_b54c9905da4e495a9449d7574174a498'] = 'Kräv att kunderna godkänner butikens köpvillkor i kassan';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_52ffc7228f37bb63ab5a08592fede0a1'] = 'PrestaShop orderbekräftelse';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_d0ad328b5016d84aacb12139580d9ce2'] = 'Välj ja för att använda PrestaShops standardsida för orderbekräftelse';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_0d749d8f4b039b742775cdec6ee70162'] = 'Extra lagerkontroll';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_f1183ef19f4f4572a3c7e8c4471df6be'] = 'Lagerkontroll';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_db3215c394a0eb83473875c2afc5b127'] = 'Utför extra lagerkontroll';
@@ -75,7 +77,7 @@ $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_daa6b483e9f6ca081ec7e0b4a
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_0420294f1634895d8a843f93dab3e95c'] = 'Checkout ID:';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_c906377ea0dd790f9c1632bc307a4eda'] = 'Checkout Status:';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_0d698fffffee7ffeb5d468acdf03c71c'] = 'Cart ID:';
-$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_3f20c90724a7a2383838db6f1c6c96c4'] = 'Payson adress';
+$_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_162b67267a58bf3caa269c2e0b05fb71'] = 'Payson address';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_104d9898c04874d0fbac36e125fa1369'] = 'Rabatt';
 $_MODULE['<{paysoncheckout2}prestashop>paysoncheckout2_138fa93953d947a95d85b03d43158fb0'] = 'Presentinslagning';
@@ -122,7 +124,7 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_86024cad1e83101d97359d7351
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_ecba3578d8cd65126d4a47c76b3c9c2d'] = 'Gratis frakt!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_b75443a19207ed3a3552edda86536857'] = 'Kundvagn';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_576dc3c8fee48522648cdd45eaa43319'] = ' ';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_576dc3c8fee48522648cdd45eaa43319'] = 'exkl. frakt.';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_e7a6ca4e744870d455a57b644f696457'] = 'Gratis!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_2_col_4c2a8fe7eaf24721cc7a9f0175115bd4'] = 'Meddelande';
@@ -139,7 +141,7 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_l_86024cad1e83101d97359d73510511
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_ecba3578d8cd65126d4a47c76b3c9c2d'] = 'Gratis frakt!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_b75443a19207ed3a3552edda86536857'] = 'Kundvagn';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_l_576dc3c8fee48522648cdd45eaa43319'] = ' ';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_l_576dc3c8fee48522648cdd45eaa43319'] = 'exkl. frakt.';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_c453a4b8e8d98e82f35b67f433e3b4da'] = 'Betalning';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_569fd05bdafa1712c4f6be5b153b8418'] = 'Andra betalmetoder';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_l_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
@@ -156,7 +158,7 @@ $_MODULE['<{paysoncheckout2}prestashop>one_page_r_86024cad1e83101d97359d73510511
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_ecba3578d8cd65126d4a47c76b3c9c2d'] = 'Gratis frakt!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_b75443a19207ed3a3552edda86536857'] = 'Kundvagn';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_b6ebf524395afff62a2a8d50c80f6fcb'] = 'Gratis frakt vid köp av varor för mer än';
-$_MODULE['<{paysoncheckout2}prestashop>one_page_r_576dc3c8fee48522648cdd45eaa43319'] = ' ';
+$_MODULE['<{paysoncheckout2}prestashop>one_page_r_576dc3c8fee48522648cdd45eaa43319'] = 'exkl. frakt.';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_914419aa32f04011357d3b604a86d7eb'] = 'Frakt';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_e7a6ca4e744870d455a57b644f696457'] = 'Gratis!';
 $_MODULE['<{paysoncheckout2}prestashop>one_page_r_4c2a8fe7eaf24721cc7a9f0175115bd4'] = 'Meddelande';
