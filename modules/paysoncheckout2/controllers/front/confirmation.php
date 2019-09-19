@@ -188,6 +188,7 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
             PaysonCheckout2::paysonAddLog('Will use PS default confirmation page');
             // Use default PS order confirmation page
             if (!$this->context->customer->isLogged(true)) {
+                PaysonCheckout2::paysonAddLog('Customer is not logged in');
                 // If it's a customer that's not logged in or a guest we need to set some values to prevent log in from appearing instead of order confirmation
                 $this->context->cookie->is_guest = 1;
                 $this->context->cookie->id_customer = (int) $customer->id;
@@ -198,6 +199,18 @@ class PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontContro
             Tools::redirect('index.php?controller=order-confirmation&id_cart='.(int)$cart->id.'&id_module='.(int)$this->module->id.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key);
         } else {
             PaysonCheckout2::paysonAddLog('Will use Payson confirmation page');
+            if ((isset($this->context->cookie->alreadyLoggedIn) && $this->context->cookie->alreadyLoggedIn == 1)) {
+                PaysonCheckout2::paysonAddLog('Customer was logged in before confirmation page');
+                // If it's a customer that's logged in we need to set some values
+                $customer->logged = 1;
+                $this->context->customer = $customer;
+                $this->context->cookie->id_customer = (int) $customer->id;
+                $this->context->cookie->customer_lastname = $customer->lastname;
+                $this->context->cookie->customer_firstname = $customer->firstname;
+                $this->context->cookie->passwd = $customer->passwd;
+                $this->context->cookie->logged = 1;
+                $this->context->cookie->email = $customer->email;
+            }
             // Use Payson order confirmation page
             $this->setTemplate('module:paysoncheckout2/views/templates/front/payment_return.tpl');
         }

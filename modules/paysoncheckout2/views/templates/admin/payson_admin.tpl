@@ -12,16 +12,6 @@
 *  @copyright 2019 Payson AB
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
-{if $isSaved}	
-	<div class="alert alert-success">
-		{l s='Settings updated' mod='paysoncheckout2'}
-	</div>
-{/if}
-{if $errorMSG!=''}	
-	<div class="alert alert-danger">
-		 {$errorMSG|escape:'htmlall':'UTF-8'}
-	</div>
-{/if}
 <script type="text/javascript" src="{$module_dir|escape:'htmlall':'UTF-8'}views/js/admin.js"></script>
 <div class="row">
     <div class="col-xs-12">
@@ -74,7 +64,16 @@
             </div>
     </div>
 </div>
-
+{if $isSaved}	
+	<div class="alert alert-success">
+		{l s='Settings updated' mod='paysoncheckout2'}
+	</div>
+{/if}
+{if $errorMSG!=''}	
+	<div class="alert alert-danger">
+		 {$errorMSG|escape:'htmlall':'UTF-8'}
+	</div>
+{/if}
 <div class="payson tabbable">
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#pane1" data-toggle="tab"><i class="icon-cogs"></i> {l s='Settings' mod='paysoncheckout2'}</a></li>

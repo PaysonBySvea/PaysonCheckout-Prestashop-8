@@ -28,7 +28,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.25';
+        $this->version = '3.0.26';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -169,6 +169,21 @@ class PaysonCheckout2 extends PaymentModule
         return false;
     }
 
+    public function adminValidateSettings()
+    {
+        if (trim(Tools::getValue('PAYSONCHECKOUT2_AGENTID')) == '' || trim(Tools::getValue('PAYSONCHECKOUT2_APIKEY') == '')) {
+            return $this->l('Agent ID and API Key are required.');
+        }
+        try {
+            $paysonApi = $this->getPaysonApiInstance();
+            $checkoutClient = new \Payson\Payments\CheckoutClient($paysonApi);
+            $accountInformation = $checkoutClient->getAccountInfo();
+            return '';
+        } catch(Exception $e) {
+            return $this->l('Unable to get account information. Check Agent ID and API Key and turn off Test mode when using credentials for an PaysonAccount.');
+        }
+    }
+    
     public function getContent()
     {
         $saved = false;
@@ -197,7 +212,7 @@ class PaysonCheckout2 extends PaymentModule
             Configuration::updateValue('PAYSONCHECKOUT2_SELLER_REF', Tools::getValue('PAYSONCHECKOUT2_SELLER_REF'));
             Configuration::updateValue('PAYSONCHECKOUT2_CUSTOMER_TYPE', Tools::getValue('PAYSONCHECKOUT2_CUSTOMER_TYPE'));
             Configuration::updateValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE', Tools::getValue('PAYSONCHECKOUT2_PS_CONFIRMATION_PAGE'));
-            
+            $errors = $this->adminValidateSettings();
             $saved = true;
         }
         
@@ -319,7 +334,7 @@ class PaysonCheckout2 extends PaymentModule
   
         $fields_form[1]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Order managment'),
+                'title' => $this->l('Order management'),
                 'icon' => '',
             ),
             'input' => array(
@@ -1314,7 +1329,10 @@ class PaysonCheckout2 extends PaymentModule
             if ($cart->id_address_delivery != $cart->id_address_invoice) {
                 // Customer has separate invoice and delivery address, we use the invoice address
                 $address = new Address($cart->id_address_invoice);
-                PrestaShopLogger::addLog('Customer ' . $customer->id . ' has a separate invoice address for cart ' . $cart->id . '. Its recommended to always use the Payson address for delivery.', 1);
+                PrestaShopLogger::addLog('Customer ' . $customer->id . ' has a separate invoice address for cart ' . $cart->id . '. Its recommended to always use the Payson address for delivery.', 2);
+                $deliveryAddress = new Address($cart->id_address_delivery);
+                $deliveryAddress->other = $this->l('PLEASE NOTE! Delivery to any other address then the one provided by Payson (Payson address) may shift fraud liability to the store.');
+                $deliveryAddress->update();
             } else {
                 $address = new Address((int) Address::getFirstCustomerAddressId($customer->id));
                 PaysonCheckout2::paysonAddLog('Will use first address with ID: ' . $address->id);
@@ -1353,6 +1371,7 @@ class PaysonCheckout2 extends PaymentModule
         $address->id_country = $countryId;
         $address->phone = !empty($checkout['customer']['phone']) ? $checkout['customer']['phone'] : '';
         $address->alias = $this->l('Payson address');
+        $address->other = '';
         
         // Check address
         $validation = $address->validateController();
@@ -1582,20 +1601,17 @@ class PaysonCheckout2 extends PaymentModule
                             try {
                                 PaysonCheckout2::paysonAddLog('Updating Payson order status to credited.');
                                 
-                                // Need to ship before refund
                                 if ($checkout['status'] == 'readyToShip') {
-                                    PaysonCheckout2::paysonAddLog('Updating Payson order status to shipped before refunding.');
-                                    $checkout['status'] = 'shipped';
-                                    $checkout = $checkoutClient->update($checkout);
+                                    // Cancel will auto credit payment
+                                    PaysonCheckout2::paysonAddLog('Updating Payson order status to canceled (refund).');
+                                    $checkout['status'] = 'canceled';
+                                } else {
+                                    foreach ($checkout['order']['items'] as &$item) {
+                                        $item['creditedAmount'] = ($item['totalPriceIncludingTax']);
+                                    }
+                                    unset($item);
                                 }
-
-                                foreach ($checkout['order']['items'] as &$item) {
-                                    $item['creditedAmount'] = ($item['totalPriceIncludingTax']);
-                                }
-                                unset($item);
-                                
                                 $updatedCheckout = $checkoutClient->update($checkout);
-                                
                                 $this->updatePaysonOrderEvent($updatedCheckout, $order->id_cart);
                                 PaysonCheckout2::paysonAddLog('Updated Payson order status is: ' . $updatedCheckout['status']);
                             } catch (Exception $e) {
@@ -1603,7 +1619,7 @@ class PaysonCheckout2 extends PaymentModule
                                 PrestaShopLogger::addLog('Order update fail: ' . $e->getMessage(), 3, null, null, null, true);
                             }
                         } else {
-                            $this->adminDisplayWarning($this->l('Payson order must have status Shipped before it can be set to Credited. Please log in to your PaysonAccount to manually edit order.'));
+                            $this->adminDisplayWarning($this->l('Payson order must have status Shipped, Waiting for send or Paid to account before it can be set to Credited. Please log in to your PaysonAccount to manually edit order.'));
                             PrestaShopLogger::addLog('Failed to update Payson order status to Credited. Payson order has wrong status: ' . $checkout['status'], 3, null, null, null, true);
                         }
                     }
