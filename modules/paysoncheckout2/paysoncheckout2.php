@@ -28,7 +28,7 @@ class PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.0.26';
+        $this->version = '3.0.27';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Payson AB';
         $this->module_key = '4015ee54469de01eaa9150b76054547e';
@@ -1036,14 +1036,17 @@ class PaysonCheckout2 extends PaymentModule
                 
                 PaysonCheckout2::paysonAddLog('Carrier ID: ' . $cart->id_carrier);
                 PaysonCheckout2::paysonAddLog('Checkout total: ' . $total);
-                
-                PaysonCheckout2::paysonAddLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH));
+                //PaysonCheckout2::paysonAddLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH));   
                 
                 // Create order
                 $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', array(), (int) $currency->id, false, $customer->secure_key);
 
                 // Get new order ID
-                $orderId = Order::getOrderByCartId((int) ($cart->id));
+                if (version_compare(_PS_VERSION_, '1.7.1.0', '>')) {
+                    $orderId = Order::getIdByCartId((int) ($cart->id));
+                } else { 
+                    $orderId = Order::getOrderByCartId((int) ($cart->id));
+                }
 
                 // Save order number in DB
                 $this->updatePaysonOrderEvent($checkout, $cart->id, (int) $orderId);
