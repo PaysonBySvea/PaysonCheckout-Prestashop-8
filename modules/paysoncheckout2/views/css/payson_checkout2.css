@@ -3,6 +3,11 @@
         border-bottom: none;
     }
 
+   .container {
+        padding-left: 3px;
+        padding-right: 0px;
+    }
+
     #module-paysoncheckout2-pconepage .modal-content {
             padding: 10px;
     }
