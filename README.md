@@ -4,6 +4,7 @@
 
 Module for PrestaShop implementing Payson Checkout
 * Support PrestaShop 1.7.x
+* Support PrestaShop 8
 
 ## Installation
 
