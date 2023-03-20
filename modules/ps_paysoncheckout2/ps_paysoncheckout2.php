@@ -28,7 +28,7 @@ class Ps_PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'ps_paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.1.5';
+        $this->version = '3.1.6';
         //$this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
         $this->author = 'Payson AB';
@@ -678,11 +678,11 @@ class Ps_PaysonCheckout2 extends PaymentModule
         $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) .
                 '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->tpl_vars = array(
+        $helper->tpl_vars = [
             'fields_value' => $this->getConfigFieldsValues(),
             'languages' => $this->context->controller->getLanguages(),
             'id_language' => $this->context->language->id,
-        );
+        ];
 
         return $helper;
     }
@@ -1039,7 +1039,7 @@ class Ps_PaysonCheckout2 extends PaymentModule
                 //Ps_PaysonCheckout2::paysonAddLog('Cart total: ' . $cart->getOrderTotal(true, Cart::BOTH));   
                 
                 // Create order
-                $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', array(), (int) $currency->id, false, $customer->secure_key);
+                $this->validateOrder((int) $cart->id, Configuration::get("PAYSONCHECKOUT2_ORDER_STATE_PAID"), $total, $this->displayName, $comment . '<br />', [], (int) $currency->id, false, $customer->secure_key);
 
                 // Get new order ID
                 if (version_compare(_PS_VERSION_, '1.7.1.0', '>')) {

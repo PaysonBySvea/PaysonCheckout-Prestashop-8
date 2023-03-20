@@ -20,6 +20,8 @@ class Ps_PaysonCheckout2NotificationsModuleFrontController extends ModuleFrontCo
     public function init()
     {
 
+        parent::init();
+
         // Give order confirmation a chance to finish
         sleep(2);
         
