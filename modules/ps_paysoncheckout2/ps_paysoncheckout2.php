@@ -28,7 +28,7 @@ class Ps_PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'ps_paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.1.6';
+        $this->version = '3.1.7';
         //$this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
         $this->author = 'Payson AB';
@@ -792,7 +792,7 @@ class Ps_PaysonCheckout2 extends PaymentModule
         if ((int) Configuration::get('PAYSONCHECKOUT2_MODULE_ENABLED') == 1) {
             $iframeOption = new PaymentOption();
             $iframeOption->setCallToActionText($this->l('Payson Checkout'))
-                    ->setAction($this->context->link->getModuleLink($this->name, 'pconepage', array('ref' => 'opm'), true))
+                    ->setAction($this->context->link->getModuleLink('ps_paysoncheckout2', 'pconepage', array('ref' => 'opm'), true))
                     ->setAdditionalInformation($this->context->smarty->fetch('module:ps_paysoncheckout2/views/templates/front/payment_infos.tpl'));
             //->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/logo.png'));
 
