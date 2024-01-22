@@ -122,9 +122,11 @@ class Ps_PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontCon
                             // Set reference
                             $ref = $order->reference;
                         }
-                        $checkout['merchant']['reference'] = $ref;
-                        $checkoutClient->update($checkout);
-                        
+
+                        if($payson->canUpdate($checkout['status'])){
+                            $checkout['merchant']['reference'] = $ref;
+                            $checkoutClient->update($checkout);
+                        }
                         Ps_PaysonCheckout2::paysonAddLog('New order ID: ' . $newOrderId);
                     } else {
                         Ps_PaysonCheckout2::paysonAddLog('Order already created.');
@@ -140,7 +142,8 @@ class Ps_PaysonCheckout2ConfirmationModuleFrontController extends ModuleFrontCon
                 case 'canceled':
                 case 'expired':
                 case 'shipped':
-                    throw new Exception($this->module->l('Unable to show confirmation.', 'confirmation') . ' ' . $this->module->l('Payment status was', 'confirmation') . ' "' . $checkout['status'] . '".');
+                    //throw new Exception($this->module->l('Unable to show confirmation.', 'confirmation') . ' ' . $this->module->l('Payment status was', 'confirmation') . ' "' . $checkout['status'] . '".');
+                    break;
                 default:
                     $redirect = 'index.php?fc=module&module=ps_paysoncheckout2&controller=pconepage';
                     $this->context->cookie->__set('validation_error', $this->module->l('Payment status was', 'confirmation') . ' "' . $checkout['status'] . '".');

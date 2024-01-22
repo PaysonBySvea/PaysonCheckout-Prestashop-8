@@ -28,7 +28,7 @@ class Ps_PaysonCheckout2 extends PaymentModule
     {
         $this->name = 'ps_paysoncheckout2';
         $this->tab = 'payments_gateways';
-        $this->version = '3.1.7';
+        $this->version = '3.1.8';
         //$this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
         $this->author = 'Payson AB';
