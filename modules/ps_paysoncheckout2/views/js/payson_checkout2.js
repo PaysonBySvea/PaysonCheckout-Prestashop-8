@@ -17,7 +17,7 @@ var reqInProcess = false;
 $(document).ready(function() {
     // React on cart change
     prestashop.on('updateCart',function (event) {
-        if (event.reason !== 'orderChange') {
+        if (event.resp !== 'orderChange') {
             sendLockDown();
             updateCheckout({pco_update: '1'}, false, true);
             refreshCarriers();
@@ -155,7 +155,7 @@ $(document).ready(function() {
                         }
                         if (updateCart === true) {
                             prestashop.emit('updateCart', {
-                                reason: 'orderChange'
+                                resp: 'orderChange'  //DU-598
                             });
                         }
                         sendRelease();
